@@ -47,7 +47,7 @@ export default function Index() {
 
   return (
     <LinearGradient
-      colors={["#0f172a", "#1e293b", "#312e81"]}
+      colors={["#0c1f48", "#162d51", "#312e81"]}
       start={{ x: 0, y: 1 }}
       end={{ x: 0, y: 0 }}
       style={styles.container}
@@ -58,7 +58,7 @@ export default function Index() {
         {/* ===== LOGO ===== */}
         <Animated.View style={[styles.logoContainer, animatedStyle]}>
           <Image
-            source={require("../assets/images/logo3.png")}
+            source={require("../assets/images/logo.png")}
             style={styles.logoImage}
             resizeMode="contain"
           />
@@ -87,6 +87,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 28,
+    gap: 10,
+    marginTop: 20
   },
 
   box: {
@@ -97,11 +99,15 @@ const styles = StyleSheet.create({
 
   logoContainer: {
     alignItems: "center",
+    backgroundColor: "#280f590a",
+    borderRadius: 160,
+    marginBottom: 30,
   },
   
   logoImage: {
-    width: 280,
-    height: 280,
+    width: 290,
+    height: 290,
+    marginBottom: -30
   },
 
 });

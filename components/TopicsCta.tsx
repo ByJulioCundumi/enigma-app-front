@@ -1,10 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Image,
+  Modal,
+  Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
@@ -15,6 +18,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -22,8 +26,18 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 export default function TopicsCta() {
   const float = useSharedValue(0);
   const sweep = useSharedValue(-200);
+  const scale = useSharedValue(0.8);
+
+  const [imageVisible, setImageVisible] = useState(false);
 
   const topic = "Naturaleza";
+
+  const currentLevel = 20;
+  const maxLevel = 100;
+  const progress = (currentLevel / maxLevel) * 100;
+
+  const mockImage =
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800";
 
   useEffect(() => {
     float.value = withRepeat(
@@ -42,60 +56,82 @@ export default function TopicsCta() {
     );
   }, []);
 
-  const floatStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: float.value }],
-  }));
+  useEffect(() => {
+    if (imageVisible) {
+      scale.value = withTiming(1, { duration: 250 });
+    } else {
+      scale.value = withTiming(0.8, { duration: 200 });
+    }
+  }, [imageVisible]);
 
   const sweepStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: sweep.value }, { rotate: "18deg" }],
   }));
 
+  const popupStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
     <View style={styles.wrapper}>
-      <Animated.View style={[styles.card, floatStyle]}>
+      <LinearGradient
+           colors={["#0f172a00", "#1e293b46", "#312e81a0"]}
+            start={{ x: 0, y: 1 }}
+            end={{ x: 0, y: 0 }}
+            style={styles.card}
+          >
 
-        {/* BLOBS DECORATIVOS */}
-        <Svg style={styles.blobTop} width={200} height={180} viewBox="0 0 200 200">
-          <Path
-            fill="rgba(255,255,255,0.08)"
-            d="M40,-60C55,-50,70,-40,75,-25C80,-10,75,10,65,25C55,40,40,50,25,60C10,70,-5,80,-20,75C-35,70,-50,55,-60,40C-70,25,-75,10,-70,-5C-65,-20,-50,-35,-35,-45C-20,-55,-10,-60,5,-65C20,-70,30,-70,40,-60Z"
-            transform="translate(100 100)"
-          />
-        </Svg>
-
-        <Svg style={styles.blobBottom} width={160} height={160} viewBox="0 0 200 200">
-          <Path
-            fill="rgba(255,255,255,0.05)"
-            d="M30,-50C45,-40,60,-30,65,-15C70,0,65,20,55,35C45,50,30,60,15,65C0,70,-15,70,-30,65C-45,60,-60,50,-65,35C-70,20,-65,0,-60,-15C-55,-30,-50,-40,-40,-50C-30,-60,-15,-70,0,-70C15,-70,30,-60,30,-50Z"
-            transform="translate(100 100)"
-          />
-        </Svg>
-
-        {/* CONTENIDO */}
         <View style={styles.content}>
-
-          {/* BADGE SIMPLE */}
-          <View style={styles.topicBadge}>
-            <Ionicons name="rocket" size={14} color="#fff" />
-            <Text style={styles.topicText}>Tema: {topic}</Text>
-          </View>
-
           <Text style={styles.description}>
             Es una formación natural de la Tierra que puede expulsar lava,
-            ceniza y gases. ?
+            ceniza y gases.
           </Text>
+
+          {/* 🔥 MINI IMAGEN */}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => setImageVisible(true)}
+            style={styles.imageWrapper}
+          >
+            <Image source={{ uri: mockImage }} style={styles.thumbnail} />
+          </TouchableOpacity>
+
+          <View style={styles.levelProgressWrapper}>
+            <View style={{flexDirection: "row", justifyContent: "space-between"}} >
+              <Text style={styles.levelTitle}>Tema: Naturaleza</Text>
+              <Text style={styles.percentageText}>{Math.round(progress)}%</Text>
+            </View>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${progress}%` }]} />
+            </View>
+          </View>
         </View>
 
-        {/* BOTÓN */}
         <TouchableOpacity activeOpacity={0.9} style={styles.buttonOuter}>
           <View style={styles.buttonInner}>
             <AnimatedView style={[styles.sweep, sweepStyle]} />
-            <Text style={styles.buttonText}>Jugar Enigma</Text>
-            <Ionicons name="rocket" size={20} color="#fff" />
+            <Text style={styles.buttonText}>Nivel: 28</Text>
           </View>
         </TouchableOpacity>
 
-      </Animated.View>
+      </LinearGradient>
+
+      {/* 🔥 POPUP IMAGEN */}
+      <Modal
+        visible={imageVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setImageVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setImageVisible(false)}
+        >
+          <Animated.View style={[styles.popupContainer, popupStyle]}>
+            <Image source={{ uri: mockImage }} style={styles.fullImage} />
+          </Animated.View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -108,64 +144,96 @@ const styles = StyleSheet.create({
 
   card: {
     width: width * 0.92,
-    backgroundColor: "#1e293b",
+    backgroundColor: "#03260363",
     borderRadius: 30,
     padding: 22,
     borderWidth: 1,
-    borderColor: "#334155",
-    overflow: "hidden",
-    position: "relative",
-  },
-
-  blobTop: {
-    position: "absolute",
-    top: -40,
-    right: -30,
-    zIndex: 0,
-  },
-
-  blobBottom: {
-    position: "absolute",
-    bottom: -50,
-    left: -40,
-    zIndex: 0,
+    borderColor: "#8e82b07b",
+    paddingTop: 30
   },
 
   content: {
-    zIndex: 2,
     marginBottom: 18,
-  },
-
-  /* 🔹 BADGE SIMPLE */
-  topicBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: "#334053",
-    paddingHorizontal: 14,
-    paddingVertical: 4,
-    borderRadius: 20,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: "#00ffb3",
-    flexDirection: "row",
-    gap: 7,
-    alignItems: "center"
-  },
-
-  topicText: {
-    color: "#00ffb3",
-    fontSize: 13,
-    fontWeight: "700",
+    gap: 10
   },
 
   description: {
-    color: "#e2e8f0",
+    color: "#c7c7c7ea",
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: "500",
-    backgroundColor: "#f3f3f31f",
+    fontWeight: "400",
     borderRadius: 10,
+    textAlign: "center",
+    paddingHorizontal: 10,
     paddingVertical: 5,
-    paddingHorizontal: 10
+    backgroundColor: "#ffffff10"
+  },
+
+  /* MINI IMAGEN */
+  imageWrapper: {
+    alignSelf: "center",
+    marginBottom: 14,
+    position: "absolute",
+    top: -80,
+  },
+
+  thumbnail: {
+    width: 70,
+    height: 70,
+    borderRadius: 58,
+    borderWidth: 3,
+    borderColor: "#ffc400bb",
+  },
+
+  /* POPUP */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.85)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  popupContainer: {
+    width: width * 0.85,
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+
+  fullImage: {
+    width: "100%",
+    height: width * 0.85,
+    borderRadius: 20,
+  },
+
+  /* PROGRESO */
+  levelProgressWrapper: {
+    flexDirection: "column",
+    gap: 6,
+  },
+
+  levelTitle: {
+    color: "#d5b54a",
+    fontWeight: "500",
+    fontSize: 14.5,
+  },
+
+  progressBar: {
+    width: "100%", 
+    height: 5,
+    backgroundColor: "#334053",
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#ffc400",
+  },
+
+  percentageText: {
+    color: "#ffc400",
+    fontWeight: "700",
+    fontSize: 13,
   },
 
   buttonOuter: {
@@ -174,7 +242,7 @@ const styles = StyleSheet.create({
   },
 
   buttonInner: {
-    backgroundColor: "#ffc400",
+    backgroundColor: "#ffb300",
     borderRadius: 20,
     paddingVertical: 16,
     flexDirection: "row",

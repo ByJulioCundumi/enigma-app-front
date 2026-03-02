@@ -11,7 +11,6 @@ export default function RootLayout() {
   if (Platform.OS !== "android") return;
 
   const enableImmersiveMode = async () => {
-    await NavigationBar.setBehaviorAsync("overlay-swipe"); 
     await NavigationBar.setVisibilityAsync("hidden");
   };
 
