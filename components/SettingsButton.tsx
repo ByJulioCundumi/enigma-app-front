@@ -23,7 +23,7 @@ export default function SettingsButton() {
         onPress={() => setVisible(true)}
         activeOpacity={0.8}
       >
-        <Ionicons name="settings" size={26} color="#fff" />
+        <Ionicons name="settings" size={26} color="#755dff" />
       </TouchableOpacity>
 
       {/* MODAL */}
@@ -94,6 +94,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
+    borderWidth: 2,
+    borderColor: "#ffffff3d"
   },
 
   overlay: {

@@ -78,7 +78,7 @@ export default function GameModeSelector({ onModeChange }: Props) {
         >
           <Ionicons name="game-controller" size={18} color="#fff" />
           <Text style={styles.mainButtonText}>
-            Modo de Juego / {modeLabel}
+            Modo: {modeLabel}
           </Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -91,7 +91,7 @@ export default function GameModeSelector({ onModeChange }: Props) {
           <Animated.View style={[styles.sheet, animatedSheet]}>
             <View style={styles.handle} />
 
-            <Text style={styles.title}>Selecciona el modo</Text>
+            <Text style={styles.title}>Modalidad De Juego</Text>
 
             <View style={styles.modesContainer}>
               <ModeCard
@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
   mainButton: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: 8,
     paddingVertical: 14,
     paddingHorizontal: 22,
@@ -196,6 +197,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 8 },
     elevation: 12,
+    minWidth: 250,
   },
 
   mainButtonText: {

@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
 
   box: {
-    gap: 20
+    gap: 50
   },
 
   /* ===== LOGO ===== */
@@ -101,13 +101,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#280f590a",
     borderRadius: 160,
-    marginBottom: 30,
   },
   
   logoImage: {
     width: 290,
     height: 290,
-    marginBottom: -30
+    marginBottom: -45
   },
 
 });

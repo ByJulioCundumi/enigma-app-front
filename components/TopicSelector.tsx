@@ -187,7 +187,7 @@ export default function TopicSelector() {
         style={styles.fab}
         onPress={() => setModalVisible(true)}
       >
-        <Ionicons name="grid" size={18} color="#fff" />
+        <Ionicons name="grid" size={18} color="#755dff" />
         <Text style={styles.fabText}>Temas</Text>
       </TouchableOpacity>
 
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 45,
-    backgroundColor: "#8891aa",
+    backgroundColor: "#1e293b",
     justifyContent: "center",
     alignItems: "center",
     elevation: 8,

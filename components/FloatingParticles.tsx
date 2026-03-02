@@ -11,7 +11,7 @@ import Animated, {
 
 const { width, height } = Dimensions.get("window");
 
-const PARTICLES = 3; // 🔥 puedes subir a 12 si quieres más densidad
+const PARTICLES = 10; // 🔥 puedes subir a 12 si quieres más densidad
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 

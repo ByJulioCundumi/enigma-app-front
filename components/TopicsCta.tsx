@@ -9,7 +9,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome, FontAwesome6, SimpleLineIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,14 +17,12 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
-import Svg, { Path } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function TopicsCta() {
-  const float = useSharedValue(0);
   const sweep = useSharedValue(-200);
   const scale = useSharedValue(0.8);
 
@@ -40,12 +38,6 @@ export default function TopicsCta() {
     "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800";
 
   useEffect(() => {
-    float.value = withRepeat(
-      withTiming(-8, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-
     sweep.value = withRepeat(
       withTiming(width + 200, {
         duration: 2600,
@@ -57,11 +49,7 @@ export default function TopicsCta() {
   }, []);
 
   useEffect(() => {
-    if (imageVisible) {
-      scale.value = withTiming(1, { duration: 250 });
-    } else {
-      scale.value = withTiming(0.8, { duration: 200 });
-    }
+    scale.value = withTiming(imageVisible ? 1 : 0.8, { duration: 250 });
   }, [imageVisible]);
 
   const sweepStyle = useAnimatedStyle(() => ({
@@ -74,49 +62,67 @@ export default function TopicsCta() {
 
   return (
     <View style={styles.wrapper}>
+      
+      {/* TARJETA */}
       <LinearGradient
-           colors={["#0f172a00", "#1e293b46", "#312e81a0"]}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 0, y: 0 }}
-            style={styles.card}
-          >
-
+        colors={["#11657077", "#1e293b46", "#312e81a0"]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.card}
+      >
         <View style={styles.content}>
-          <Text style={styles.description}>
-            Es una formación natural de la Tierra que puede expulsar lava,
-            ceniza y gases.
-          </Text>
+          
+          {/* FILA IMAGEN + DESCRIPCIÓN */}
+          <View style={styles.row}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => setImageVisible(true)}
+            >
+              <View style={styles.thumbnailCard}>
+                <Image source={{ uri: mockImage }} style={styles.thumbnail} />
 
-          {/* 🔥 MINI IMAGEN */}
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => setImageVisible(true)}
-            style={styles.imageWrapper}
-          >
-            <Image source={{ uri: mockImage }} style={styles.thumbnail} />
-          </TouchableOpacity>
+                <LinearGradient
+                  colors={["transparent", "rgba(0,0,0,0.6)"]}
+                  style={styles.thumbnailOverlay}
+                />
 
-          <View style={styles.levelProgressWrapper}>
-            <View style={{flexDirection: "row", justifyContent: "space-between"}} >
-              <Text style={styles.levelTitle}>Tema: Naturaleza</Text>
-              <Text style={styles.percentageText}>{Math.round(progress)}%</Text>
+                <View style={styles.questionBadge}>
+                  <FontAwesome name="arrows-h" size={18} color="#091a52" />
+                </View>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.descriptionContainer}>
+              <Text style={styles.description}>
+                Es una formación natural de la Tierra que puede expulsar lava,
+                ceniza y gases.
+              </Text>
             </View>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${progress}%` }]} />
+          </View>
+
+          {/* PROGRESO */}
+          <View style={styles.levelProgressWrapper}>
+            <View style={styles.progressHeader}>
+              <Text style={styles.levelTitle}>Tema:  {topic}</Text>
+              <Text style={styles.percentageText}>
+                0/100  <SimpleLineIcons name="present" size={14} color="#48ff8e" />
+              </Text>
             </View>
           </View>
         </View>
-
-        <TouchableOpacity activeOpacity={0.9} style={styles.buttonOuter}>
-          <View style={styles.buttonInner}>
-            <AnimatedView style={[styles.sweep, sweepStyle]} />
-            <Text style={styles.buttonText}>Nivel: 28</Text>
-          </View>
-        </TouchableOpacity>
-
       </LinearGradient>
 
-      {/* 🔥 POPUP IMAGEN */}
+      {/* BOTÓN FUERA DE LA TARJETA */}
+      <TouchableOpacity activeOpacity={0.9} style={styles.buttonOuter}>
+        <View style={styles.buttonInner}>
+          <AnimatedView style={[styles.sweep, sweepStyle]} />
+          <Text style={styles.buttonText}>
+            Jugar Enigma
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* POPUP */}
       <Modal
         visible={imageVisible}
         transparent
@@ -144,48 +150,147 @@ const styles = StyleSheet.create({
 
   card: {
     width: width * 0.92,
-    backgroundColor: "#03260363",
     borderRadius: 30,
-    padding: 22,
+    paddingHorizontal: 22,
+    paddingVertical: 15,
     borderWidth: 1,
-    borderColor: "#8e82b07b",
-    paddingTop: 30
+    borderColor: "rgba(21, 19, 49, 0.14)",
   },
 
   content: {
-    marginBottom: 18,
-    gap: 10
+    gap: 10,
+  },
+
+  row: {
+    flexDirection: "row",
+    gap: 16,
+    alignItems: "center",
+  },
+
+  descriptionContainer: {
+    flex: 1,
   },
 
   description: {
-    color: "#c7c7c7ea",
+    color: "#e5e7eb",
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: "400",
-    borderRadius: 10,
-    textAlign: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "#ffffff10"
+    padding: 12,
+    backgroundColor: "#ffffff10",
+    borderRadius: 12,
   },
 
-  /* MINI IMAGEN */
-  imageWrapper: {
-    alignSelf: "center",
-    marginBottom: 14,
-    position: "absolute",
-    top: -80,
+  thumbnailCard: {
+    width: 80,
+    height: 110,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#ffffff00",
   },
 
   thumbnail: {
-    width: 70,
-    height: 70,
-    borderRadius: 58,
-    borderWidth: 3,
-    borderColor: "#ffc400bb",
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#fff"
   },
 
-  /* POPUP */
+  thumbnailOverlay: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    height: "40%",
+    borderRadius: 16,
+  },
+
+  questionBadge: {
+    position: "absolute",
+    bottom: 35,
+    right: -12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
+  },
+
+  levelProgressWrapper: {
+    gap: 6,
+  },
+
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  levelTitle: {
+    color: "#48ff8e",
+    fontWeight: "600",
+    fontSize: 14.5,
+  },
+
+  progressBar: {
+    width: "100%",
+    height: 6,
+    backgroundColor: "#30303091",
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#48ff8e",
+  },
+
+  percentageText: {
+    display: "flex",
+    color: "#48ff8e",
+    fontWeight: "700",
+    fontSize: 13,
+    gap: 10
+  },
+
+  /* BOTÓN */
+  buttonOuter: {
+    marginTop: 18,
+    width: width * 0.66,
+    borderRadius: 24,
+    shadowColor: "#6366f1",
+    shadowOpacity: 0.7,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 12,
+  },
+
+  buttonInner: {
+    backgroundColor: "#5153ff",
+    borderRadius: 16,
+    paddingVertical: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#e7e7e7af",
+  },
+
+  buttonText: {
+    color: "#ffffff",
+    fontWeight: "900",
+    fontSize: 17,
+    letterSpacing: 1,
+  },
+
+  sweep: {
+    position: "absolute",
+    width: 20,
+    height: "250%",
+    backgroundColor: "rgba(255,255,255,0.8)",
+    opacity: 0.3,
+  },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.85)",
@@ -202,70 +307,5 @@ const styles = StyleSheet.create({
   fullImage: {
     width: "100%",
     height: width * 0.85,
-    borderRadius: 20,
-  },
-
-  /* PROGRESO */
-  levelProgressWrapper: {
-    flexDirection: "column",
-    gap: 6,
-  },
-
-  levelTitle: {
-    color: "#d5b54a",
-    fontWeight: "500",
-    fontSize: 14.5,
-  },
-
-  progressBar: {
-    width: "100%", 
-    height: 5,
-    backgroundColor: "#334053",
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#ffc400",
-  },
-
-  percentageText: {
-    color: "#ffc400",
-    fontWeight: "700",
-    fontSize: 13,
-  },
-
-  buttonOuter: {
-    backgroundColor: "#ffdd81",
-    borderRadius: 24,
-  },
-
-  buttonInner: {
-    backgroundColor: "#ffb300",
-    borderRadius: 20,
-    paddingVertical: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#ffffff40",
-    gap: 10,
-  },
-
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: "900",
-    fontSize: 17,
-    letterSpacing: 1,
-  },
-
-  sweep: {
-    position: "absolute",
-    width: 20,
-    height: "250%",
-    backgroundColor: "rgba(255,255,255,0.8)",
-    opacity: 0.3,
   },
 });
