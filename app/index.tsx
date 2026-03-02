@@ -1,20 +1,23 @@
-import { StyleSheet, View, Text, TouchableOpacity, Image } from "react-native";
+import FloatingParticles from "@/components/FloatingParticles";
+import GameModeSelector from "@/components/GameModeSelector";
+import SettingsButton from "@/components/SettingsButton";
+import TopicsCta from "@/components/TopicsCta";
+import TopicSelector from "@/components/TopicSelector";
+import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
-import FloatingParticles from "@/components/FloatingParticles";
+import { Image, StyleSheet, View } from "react-native";
 import Animated, {
-  useSharedValue,
+  Easing,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withTiming,
-  Easing,
 } from "react-native-reanimated";
-import TopicsCta from "@/components/TopicsCta";
-import GameModeSelector from "@/components/GameModeSelector";
-import TopicSelector from "@/components/TopicSelector";
-import SettingsButton from "@/components/SettingsButton";
+import { useDispatch } from "react-redux";
 
 export default function Index() {
+  const dispatch = useDispatch();
   const floatY = useSharedValue(0);
   const scale = useSharedValue(1);
 
@@ -25,7 +28,7 @@ export default function Index() {
         easing: Easing.inOut(Easing.ease),
       }),
       -1,
-      true
+      true,
     );
 
     scale.value = withRepeat(
@@ -34,15 +37,16 @@ export default function Index() {
         easing: Easing.inOut(Easing.ease),
       }),
       -1,
-      true
+      true,
     );
   }, []);
 
+  useEffect(() => {
+    dispatch(setCurrentPage("index"));
+  }, []);
+
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: floatY.value },
-      { scale: scale.value },
-    ],
+    transform: [{ translateY: floatY.value }, { scale: scale.value }],
   }));
 
   return (
@@ -66,12 +70,12 @@ export default function Index() {
 
         {/* ===== DESCRIPCIÓN PREMIUM ===== */}
         <View style={styles.box}>
-          <TopicsCta/>
-          <GameModeSelector/>
+          <TopicsCta />
+          <GameModeSelector />
         </View>
 
-        <SettingsButton/>
-        <TopicSelector/>
+        <SettingsButton />
+        <TopicSelector />
       </View>
     </LinearGradient>
   );
@@ -88,11 +92,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 28,
     gap: 10,
-    marginTop: 40
+    marginTop: 40,
   },
 
   box: {
-    gap: 60
+    gap: 60,
   },
 
   /* ===== LOGO ===== */
@@ -102,11 +106,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#280f590a",
     borderRadius: 160,
   },
-  
+
   logoImage: {
     width: 260,
     height: 260,
-    marginBottom: -45
+    marginBottom: -45,
   },
-
 });

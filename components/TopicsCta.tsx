@@ -18,6 +18,9 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
 
 const { width } = Dimensions.get("window");
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -27,6 +30,8 @@ export default function TopicsCta() {
   const scale = useSharedValue(0.8);
 
   const [imageVisible, setImageVisible] = useState(false);
+  const {currentPage} = useSelector((state:IRootState)=>state.currentPage)
+  const router = useRouter()
 
   const topic = "Naturaleza";
 
@@ -59,6 +64,8 @@ export default function TopicsCta() {
   const popupStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+
+
 
   return (
     <View style={styles.wrapper}>
@@ -113,7 +120,8 @@ export default function TopicsCta() {
       </LinearGradient>
 
       {/* BOTÓN FUERA DE LA TARJETA */}
-      <TouchableOpacity activeOpacity={0.9} style={styles.buttonOuter}>
+      {
+        currentPage === "index" && <TouchableOpacity activeOpacity={0.9} style={styles.buttonOuter} onPress={()=> router.replace("/GameRoom")}>
         <View style={styles.buttonInner}>
           <AnimatedView style={[styles.sweep, sweepStyle]} />
           <Text style={styles.buttonText}>
@@ -121,6 +129,7 @@ export default function TopicsCta() {
           </Text>
         </View>
       </TouchableOpacity>
+      }
 
       {/* POPUP */}
       <Modal
@@ -146,6 +155,7 @@ const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
     alignItems: "center",
+    height: "auto"
   },
 
   card: {
@@ -155,6 +165,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderWidth: 1,
     borderColor: "rgba(21, 19, 49, 0.14)",
+    height: "auto"
   },
 
   content: {
@@ -178,6 +189,7 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "#ffffff10",
     borderRadius: 12,
+    textAlign: "left",
   },
 
   thumbnailCard: {

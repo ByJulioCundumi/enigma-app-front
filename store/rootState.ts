@@ -1,5 +1,5 @@
-import { INavbar } from "./reducers/navbarSlice";
+import { ICurrentPage } from "./reducers/currentPageSlice";
 
-export interface IRootState{
-    navbar: INavbar
+export interface IRootState {
+  currentPage: ICurrentPage;
 }

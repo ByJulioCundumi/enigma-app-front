@@ -14,6 +14,10 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useSelector, useDispatch } from "react-redux";
+import { IRootState } from "@/store/rootState";
+import { setCurrentPage } from "@/store/reducers/currentPageSlice";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -28,28 +32,51 @@ export default function TopBar({
   coins = 221,
   level = 27,
 }: Props) {
+  const dispatch = useDispatch();
+  const router = useRouter()
+  const { currentPage } = useSelector(
+    (state: IRootState) => state.currentPage
+  );
+
+  const goToIndex = () => {
+    router.replace("/")
+    dispatch(setCurrentPage("index"));
+  };
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-        
-        {/* VIP */}
-        <TouchableOpacity activeOpacity={0.85} style={styles.vipWrapper}>
-          <LinearGradient
-            colors={["#6366F1", "#8B5CF6", "#F59E0B"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.vipOuter}
+
+        {/* IZQUIERDA DINÁMICA */}
+        {currentPage === "index" && (
+          <TouchableOpacity activeOpacity={0.85} style={styles.vipWrapper}>
+            <LinearGradient
+              colors={["#6366F1", "#8B5CF6", "#F59E0B"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.vipOuter}
+            >
+              <View style={styles.vipInner}>
+                <MaterialIcons
+                  name="workspace-premium"
+                  size={14}
+                  color="#FBBF24"
+                />
+                <Text style={styles.vipText}>Hazte VIP</Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+
+        {currentPage === "gameRoom" && (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.backButton}
+            onPress={goToIndex}
           >
-            <View style={styles.vipInner}>
-              <MaterialIcons
-                name="workspace-premium"
-                size={14}
-                color="#FBBF24"
-              />
-              <Text style={styles.vipText}>Hazte VIP</Text>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
+            <Ionicons name="arrow-back" size={20} color="#fff" />
+          </TouchableOpacity>
+        )}
 
         {/* STATS */}
         <View style={styles.statsContainer}>
@@ -87,11 +114,9 @@ export default function TopBar({
               <Text style={styles.levelNumber}>{level}</Text>
             </View>
 
-            {/* BADGE LV */}
             <View style={styles.levelBadge}>
               <Text style={styles.levelBadgeText}>Lv</Text>
             </View>
-
           </LinearGradient>
         </TouchableOpacity>
 
@@ -161,6 +186,18 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.12)",
   },
 
+  /* BOTÓN VOLVER */
+
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 4,
+  },
+
   /* VIP */
 
   vipWrapper: {
@@ -168,7 +205,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: -5
+    marginRight: -5,
   },
 
   vipOuter: {
@@ -279,8 +316,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "900",
   },
-
-  /* BADGE LV */
 
   levelBadge: {
     position: "absolute",

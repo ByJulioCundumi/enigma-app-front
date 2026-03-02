@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
-import navbarSlice from "@/store/reducers/navbarSlice"
+import currentPageSlice from "@/store/reducers/currentPageSlice"
 
 export const store = configureStore({
   reducer: {
-    navbar: navbarSlice
+    currentPage: currentPageSlice
   },
 })
