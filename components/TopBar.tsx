@@ -11,12 +11,11 @@ import {
   FontAwesome5,
   FontAwesome6,
   Ionicons,
-  MaterialCommunityIcons,
+  MaterialIcons,
 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
-const CONTAINER_WIDTH = width * 0.92;
 
 interface Props {
   lives?: number;
@@ -32,71 +31,76 @@ export default function TopBar({
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-        {/* ===== LEFT: LEVEL CIRCLE ===== */}
-        <View style={styles.leftContainer}>
-          <TouchableOpacity activeOpacity={0.85}>
-            <LinearGradient
-              colors={["#6366F1", "#ffbb00", "#6366F1"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.levelOuter}
-            >
-              <View style={styles.levelInner}>
-                <Text style={styles.levelText}>Lv.{level}</Text>
-              </View>
-            </LinearGradient>
-
-            {/* ⭐ LEVEL ICON BADGE */}
-            <View style={styles.levelIconBadge}>
-              <LinearGradient
-                colors={["#041c49", "#041c49"]}
-                style={styles.levelIconInner}
-              >
-                <FontAwesome6 name="ranking-star" size={8} color="#FFD700" />
-              </LinearGradient>
+        
+        {/* VIP */}
+        <TouchableOpacity activeOpacity={0.85} style={styles.vipWrapper}>
+          <LinearGradient
+            colors={["#6366F1", "#8B5CF6", "#F59E0B"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.vipOuter}
+          >
+            <View style={styles.vipInner}>
+              <MaterialIcons
+                name="workspace-premium"
+                size={14}
+                color="#FBBF24"
+              />
+              <Text style={styles.vipText}>Hazte VIP</Text>
             </View>
-          </TouchableOpacity>
-        </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
-        {/* ===== CENTER: STATS ===== */}
+        {/* STATS */}
         <View style={styles.statsContainer}>
           <Stat
-            type="lives"
             icon={
               <FontAwesome6
                 name="heart-circle-bolt"
-                size={17}
+                size={15}
                 color="#ff5c7c"
               />
             }
             value={lives}
+            type="lives"
           />
           <Stat
-            type="coins"
-            icon={<FontAwesome5 name="coins" size={16} color="#FBBF24" />}
+            icon={
+              <FontAwesome5
+                name="coins"
+                size={14}
+                color="#FBBF24"
+              />
+            }
             value={coins}
+            type="coins"
           />
         </View>
 
-        {/* ===== RIGHT: REWARD BUTTON ===== */}
-        <TouchableOpacity style={styles.rewardButton} activeOpacity={0.85}>
-          <View style={styles.rewardContent}>
-            <MaterialCommunityIcons
-              name="movie-open-play"
-              size={18}
-              color="#FFC83D"
-            />
-            <FontAwesome5 name="coins" size={12} color="#FFC83D" />
-          </View>
+        {/* LEVEL */}
+        <TouchableOpacity activeOpacity={0.85} style={styles.levelWrapper}>
+          <LinearGradient
+            colors={["#6366F1", "#8B5CF6", "#F59E0B"]}
+            style={styles.levelOuter}
+          >
+            <View style={styles.levelInner}>
+              <Text style={styles.levelNumber}>{level}</Text>
+            </View>
+
+            {/* BADGE LV */}
+            <View style={styles.levelBadge}>
+              <Text style={styles.levelBadgeText}>Lv</Text>
+            </View>
+
+          </LinearGradient>
         </TouchableOpacity>
+
       </View>
     </View>
   );
 }
 
-/* ============================= */
-/*        STAT COMPONENT         */
-/* ============================= */
+/* ================= STAT ================= */
 
 const formatNumber = (num: number) => {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
@@ -119,23 +123,27 @@ const Stat = ({ icon, value, type }: any) => {
       <Text style={styles.statText} numberOfLines={1}>
         {formatNumber(value)}
       </Text>
-      <View style={[styles.plusButton, isLives && styles.plusLives]}>
-        <Ionicons name="add" size={12} color="#ffffff" />
+      <View
+        style={[
+          styles.plusButton,
+          isLives && styles.plusLives,
+        ]}
+      >
+        <Ionicons name="add" size={10} color="#fff" />
       </View>
     </TouchableOpacity>
   );
 };
 
-/* ============================= */
-/*            STYLES             */
-/* ============================= */
+/* ================= STYLES ================= */
 
-const LEVEL_SIZE = 46;
+const LEVEL_SIZE = 44;
+const BADGE_SIZE = 18;
 
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
-    top: Platform.OS === "ios" ? 55 : 40,
+    top: Platform.OS === "ios" ? 60 : 45,
     width: "100%",
     alignItems: "center",
     zIndex: 20,
@@ -144,24 +152,110 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    width: CONTAINER_WIDTH,
+    width: width * 0.95,
     height: 64,
-    borderRadius: 26,
-    paddingHorizontal: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 28,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(17, 24, 39, 0.65)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    borderColor: "rgba(255,255,255,0.12)",
   },
 
-  leftContainer: {
+  /* VIP */
+
+  vipWrapper: {
+    height: 37,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
-    width: LEVEL_SIZE,
-    marginRight: 2,
+    marginRight: -5
   },
 
-  /* LEVEL CIRCLE */
+  vipOuter: {
+    height: 37,
+    borderRadius: 22,
+    padding: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  vipInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    paddingHorizontal: 12,
+    height: "100%",
+    borderRadius: 20,
+    backgroundColor: "#0f172a",
+  },
+
+  vipText: {
+    fontSize: 11,
+    fontWeight: "900",
+    color: "#FBBF24",
+    letterSpacing: 0.5,
+  },
+
+  /* STATS */
+
+  statsContainer: {
+    flexDirection: "row",
+    flex: 1,
+    justifyContent: "center",
+    gap: 6,
+    paddingHorizontal: 6,
+  },
+
+  statBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    height: 32,
+    borderRadius: 20,
+  },
+
+  livesBadge: {
+    backgroundColor: "rgba(255,92,124,0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(255,92,124,0.35)",
+  },
+
+  coinsBadge: {
+    backgroundColor: "rgba(251,191,36,0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(251,191,36,0.35)",
+  },
+
+  statText: {
+    marginLeft: 4,
+    fontSize: 11,
+    fontWeight: "900",
+    color: "#fff",
+  },
+
+  plusButton: {
+    marginLeft: 6,
+    width: 15,
+    height: 15,
+    borderRadius: 8,
+    backgroundColor: "#FBBF24",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  plusLives: {
+    backgroundColor: "#ff5c7c",
+  },
+
+  /* LEVEL */
+
+  levelWrapper: {
+    width: LEVEL_SIZE,
+    height: LEVEL_SIZE,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
   levelOuter: {
     width: LEVEL_SIZE,
@@ -175,114 +269,36 @@ const styles = StyleSheet.create({
     width: LEVEL_SIZE - 6,
     height: LEVEL_SIZE - 6,
     borderRadius: (LEVEL_SIZE - 6) / 2,
-    backgroundColor: "#041c49",
+    backgroundColor: "#0f172a",
     justifyContent: "center",
     alignItems: "center",
   },
 
-  levelText: {
-    color: "#ffffff",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 0,
-  },
-
-  /* LEVEL ICON BADGE */
-
-  levelIconBadge: {
-    position: "absolute",
-    top: -0,
-    right: -6,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  levelIconInner: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgb(255, 196, 0)",
-  },
-
-  /* STATS */
-
-  statsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-
-  statBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    height: 32,
-    borderRadius: 20,
-    minWidth: 55,
-  },
-
-  livesBadge: {
-    backgroundColor: "rgba(241,96,123,0.18)",
-    borderWidth: 1,
-    borderColor: "rgba(223,94,118,0.38)",
-  },
-
-  coinsBadge: {
-    backgroundColor: "rgba(251,191,36,0.15)",
-    borderWidth: 1,
-    borderColor: "rgba(251,191,36,0.4)",
-  },
-
-  statText: {
-    marginLeft: 5,
-    fontSize: 11.5,
-    fontWeight: "900",
+  levelNumber: {
     color: "#fff",
-  },
-
-  plusButton: {
-    marginLeft: 6,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: "#FBBF24",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  plusLives: {
-    backgroundColor: "#ff5c7c",
-  },
-
-  /* REWARD BUTTON */
-
-  rewardButton: {
-    height: 34,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    backgroundColor: "#111827",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1.2,
-    borderColor: "#FFD700",
-  },
-
-  rewardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-
-  rewardText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "900",
-    color: "#FFD700",
-    letterSpacing: 0.5,
+  },
+
+  /* BADGE LV */
+
+  levelBadge: {
+    position: "absolute",
+    bottom: 3,
+    left: -5,
+    width: BADGE_SIZE,
+    height: BADGE_SIZE,
+    borderRadius: BADGE_SIZE / 2,
+    backgroundColor: "#140f2a",
+    borderWidth: 1.5,
+    borderColor: "#7852ff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  levelBadgeText: {
+    color: "#fff",
+    fontSize: 8,
+    fontWeight: "900",
   },
 });
