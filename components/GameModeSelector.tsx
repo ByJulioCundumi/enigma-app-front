@@ -2,19 +2,18 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  Modal,
-  Pressable,
+  TouchableOpacity,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
+  interpolate,
+  interpolateColor,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 type Mode = "normal" | "survival";
 
@@ -22,160 +21,162 @@ interface Props {
   onModeChange?: (mode: Mode) => void;
 }
 
-export default function GameModeSelector({ onModeChange }: Props) {
-  const [visible, setVisible] = useState(false);
-  const [selectedMode, setSelectedMode] = useState<Mode>("normal");
+const SWITCH_WIDTH = 300;
+const SWITCH_HEIGHT = 50;
+const OPTION_WIDTH = SWITCH_WIDTH / 2;
 
-  const translateY = useSharedValue(400);
-  const opacity = useSharedValue(0);
+export default function GameModeSelector({ onModeChange }: Props) {
+  const [selectedMode, setSelectedMode] =
+    useState<Mode>("normal");
+
+  const progress = useSharedValue(0);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
-    if (visible) {
-      translateY.value = withSpring(0, {
-        damping: 18,
-        stiffness: 120,
-      });
-      opacity.value = withTiming(1, { duration: 200 });
-    }
-  }, [visible]);
+    progress.value = withSpring(
+      selectedMode === "normal" ? 0 : 1,
+      {
+        damping: 12,
+        stiffness: 180,
+        mass: 0.8,
+      }
+    );
+  }, [selectedMode]);
 
-  const closeModal = () => {
-    translateY.value = withTiming(400, { duration: 250 });
-    opacity.value = withTiming(0, { duration: 200 });
-    setTimeout(() => setVisible(false), 250);
-  };
+  const handleChange = (mode: Mode) => {
+    scale.value = withSpring(0.95, { damping: 10 });
+    setTimeout(() => {
+      scale.value = withSpring(1);
+    }, 120);
 
-  const selectMode = (mode: Mode) => {
     setSelectedMode(mode);
     onModeChange?.(mode);
-    closeModal();
   };
 
-  const animatedSheet = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
+  /* ===== Indicador animado ===== */
 
-  const animatedOverlay = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
+  const animatedIndicator = useAnimatedStyle(() => {
+    const translateX = interpolate(
+      progress.value,
+      [0, 1],
+      [0, OPTION_WIDTH]
+    );
 
-  const modeLabel =
-    selectedMode === "normal" ? "Normal" : "Supervivencia";
+    const dynamicScale = interpolate(
+      progress.value,
+      [0, 0.5, 1],
+      [1, 1.05, 1]
+    );
+
+    return {
+      transform: [
+        { translateX },
+        { scale: dynamicScale },
+      ],
+    };
+  });
+
+  /* ===== Glow dinámico ===== */
+
+  const animatedContainer = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      ["#0f172a", "#111827"]
+    );
+
+    return {
+      backgroundColor,
+      transform: [{ scale: scale.value }],
+    };
+  });
 
   return (
-    <>
-      {/* ===== BOTÓN PRINCIPAL ===== */}
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={() => setVisible(true)}
-        style={{ alignSelf: "center" }}
+    <View style={styles.wrapper}>
+      <Text style={styles.label}>
+        Modalidad de Juego
+      </Text>
+
+      <Animated.View
+        style={[
+          styles.switchContainer,
+          animatedContainer,
+        ]}
       >
-        <LinearGradient
-          colors={["#6366f1", "#4f46e5"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.mainButton}
-        >
-          <Ionicons name="game-controller" size={18} color="#fff" />
-          <Text style={styles.mainButtonText}>
-            Modo: {modeLabel}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
-
-      {/* ===== MODAL ===== */}
-      <Modal transparent visible={visible} animationType="none">
-        <Animated.View style={[styles.overlay, animatedOverlay]}>
-          <Pressable style={{ flex: 1 }} onPress={closeModal} />
-
-          <Animated.View style={[styles.sheet, animatedSheet]}>
-            <View style={styles.handle} />
-
-            <Text style={styles.title}>Modalidad De Juego</Text>
-
-            <View style={styles.modesContainer}>
-              <ModeCard
-                icon="flash"
-                title="Modo Normal"
-                description="Juego clásico sin límite de tiempo"
-                active={selectedMode === "normal"}
-                onPress={() => selectMode("normal")}
-              />
-
-              <ModeCard
-                icon="timer"
-                title="Supervivencia"
-                description="Contra reloj hasta fallar"
-                active={selectedMode === "survival"}
-                onPress={() => selectMode("survival")}
-              />
-            </View>
-          </Animated.View>
-        </Animated.View>
-      </Modal>
-    </>
-  );
-}
-
-/* ========================= */
-/* ===== MODE CARD ===== */
-/* ========================= */
-
-function ModeCard({
-  icon,
-  title,
-  description,
-  active,
-  onPress,
-}: {
-  icon: any;
-  title: string;
-  description: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={onPress}
-      style={[
-        styles.modeCard,
-        active && styles.modeCardActive,
-      ]}
-    >
-      <View style={styles.modeLeft}>
-        <View
+        {/* Indicador */}
+        <Animated.View
           style={[
-            styles.iconWrapper,
-            active && styles.iconWrapperActive,
+            styles.animatedIndicator,
+            animatedIndicator,
           ]}
         >
-          <Ionicons
-            name={icon}
-            size={18}
-            color={active ? "#fff" : "#cbd5e1"}
+          <LinearGradient
+            colors={
+              selectedMode === "normal"
+                ? ["#6366f1", "#4f46e5"]
+                : ["#6366f1", "#4f46e5"]
+            }
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradientFill}
           />
-        </View>
+        </Animated.View>
 
-        <View>
+        {/* Normal */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.option}
+          onPress={() => handleChange("normal")}
+        >
+          <Ionicons
+            name="flash"
+            size={16}
+            color={
+              selectedMode === "normal"
+                ? "#fff"
+                : "#94a3b8"
+            }
+          />
           <Text
             style={[
-              styles.modeTitle,
-              active && styles.modeTitleActive,
+              styles.optionText,
+              selectedMode === "normal" &&
+                styles.activeText,
             ]}
           >
-            {title}
+            Normal
           </Text>
-          <Text style={styles.modeDescription}>
-            {description}
-          </Text>
-        </View>
-      </View>
+        </TouchableOpacity>
 
-      {active && (
-        <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-      )}
-    </TouchableOpacity>
+        {/* Survival */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.option}
+          onPress={() =>
+            handleChange("survival")
+          }
+        >
+          <Ionicons
+            name="timer"
+            size={16}
+            color={
+              selectedMode === "survival"
+                ? "#fff"
+                : "#94a3b8"
+            }
+          />
+          <Text
+            style={[
+              styles.optionText,
+              selectedMode === "survival" &&
+                styles.activeText,
+            ]}
+          >
+            Supervivencia
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -184,115 +185,67 @@ function ModeCard({
 /* ========================= */
 
 const styles = StyleSheet.create({
-  mainButton: {
+  wrapper: {
+    alignItems: "center",
+    marginVertical: 20,
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#cbd5e1",
+    marginBottom: 12,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+
+  switchContainer: {
+    width: SWITCH_WIDTH,
+    height: SWITCH_HEIGHT,
+    borderRadius: 22,
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.05)",
+    shadowColor: "#000",
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 10,
+  },
+
+  animatedIndicator: {
+    position: "absolute",
+    width: OPTION_WIDTH,
+    height: SWITCH_HEIGHT,
+    borderRadius: 22,
+  },
+
+  gradientFill: {
+    flex: 1,
+    borderRadius: 22,
+  },
+
+  option: {
+    width: OPTION_WIDTH,
+    height: SWITCH_HEIGHT,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 22,
-    borderRadius: 16,
-    shadowColor: "#6366f1",
-    shadowOpacity: 0.7,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 12,
-    minWidth: 250,
+    zIndex: 2,
   },
 
-  mainButtonText: {
-    color: "#fff",
+  optionText: {
+    fontSize: 13,
     fontWeight: "800",
-    fontSize: 14,
-    letterSpacing: 1,
-  },
-
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "flex-end",
-  },
-
-  sheet: {
-    backgroundColor: "#0f172a",
-    paddingTop: 16,
-    paddingBottom: 30,
-    paddingHorizontal: 24,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.05)",
-  },
-
-  handle: {
-    width: 42,
-    height: 4,
-    borderRadius: 4,
-    backgroundColor: "#334155",
-    alignSelf: "center",
-    marginBottom: 20,
-  },
-
-  title: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 24,
-    letterSpacing: 1,
-  },
-
-  modesContainer: {
-    gap: 14,
-  },
-
-  modeCard: {
-    backgroundColor: "#1e293b",
-    borderRadius: 18,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  modeCardActive: {
-    backgroundColor: "#1e1b4b",
-    borderWidth: 1,
-    borderColor: "#6366f1",
-  },
-
-  modeLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
-
-  iconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "#334155",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  iconWrapperActive: {
-    backgroundColor: "#6366f1",
-  },
-
-  modeTitle: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#e2e8f0",
-  },
-
-  modeTitleActive: {
-    color: "#ffffff",
-  },
-
-  modeDescription: {
-    fontSize: 12,
     color: "#94a3b8",
-    marginTop: 4,
+    letterSpacing: 0.5,
+  },
+
+  activeText: {
+    color: "#fff",
   },
 });

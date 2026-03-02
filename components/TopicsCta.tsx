@@ -105,7 +105,7 @@ export default function TopicsCta() {
             <View style={styles.progressHeader}>
               <Text style={styles.levelTitle}>Tema:  {topic}</Text>
               <Text style={styles.percentageText}>
-                0/100  <SimpleLineIcons name="present" size={14} color="#48ff8e" />
+                0/100  <SimpleLineIcons name="present" size={14} color="#48b3ff" />
               </Text>
             </View>
           </View>
@@ -117,7 +117,7 @@ export default function TopicsCta() {
         <View style={styles.buttonInner}>
           <AnimatedView style={[styles.sweep, sweepStyle]} />
           <Text style={styles.buttonText}>
-            Jugar Enigma
+            Jugar
           </Text>
         </View>
       </TouchableOpacity>
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   },
 
   levelTitle: {
-    color: "#48ff8e",
+    color: "#48b3ff",
     fontWeight: "600",
     fontSize: 14.5,
   },
@@ -240,14 +240,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
 
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#48ff8e",
-  },
-
   percentageText: {
     display: "flex",
-    color: "#48ff8e",
+    color: "#48b3ff",
     fontWeight: "700",
     fontSize: 13,
     gap: 10

@@ -88,11 +88,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 28,
     gap: 10,
-    marginTop: 20
+    marginTop: 40
   },
 
   box: {
-    gap: 50
+    gap: 60
   },
 
   /* ===== LOGO ===== */
@@ -104,8 +104,8 @@ const styles = StyleSheet.create({
   },
   
   logoImage: {
-    width: 290,
-    height: 290,
+    width: 260,
+    height: 260,
     marginBottom: -45
   },
 
