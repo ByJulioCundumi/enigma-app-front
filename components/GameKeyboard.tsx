@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -44,7 +43,7 @@ export default function WordInputKeyboard({ word }: Props) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   /* ===============================
-     LÓGICA TECLADO
+     TECLADO
   =============================== */
 
   const handleKeyPress = (key: string) => {
@@ -62,11 +61,29 @@ export default function WordInputKeyboard({ word }: Props) {
     setSelectedIndex(index);
   };
 
-  const handleRemoveLetter = (index: number) => {
+  /* 🔥 BACKSPACE REAL */
+  const handleBackspace = () => {
     const updated = [...letters];
-    updated[index] = null;
+
+    let targetIndex = selectedIndex;
+
+    // Si posición actual está vacía, buscar hacia la izquierda
+    if (!updated[targetIndex]) {
+      for (let i = targetIndex - 1; i >= 0; i--) {
+        if (updated[i]) {
+          targetIndex = i;
+          break;
+        }
+      }
+
+      if (!updated[targetIndex]) return;
+    }
+
+    // Borra solo esa letra
+    updated[targetIndex] = null;
+
     setLetters(updated);
-    setSelectedIndex(index);
+    setSelectedIndex(targetIndex);
   };
 
   const handleClearAll = () => {
@@ -120,9 +137,7 @@ export default function WordInputKeyboard({ word }: Props) {
                     key={absoluteIndex}
                     activeOpacity={0.8}
                     onPress={() =>
-                      letter
-                        ? handleRemoveLetter(absoluteIndex)
-                        : handleSelectBox(absoluteIndex)
+                      handleSelectBox(absoluteIndex)
                     }
                     style={[
                       styles.letterBox,
@@ -141,7 +156,7 @@ export default function WordInputKeyboard({ word }: Props) {
         })}
       </View>
 
-      {/* 🧩 BOTONES DE ACCIÓN */}
+      {/* 🧩 ACCIONES */}
       <View style={styles.actionsContainer}>
         <ActionButton
           icon="trash-outline"
@@ -188,15 +203,35 @@ export default function WordInputKeyboard({ word }: Props) {
                     </LinearGradient>
                   </TouchableOpacity>
                 ))}
+
+                {/* 🔥 TECLA BACKSPACE */}
+                {rowIndex === ROWS.length - 1 && (
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    style={styles.keyWrapper}
+                    onPress={handleBackspace}
+                  >
+                    <LinearGradient
+                      colors={["#7c2d12", "#451a03"]}
+                      style={styles.keyOuter}
+                    >
+                      <View style={styles.keyInner}>
+                        <Ionicons
+                          name="backspace-outline"
+                          size={20}
+                          color="#f8fafc"
+                        />
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                )}
               </View>
             );
           })}
         </View>
       </View>
 
-      <View style={styles.addContainer} >
-
-      </View>
+      <View style={styles.addContainer}></View>
     </View>
   );
 }
@@ -228,64 +263,55 @@ function ActionButton({
 =============================== */
 
 const styles = StyleSheet.create({
-    addContainer: {
-        width: "100%",
-        minHeight: 50
-    },
+  addContainer: {
+    width: "100%",
+    minHeight: 50,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
     paddingTop: 40,
-    gap: 10
+    gap: 10,
   },
-
   wordWrapper: {
     alignItems: "center",
     paddingHorizontal: 20,
-    gap: 8,
+    gap: 4,
+    backgroundColor: "#ffffff0c",
+    paddingVertical: 12,
+    borderRadius: 20,
+    width: "auto",
+    marginHorizontal: "auto"
   },
-
   wordRow: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 8,
   },
-
   letterBox: {
-    width: 38,
-    height: 45,
-    borderRadius: 12,
+    width: 35,
+    height: 40,
+    borderRadius: 10,
     borderWidth: 2,
     borderColor: "#334155",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#0f172a",
   },
-
   selectedBox: {
     borderColor: "#22d3ee",
-    shadowColor: "#22d3ee",
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
-    elevation: 6,
   },
-
   letterText: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "900",
     color: "#f8fafc",
   },
-
-  /* ACCIONES */
-
   actionsContainer: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
+    justifyContent: "center",
+    gap: 15,
     marginVertical: 20,
-    paddingHorizontal: 40,
   },
-
   actionButton: {
     width: 50,
     height: 50,
@@ -293,42 +319,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#1e293b",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
   },
-
-  /* TECLADO */
-
   keyboardSection: {
     paddingHorizontal: 14,
   },
-
   keyboardContainer: {
     backgroundColor: "rgba(15, 23, 42, 0.98)",
     borderRadius: 24,
-    paddingVertical: 16,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    padding: 16,
   },
-
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginVertical: 6,
   },
-
   keyWrapper: {
     flex: 1,
     marginHorizontal: 4,
   },
-
   keyOuter: {
     height: 40,
+    minWidth: 25,
     borderRadius: 14,
     padding: 2,
   },
-
   keyInner: {
     flex: 1,
     borderRadius: 12,
@@ -336,11 +350,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   keyText: {
     color: "#f8fafc",
     fontSize: 17,
     fontWeight: "900",
-    letterSpacing: 1.2,
   },
 });
