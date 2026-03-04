@@ -1,4 +1,3 @@
-import FloatingParticles from "@/components/FloatingParticles";
 import GameModeSelector from "@/components/GameModeSelector";
 import SettingsButton from "@/components/SettingsButton";
 import TopicsCta from "@/components/TopicsCta";
@@ -13,31 +12,22 @@ import Animated, {
   useSharedValue,
   withRepeat,
   withTiming,
+  interpolate,
 } from "react-native-reanimated";
 import { useDispatch } from "react-redux";
 
 export default function Index() {
   const dispatch = useDispatch();
-  const floatY = useSharedValue(0);
-  const scale = useSharedValue(1);
+  const progress = useSharedValue(0);
 
   useEffect(() => {
-    floatY.value = withRepeat(
-      withTiming(-10, {
-        duration: 3500,
+    progress.value = withRepeat(
+      withTiming(1, {
+        duration: 4000, // más lento = más suave = menos estrés visual
         easing: Easing.inOut(Easing.ease),
       }),
       -1,
-      true,
-    );
-
-    scale.value = withRepeat(
-      withTiming(1.03, {
-        duration: 3500,
-        easing: Easing.inOut(Easing.ease),
-      }),
-      -1,
-      true,
+      true
     );
   }, []);
 
@@ -45,9 +35,14 @@ export default function Index() {
     dispatch(setCurrentPage("index"));
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatY.value }, { scale: scale.value }],
-  }));
+  const animatedStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(progress.value, [0, 1], [0, -8]);
+    const scale = interpolate(progress.value, [0, 1], [1, 1.02]);
+
+    return {
+      transform: [{ translateY }, { scale }],
+    };
+  });
 
   return (
     <LinearGradient
@@ -56,10 +51,7 @@ export default function Index() {
       end={{ x: 0, y: 0 }}
       style={styles.container}
     >
-      <FloatingParticles />
-
       <View style={styles.content}>
-        {/* ===== LOGO ===== */}
         <Animated.View style={[styles.logoContainer, animatedStyle]}>
           <Image
             source={require("../assets/images/logo.png")}
@@ -68,7 +60,6 @@ export default function Index() {
           />
         </Animated.View>
 
-        {/* ===== DESCRIPCIÓN PREMIUM ===== */}
         <View style={styles.box}>
           <TopicsCta />
           <GameModeSelector />
@@ -85,7 +76,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   content: {
     flex: 1,
     justifyContent: "center",
@@ -94,19 +84,14 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 40,
   },
-
   box: {
     gap: 60,
   },
-
-  /* ===== LOGO ===== */
-
   logoContainer: {
     alignItems: "center",
     backgroundColor: "#280f590a",
     borderRadius: 160,
   },
-
   logoImage: {
     width: 260,
     height: 260,

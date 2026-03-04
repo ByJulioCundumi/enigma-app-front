@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
 
 interface Props {
   word: string;
@@ -19,6 +21,7 @@ const ROWS = [
 ];
 
 export default function WordInputKeyboard({ word }: Props) {
+  const {gameMode} = useSelector((state:IRootState)=> state.gameMode)
   const cleanWord = useMemo(
     () => word.trim().toUpperCase(),
     [word]
@@ -162,17 +165,32 @@ export default function WordInputKeyboard({ word }: Props) {
           icon="trash-outline"
           onPress={handleClearAll}
         />
-        <ActionButton
-          icon="share-social-outline"
-          onPress={() => {}}
-        />
+        {
+          gameMode === "normal" && 
+          (
+            <ActionButton
+              icon="share-social-outline"
+              onPress={() => {}}
+            />
+          )
+        }
+
+        {
+          gameMode === "survival" && 
+          (
+            <View style={styles.actionButton}> 
+              <MaterialCommunityIcons
+              name="timer-refresh-outline"
+              onPress={() => {}}
+              size={24}
+              color={"#dddddd"}
+            />
+          </View> 
+          )
+        }
         <ActionButton
           icon="shuffle-outline"
           onPress={handleRevealRandomLetter}
-        />
-        <ActionButton
-          icon="bulb-outline"
-          onPress={() => {}}
         />
       </View>
 
@@ -276,7 +294,7 @@ const styles = StyleSheet.create({
   wordWrapper: {
     alignItems: "center",
     paddingHorizontal: 20,
-    gap: 4,
+    gap: 10,
     backgroundColor: "#ffffff0c",
     paddingVertical: 12,
     borderRadius: 20,
@@ -290,21 +308,21 @@ const styles = StyleSheet.create({
   },
   letterBox: {
     width: 35,
-    height: 40,
-    borderRadius: 10,
-    borderWidth: 2,
+    height: 35,
+    borderRadius: 5,
+    borderBottomWidth: 2,
     borderColor: "#334155",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#0f172a",
+    backgroundColor: "#0f172a2c",
   },
   selectedBox: {
-    borderColor: "#22d3ee",
+    borderColor: "#f3b408",
   },
   letterText: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#f8fafc",
+    color: "#cdcecf",
   },
   actionsContainer: {
     flexDirection: "row",
@@ -317,8 +335,10 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 14,
     backgroundColor: "#1e293b",
+    display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    color: "#f3f3f3"
   },
   keyboardSection: {
     paddingHorizontal: 14,

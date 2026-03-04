@@ -9,22 +9,22 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { FontAwesome, FontAwesome6, SimpleLineIcons } from "@expo/vector-icons";
+import { FontAwesome, FontAwesome6 } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  useDerivedValue,
   withRepeat,
   withTiming,
   Easing,
   cancelAnimation,
   interpolateColor,
-  runOnJS,
+  interpolate,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
+import HintsSlider from "./HintsSlider";
 
 const { width } = Dimensions.get("window");
 
@@ -32,100 +32,99 @@ const TOTAL_SECONDS = 15;
 const TOTAL_MS = TOTAL_SECONDS * 1000;
 
 export default function TopicsCta() {
-  const sweep = useSharedValue(-200);
-  const scaleCard = useSharedValue(1);
-  const scaleImage = useSharedValue(0.8);
+  const pulse = useSharedValue(0);
   const timerProgress = useSharedValue(1);
 
   const [imageVisible, setImageVisible] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
 
-  const { currentPage } = useSelector((state: IRootState) => state.currentPage);
+  const { currentPage } = useSelector(
+    (state: IRootState) => state.currentPage
+  );
+  const { gameMode } = useSelector(
+    (state: IRootState) => state.gameMode
+  );
+
   const router = useRouter();
 
   const mockImage =
     "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800";
 
-  // Sweep animación botón
-  useEffect(() => {
-    sweep.value = withRepeat(
-      withTiming(width + 200, {
-        duration: 2600,
-        easing: Easing.linear,
-      }),
-      -1,
-      false
-    );
-  }, []);
-
-  // Popup imagen
-  useEffect(() => {
-    scaleImage.value = withTiming(imageVisible ? 1 : 0.8, { duration: 250 });
-  }, [imageVisible]);
-
-  // Temporizador y poping
+  // 🔥 Animaciones solo activas en GameRoom
   useEffect(() => {
     if (currentPage === "gameRoom") {
-      scaleCard.value = withRepeat(
-        withTiming(1.02, {
-          duration: 900,
+      // Pulsación ligera
+      pulse.value = withRepeat(
+        withTiming(1, {
+          duration: 1200,
           easing: Easing.inOut(Easing.ease),
         }),
         -1,
         true
       );
 
+      // Reset timer
       timerProgress.value = 1;
       setSecondsLeft(TOTAL_SECONDS);
 
-      timerProgress.value = withTiming(
-        0,
-        {
-          duration: TOTAL_MS,
-          easing: Easing.linear,
-        },
-        (finished) => {
-          if (finished) {
-            runOnJS(setSecondsLeft)(0);
+      // Animación visual del progreso (UI thread)
+      timerProgress.value = withTiming(0, {
+        duration: TOTAL_MS,
+        easing: Easing.linear,
+      });
+
+      // Timer real en JS cada 1 segundo (mucho más liviano)
+      const interval = setInterval(() => {
+        setSecondsLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
           }
-        }
-      );
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
     } else {
-      cancelAnimation(scaleCard);
+      cancelAnimation(pulse);
       cancelAnimation(timerProgress);
-      scaleCard.value = 1;
+      pulse.value = 0;
       timerProgress.value = 1;
       setSecondsLeft(TOTAL_SECONDS);
     }
   }, [currentPage]);
 
-  // Actualizar segundos sin interval
-  useDerivedValue(() => {
-    const secs = Math.ceil(timerProgress.value * TOTAL_SECONDS);
-    runOnJS(setSecondsLeft)(secs);
+  // 🔥 Card pulse animado
+  const popingStyle = useAnimatedStyle(() => {
+    const scale = interpolate(pulse.value, [0, 1], [1, 1.02]);
+    return {
+      transform: [{ scale }],
+    };
   });
 
-  const popingStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scaleCard.value }],
-  }));
-
-  // 🔵➡🔴 Color progresivo
-  const colorDerived = useDerivedValue(() =>
-    interpolateColor(
+  // 🔥 Barra progresiva optimizada
+  const timerBarStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
       timerProgress.value,
       [1, 0],
-      ["#ebb625", "#ef4444"] // Azul -> Rojo
-    )
-  );
+      ["#ebb625", "#ef4444"]
+    );
 
-  const timerBarStyle = useAnimatedStyle(() => ({
-    width: `${timerProgress.value * 100}%`,
-    backgroundColor: colorDerived.value,
-  }));
+    return {
+      width: `${timerProgress.value * 100}%`,
+      backgroundColor,
+    };
+  });
 
-  const timerTextStyle = useAnimatedStyle(() => ({
-    color: colorDerived.value,
-  }));
+  const timerTextStyle = useAnimatedStyle(() => {
+    const color = interpolateColor(
+      timerProgress.value,
+      [1, 0],
+      ["#ebb625", "#ef4444"]
+    );
+
+    return { color };
+  });
 
   return (
     <View style={styles.wrapper}>
@@ -143,29 +142,32 @@ export default function TopicsCta() {
                 onPress={() => setImageVisible(true)}
               >
                 <View style={styles.thumbnailCard}>
-                  <Image source={{ uri: mockImage }} style={styles.thumbnail} />
-                  <LinearGradient
-                    colors={["transparent", "rgba(255, 255, 255, 0)"]}
-                    style={styles.thumbnailOverlay}
+                  <Image
+                    source={{ uri: mockImage }}
+                    style={styles.thumbnail}
                   />
-                  <View style={styles.questionBadge}>
-                    <FontAwesome name="arrows-h" size={18} color="#091a52" />
-                  </View>
                 </View>
               </TouchableOpacity>
 
               <View style={styles.descriptionContainer}>
                 <Text style={styles.description}>
-                  Es una formación natural de la Tierra que puede expulsar lava,
-                  ceniza y gases.
+                  Es una formación natural de la Tierra que puede expulsar
+                  lava, ceniza y gases.
                 </Text>
 
-                {currentPage === "gameRoom" && (
+                {currentPage === "gameRoom" && gameMode === "survival" && (
                   <View style={styles.timerRow}>
                     <Animated.Text
                       style={[styles.timerText, timerTextStyle]}
                     >
-                      <FontAwesome6 name="heart-circle-minus" size={14} color="#f44b81" /> {secondsLeft}
+                      {gameMode === "survival" && (
+                        <FontAwesome6
+                          name="heart-circle-minus"
+                          size={14}
+                          color="#f44b81"
+                        />
+                      )}{" "}
+                      {secondsLeft}
                     </Animated.Text>
 
                     <View style={styles.timerContainer}>
@@ -180,11 +182,27 @@ export default function TopicsCta() {
 
             <View style={styles.levelProgressWrapper}>
               <View style={styles.progressHeader}>
-                <Text style={styles.levelTitle}>Tema: Al Azar</Text>
-                <Text style={styles.percentageText}>
-                  0/100{" "}
-                  <SimpleLineIcons name="present" size={14} color="#ffe748" />
+                <Text style={styles.levelTitle}>
+                  Nueva Palabra ¿...?
                 </Text>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 7,
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <Text style={styles.percentageText}>
+                    Nivel 28
+                  </Text>
+                  <FontAwesome6
+                    style={{ marginTop: -2 }}
+                    name="ranking-star"
+                    size={15}
+                    color="#ffcc25"
+                  />
+                </View>
               </View>
             </View>
           </View>
@@ -195,7 +213,7 @@ export default function TopicsCta() {
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.buttonOuter}
-          onPress={() => router.replace("/GameRoom")}
+          onPress={() => router.push("/GameRoom")}
         >
           <View style={styles.buttonInner}>
             <Text style={styles.buttonText}>Jugar</Text>
@@ -214,7 +232,10 @@ export default function TopicsCta() {
           onPress={() => setImageVisible(false)}
         >
           <View style={styles.popupContainer}>
-            <Image source={{ uri: mockImage }} style={styles.fullImage} />
+            <Image
+              source={{ uri: mockImage }}
+              style={styles.fullImage}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -223,13 +244,16 @@ export default function TopicsCta() {
 }
 
 const styles = StyleSheet.create({
-  wrapper: { width: "100%", alignItems: "center" },
+  wrapper: {
+    width: "100%",
+    alignItems: "center",
+  },
 
   card: {
     width: width * 0.92,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: "#c1c1c147"
+    borderColor: "#c1c1c147",
   },
 
   cardInner: {
@@ -240,7 +264,11 @@ const styles = StyleSheet.create({
 
   content: { gap: 10 },
 
-  row: { flexDirection: "row", gap: 16, alignItems: "center" },
+  row: {
+    flexDirection: "row",
+    gap: 16,
+    alignItems: "center",
+  },
 
   descriptionContainer: { flex: 1 },
 
@@ -253,7 +281,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
 
-  // TIMER
   timerRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -264,7 +291,6 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 14,
     fontWeight: "900",
-    width: 40,
     textAlign: "center",
   },
 
@@ -281,35 +307,38 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
-  thumbnailCard: { width: 80, height: 110, borderRadius: 16 },
-  thumbnail: { width: "100%", height: "100%", borderRadius: 16, borderColor: "#ffffffcf", borderWidth: 1 },
-
-  thumbnailOverlay: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    height: "40%",
+  thumbnailCard: {
+    width: 80,
+    height: 110,
     borderRadius: 16,
   },
 
-  questionBadge: {
-    position: "absolute",
-    bottom: 35,
-    right: -12,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#ffffff",
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 4,
+  thumbnail: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
+    borderColor: "#ffffffcf",
+    borderWidth: 1,
   },
 
   levelProgressWrapper: { gap: 6 },
-  progressHeader: { flexDirection: "row", justifyContent: "space-between" },
 
-  levelTitle: { color: "#b8b2c3", fontWeight: "600", fontSize: 14.5 },
-  percentageText: { color: "#b8b2c3", fontWeight: "700", fontSize: 13 },
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  levelTitle: {
+    color: "#b8b2c3",
+    fontWeight: "600",
+    fontSize: 14.5,
+  },
+
+  percentageText: {
+    color: "#b8b2c3",
+    fontWeight: "700",
+    fontSize: 13,
+  },
 
   buttonOuter: {
     marginTop: 18,

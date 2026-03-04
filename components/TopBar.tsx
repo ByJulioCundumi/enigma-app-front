@@ -39,7 +39,7 @@ export default function TopBar({
   );
 
   const goToIndex = () => {
-    router.replace("/")
+    router.push("/")
     dispatch(setCurrentPage("index"));
   };
 

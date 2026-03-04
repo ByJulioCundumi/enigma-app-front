@@ -14,6 +14,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useDispatch, useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
+import { setGameMode } from "@/store/reducers/gameModeSlice";
 
 type Mode = "normal" | "survival";
 
@@ -25,23 +28,23 @@ const SWITCH_WIDTH = 300;
 const SWITCH_HEIGHT = 50;
 const OPTION_WIDTH = SWITCH_WIDTH / 2;
 
-export default function GameModeSelector({ onModeChange }: Props) {
-  const [selectedMode, setSelectedMode] =
-    useState<Mode>("normal");
+export default function GameModeSelector() {
+  const dispatch = useDispatch()
+  const {gameMode} = useSelector((state:IRootState)=>state.gameMode)
 
   const progress = useSharedValue(0);
   const scale = useSharedValue(1);
 
   useEffect(() => {
     progress.value = withSpring(
-      selectedMode === "normal" ? 0 : 1,
+      gameMode === "normal" ? 0 : 1,
       {
         damping: 12,
         stiffness: 180,
         mass: 0.8,
       }
     );
-  }, [selectedMode]);
+  }, [gameMode]);
 
   const handleChange = (mode: Mode) => {
     scale.value = withSpring(0.95, { damping: 10 });
@@ -49,8 +52,7 @@ export default function GameModeSelector({ onModeChange }: Props) {
       scale.value = withSpring(1);
     }, 120);
 
-    setSelectedMode(mode);
-    onModeChange?.(mode);
+    dispatch(setGameMode(mode))
   };
 
   /* ===== Indicador animado ===== */
@@ -112,7 +114,7 @@ export default function GameModeSelector({ onModeChange }: Props) {
         >
           <LinearGradient
             colors={
-              selectedMode === "normal"
+              gameMode === "normal"
                 ? ["#6366f1", "#4f46e5"]
                 : ["#6366f1", "#4f46e5"]
             }
@@ -132,7 +134,7 @@ export default function GameModeSelector({ onModeChange }: Props) {
             name="flash"
             size={16}
             color={
-              selectedMode === "normal"
+              gameMode === "normal"
                 ? "#fff"
                 : "#94a3b8"
             }
@@ -140,7 +142,7 @@ export default function GameModeSelector({ onModeChange }: Props) {
           <Text
             style={[
               styles.optionText,
-              selectedMode === "normal" &&
+              gameMode === "normal" &&
                 styles.activeText,
             ]}
           >
@@ -160,7 +162,7 @@ export default function GameModeSelector({ onModeChange }: Props) {
             name="timer"
             size={16}
             color={
-              selectedMode === "survival"
+              gameMode === "survival"
                 ? "#fff"
                 : "#94a3b8"
             }
@@ -168,7 +170,7 @@ export default function GameModeSelector({ onModeChange }: Props) {
           <Text
             style={[
               styles.optionText,
-              selectedMode === "survival" &&
+              gameMode === "survival" &&
                 styles.activeText,
             ]}
           >

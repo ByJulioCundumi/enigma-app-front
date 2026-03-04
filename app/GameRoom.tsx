@@ -1,5 +1,5 @@
-import FloatingParticles from "@/components/FloatingParticles";
 import GameKeyboard from "@/components/GameKeyboard";
+import HintsSlider from "@/components/HintsSlider";
 import TopicsCta from "@/components/TopicsCta";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,15 +16,25 @@ export default function GameRoom() {
 
   return (
     <LinearGradient
-      colors={["#0c1f48", "#162d51", "#312e81"]}
+      colors={["#1231755b", "#162d51", "#312e81b9"]}
       start={{ x: 0, y: 1 }}
       end={{ x: 0, y: 0 }}
       style={styles.container}
     >
-      <FloatingParticles />
 
       <View style={styles.content}>
         <TopicsCta />
+
+        <HintsSlider
+          hints={[
+            "Se encuentra en zonas montañosas.",
+            "Puede expulsar lava y ceniza.",
+            "Entra en erupción cuando aumenta la presión interna.",
+          ]}
+          baseCost={10}
+          increment={15}
+        />
+        
         <GameKeyboard word="VOLCAN HUECO" />
       </View>
 

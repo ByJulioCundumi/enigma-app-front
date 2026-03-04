@@ -2,41 +2,52 @@ import { store } from "@/store/store";
 import { Stack } from "expo-router";
 import { Provider } from "react-redux";
 import * as NavigationBar from "expo-navigation-bar";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform, View, StyleSheet } from "react-native";
 import TopBar from "@/components/TopBar";
 
 export default function RootLayout() {
   useEffect(() => {
-  if (Platform.OS !== "android") return;
+    if (Platform.OS !== "android") return;
 
-  const enableImmersiveMode = async () => {
-    await NavigationBar.setVisibilityAsync("hidden");
-  };
+    const enableImmersiveMode = async () => {
+      await NavigationBar.setVisibilityAsync("hidden");
+      await NavigationBar.setBehaviorAsync("overlay-swipe");
+    };
 
-  enableImmersiveMode();
+    enableImmersiveMode();
 
-  const subscription = NavigationBar.addVisibilityListener(({ visibility }) => {
-    if (visibility === "visible") {
-      setTimeout(() => {
-        NavigationBar.setVisibilityAsync("hidden");
-      }, 3000); // ⏱ 3 segundos antes de ocultarse otra vez
-    }
-  });
+    const subscription = NavigationBar.addVisibilityListener(({ visibility }) => {
+      if (visibility === "visible") {
+        setTimeout(() => {
+          NavigationBar.setVisibilityAsync("hidden");
+        }, 3000);
+      }
+    });
 
-  return () => {
-    subscription?.remove();
-  };
-}, []);
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
 
   return (
     <Provider store={store}>
       <View style={styles.container}>
-        <TopBar/>
-        <View style={styles.stackContainer}>
-          <Stack screenOptions={{ headerShown: false }} />
-        </View>
+        
+        {/* 🔥 OCULTA BARRA SUPERIOR */}
+        <StatusBar hidden />
 
+        <TopBar />
+
+        <View style={styles.stackContainer}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: "#0c1f48" },
+            }}
+          />
+        </View>
       </View>
     </Provider>
   );
