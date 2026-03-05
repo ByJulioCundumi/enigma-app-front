@@ -1,7 +1,9 @@
 import GameModeSelector from "@/components/GameModeSelector";
+import Ranking from "@/components/Ranking";
 import SettingsButton from "@/components/SettingsButton";
 import TopicsCta from "@/components/TopicsCta";
 import TopicSelector from "@/components/TopicSelector";
+import VipButton from "@/components/VipButton";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
@@ -54,7 +56,7 @@ export default function Index() {
       <View style={styles.content}>
         <Animated.View style={[styles.logoContainer, animatedStyle]}>
           <Image
-            source={require("../assets/images/logo.png")}
+            source={require("../assets/images/logo2.png")}
             style={styles.logoImage}
             resizeMode="contain"
           />
@@ -65,8 +67,8 @@ export default function Index() {
           <GameModeSelector />
         </View>
 
-        <SettingsButton />
-        <TopicSelector />
+        <Ranking/>
+        <VipButton/>
       </View>
     </LinearGradient>
   );
@@ -82,10 +84,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 28,
     gap: 10,
-    marginTop: 40,
   },
   box: {
-    gap: 60,
+    gap: 100,
   },
   logoContainer: {
     alignItems: "center",
@@ -93,8 +94,8 @@ const styles = StyleSheet.create({
     borderRadius: 160,
   },
   logoImage: {
-    width: 260,
-    height: 260,
-    marginBottom: -45,
+    width: 250,
+    height: 250,
+    marginBottom: -55,
   },
 });

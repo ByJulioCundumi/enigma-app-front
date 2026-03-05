@@ -183,7 +183,7 @@ export default function TopicsCta() {
             <View style={styles.levelProgressWrapper}>
               <View style={styles.progressHeader}>
                 <Text style={styles.levelTitle}>
-                  Nueva Palabra ¿...?
+                  Que palabra es ¿...?
                 </Text>
 
                 <View

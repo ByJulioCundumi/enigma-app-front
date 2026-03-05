@@ -11,64 +11,45 @@ import {
   FontAwesome5,
   FontAwesome6,
   Ionicons,
-  MaterialIcons,
 } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSelector, useDispatch } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { useRouter } from "expo-router";
+import Profile from "./Profile";
+import VipButton from "./VipButton";
+import SettingsButton from "./SettingsButton";
 
 const { width } = Dimensions.get("window");
 
 interface Props {
   lives?: number;
   coins?: number;
-  level?: number;
 }
 
 export default function TopBar({
   lives = 253,
   coins = 221,
-  level = 27,
 }: Props) {
   const dispatch = useDispatch();
-  const router = useRouter()
+  const router = useRouter();
+
   const { currentPage } = useSelector(
     (state: IRootState) => state.currentPage
   );
 
   const goToIndex = () => {
-    router.push("/")
+    router.push("/");
     dispatch(setCurrentPage("index"));
   };
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-
         {/* IZQUIERDA DINÁMICA */}
-        {currentPage === "index" && (
-          <TouchableOpacity activeOpacity={0.85} style={styles.vipWrapper}>
-            <LinearGradient
-              colors={["#6366F1", "#8B5CF6", "#F59E0B"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.vipOuter}
-            >
-              <View style={styles.vipInner}>
-                <MaterialIcons
-                  name="workspace-premium"
-                  size={14}
-                  color="#FBBF24"
-                />
-                <Text style={styles.vipText}>Hazte VIP</Text>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        )}
-
-        {currentPage === "gameRoom" && (
+        {currentPage === "index" ? (
+          <SettingsButton />
+        ) : (
           <TouchableOpacity
             activeOpacity={0.8}
             style={styles.backButton}
@@ -104,22 +85,8 @@ export default function TopBar({
           />
         </View>
 
-        {/* LEVEL */}
-        <TouchableOpacity activeOpacity={0.85} style={styles.levelWrapper}>
-          <LinearGradient
-            colors={["#6366F1", "#8B5CF6", "#F59E0B"]}
-            style={styles.levelOuter}
-          >
-            <View style={styles.levelInner}>
-              <Text style={styles.levelNumber}>{level}</Text>
-            </View>
-
-            <View style={styles.levelBadge}>
-              <Text style={styles.levelBadgeText}>Lv</Text>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-
+        {/* PERFIL */}
+        <Profile />
       </View>
     </View>
   );
@@ -162,9 +129,6 @@ const Stat = ({ icon, value, type }: any) => {
 
 /* ================= STYLES ================= */
 
-const LEVEL_SIZE = 44;
-const BADGE_SIZE = 18;
-
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
@@ -178,15 +142,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: width * 0.95,
-    height: 64,
+    height: 70,
     borderRadius: 28,
     paddingHorizontal: 12,
-    backgroundColor: "rgba(17, 24, 39, 0.65)",
+    backgroundColor: "rgba(17, 24, 39, 0.75)",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
   },
-
-  /* BOTÓN VOLVER */
 
   backButton: {
     width: 42,
@@ -198,49 +160,11 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
 
-  /* VIP */
-
-  vipWrapper: {
-    height: 37,
-    borderRadius: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: -5,
-  },
-
-  vipOuter: {
-    height: 37,
-    borderRadius: 22,
-    padding: 2,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  vipInner: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-    paddingHorizontal: 12,
-    height: "100%",
-    borderRadius: 20,
-    backgroundColor: "#0f172a",
-  },
-
-  vipText: {
-    fontSize: 11,
-    fontWeight: "900",
-    color: "#FBBF24",
-    letterSpacing: 0.5,
-  },
-
-  /* STATS */
-
   statsContainer: {
     flexDirection: "row",
     flex: 1,
     justifyContent: "center",
-    gap: 6,
+    gap: 8,
     paddingHorizontal: 6,
   },
 
@@ -283,57 +207,5 @@ const styles = StyleSheet.create({
 
   plusLives: {
     backgroundColor: "#ff5c7c",
-  },
-
-  /* LEVEL */
-
-  levelWrapper: {
-    width: LEVEL_SIZE,
-    height: LEVEL_SIZE,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  levelOuter: {
-    width: LEVEL_SIZE,
-    height: LEVEL_SIZE,
-    borderRadius: LEVEL_SIZE / 2,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  levelInner: {
-    width: LEVEL_SIZE - 6,
-    height: LEVEL_SIZE - 6,
-    borderRadius: (LEVEL_SIZE - 6) / 2,
-    backgroundColor: "#0f172a",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  levelNumber: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "900",
-  },
-
-  levelBadge: {
-    position: "absolute",
-    bottom: 3,
-    left: -5,
-    width: BADGE_SIZE,
-    height: BADGE_SIZE,
-    borderRadius: BADGE_SIZE / 2,
-    backgroundColor: "#140f2a",
-    borderWidth: 1.5,
-    borderColor: "#7852ff",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  levelBadgeText: {
-    color: "#fff",
-    fontSize: 8,
-    fontWeight: "900",
   },
 });

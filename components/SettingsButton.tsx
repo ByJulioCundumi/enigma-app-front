@@ -15,15 +15,23 @@ export default function SettingsButton() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicEnabled, setMusicEnabled] = useState(true);
 
+  // 🔥 Idioma interno (luego puedes conectarlo a i18n)
+  const currentLanguage = "ES";
+
   return (
     <>
-      {/* BOTÓN FIJO INFERIOR IZQUIERDO */}
+      {/* BOTÓN FLOTANTE */}
       <TouchableOpacity
         style={styles.settingsButton}
         onPress={() => setVisible(true)}
-        activeOpacity={0.8}
+        activeOpacity={0.85}
       >
-        <Ionicons name="settings" size={26} color="#755dff" />
+        <Ionicons name="settings" size={32} color="#755dff" />
+
+        {/* Badge idioma */}
+        <View style={styles.languageBadge}>
+          <Text style={styles.languageText}>{currentLanguage}</Text>
+        </View>
       </TouchableOpacity>
 
       {/* MODAL */}
@@ -33,10 +41,8 @@ export default function SettingsButton() {
         animationType="fade"
         onRequestClose={() => setVisible(false)}
       >
-        {/* Cerrar tocando fuera */}
         <TouchableWithoutFeedback onPress={() => setVisible(false)}>
           <View style={styles.overlay}>
-            {/* Evita que se cierre tocando dentro */}
             <TouchableWithoutFeedback>
               <View style={styles.popup}>
                 {/* Header */}
@@ -67,7 +73,9 @@ export default function SettingsButton() {
                 <View style={styles.divider} />
 
                 <TouchableOpacity style={styles.resetButton}>
-                  <Text style={styles.resetText}>Restablecer progreso</Text>
+                  <Text style={styles.resetText}>
+                    Restablecer progreso
+                  </Text>
                 </TouchableOpacity>
               </View>
             </TouchableWithoutFeedback>
@@ -80,22 +88,32 @@ export default function SettingsButton() {
 
 const styles = StyleSheet.create({
   settingsButton: {
-    position: "absolute",
-    bottom: 30,
-    left: 20,
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#1e293b",
     justifyContent: "center",
     alignItems: "center",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    borderWidth: 2,
-    borderColor: "#ffffff3d"
+  },
+
+  /* NUEVO BADGE IDIOMA */
+
+  languageBadge: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    backgroundColor: "#6366F1",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#fff",
+  },
+
+  languageText: {
+    fontSize: 9,
+    fontWeight: "900",
+    color: "#fff",
+    letterSpacing: 0.5,
   },
 
   overlay: {
