@@ -42,7 +42,7 @@ export default function Ranking({
 
       {/* Badge posición */}
       <View style={styles.badge}>
-        <Text style={styles.badgeText}>Nro. {rank}</Text>
+        <Text style={styles.badgeText}>Jugadores</Text>
       </View>
     </TouchableOpacity>
   );
