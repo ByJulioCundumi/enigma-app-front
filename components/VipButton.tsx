@@ -6,31 +6,33 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function VipButton() {
   return (
     <TouchableOpacity activeOpacity={0.9} style={styles.wrapper}>
       {/* Anillo premium */}
       <LinearGradient
-        colors={["#F59E0B", "#FBBF24", "#FDE68A"]}
+        colors={["#F59E0B", "#FBBF24", "#F59E0B"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.outerRing}
       >
         <View style={styles.innerContainer}>
-          <MaterialCommunityIcons
-            name="crown"
-            size={25}
-            color="#FBBF24"
-            style={{marginTop: -7.5}}
-          />
+          
+          {/* Icono NO ADS */}
+          <View style={styles.noAdsContainer}>
+            <View style={styles.noAdsCircle}>
+              <Text style={styles.noAdsText}>ADS</Text>
+              <View style={styles.noAdsLine} />
+            </View>
+          </View>
+
         </View>
       </LinearGradient>
 
       {/* Badge */}
       <View style={styles.badge}>
-        <Text style={styles.badgeText}>Hazte VIP</Text>
+        <Text style={styles.badgeText}>VIP: $1.22 USD</Text>
       </View>
     </TouchableOpacity>
   );
@@ -39,16 +41,16 @@ export default function VipButton() {
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
-    bottom: 28,
+    bottom: 40,
     right: 18,
     alignItems: "center",
   },
 
   outerRing: {
-    width: 92,
-    height: 52,
+    width: 120,
+    height: 55,
     borderRadius: 15,
-    padding: 3, // crea efecto de anillo
+    padding: 3,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#F59E0B",
@@ -62,14 +64,47 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 15,
-    backgroundColor: "#0f172a", // azul oscuro premium
+    backgroundColor: "#0f172a",
     justifyContent: "center",
     alignItems: "center",
   },
 
+  /* NO ADS ICON */
+
+  noAdsContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: -5
+  },
+
+  noAdsCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "#F59E0B",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  noAdsText: {
+    color: "#F59E0B",
+    fontWeight: "900",
+    fontSize: 8,
+    letterSpacing: 1,
+  },
+
+  noAdsLine: {
+    position: "absolute",
+    width: 27,
+    height: 2,
+    backgroundColor: "#f59f0bc9",
+    transform: [{ rotate: "-45deg" }],
+  },
+
   badge: {
     position: "absolute",
-    bottom: -4,
+    bottom: -8,
     backgroundColor: "#F59E0B",
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -81,9 +116,9 @@ const styles = StyleSheet.create({
   },
 
   badgeText: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "900",
-    color: "#0f172a",
+    color: "#fafafa",
     letterSpacing: 0.8,
   },
 });

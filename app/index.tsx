@@ -84,9 +84,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 28,
     gap: 10,
+    marginTop: -50
   },
   box: {
-    gap: 100,
+    gap: 80,
   },
   logoContainer: {
     alignItems: "center",
@@ -94,8 +95,8 @@ const styles = StyleSheet.create({
     borderRadius: 160,
   },
   logoImage: {
-    width: 250,
-    height: 250,
-    marginBottom: -55,
+    width: 350,
+    height: 350,
+    marginBottom: -100,
   },
 });
