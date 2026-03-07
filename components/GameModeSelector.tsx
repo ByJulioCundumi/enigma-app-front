@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  interpolate,
   interpolateColor,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,61 +19,61 @@ import { setGameMode } from "@/store/reducers/gameModeSlice";
 
 type Mode = "normal" | "survival";
 
-interface Props {
-  onModeChange?: (mode: Mode) => void;
-}
-
 const SWITCH_WIDTH = 300;
 const SWITCH_HEIGHT = 50;
 const OPTION_WIDTH = SWITCH_WIDTH / 2;
 
 export default function GameModeSelector() {
-  const dispatch = useDispatch()
-  const {gameMode} = useSelector((state:IRootState)=>state.gameMode)
+  const dispatch = useDispatch();
 
-  const progress = useSharedValue(0);
+  const { gameMode } = useSelector(
+    (state: IRootState) => state.gameMode
+  );
+
+  /* 🔥 inicia con la posición correcta para evitar retraso al montar */
+
+  const progress = useSharedValue(
+    gameMode === "normal" ? 0 : 1
+  );
+
   const scale = useSharedValue(1);
 
+  /* ===== Animación cuando cambia el modo ===== */
+
   useEffect(() => {
-    progress.value = withSpring(
-      gameMode === "normal" ? 0 : 1,
-      {
-        damping: 12,
-        stiffness: 180,
+    const target = gameMode === "normal" ? 0 : 1;
+
+    if (progress.value !== target) {
+      progress.value = withSpring(target, {
+        damping: 15,
+        stiffness: 160,
         mass: 0.8,
-      }
-    );
+      });
+    }
   }, [gameMode]);
 
   const handleChange = (mode: Mode) => {
-    scale.value = withSpring(0.95, { damping: 10 });
+    if (mode === gameMode) return;
+
+    scale.value = withSpring(0.95, { damping: 12 });
+
     setTimeout(() => {
       scale.value = withSpring(1);
     }, 120);
 
-    dispatch(setGameMode(mode))
+    dispatch(setGameMode(mode));
   };
 
   /* ===== Indicador animado ===== */
 
   const animatedIndicator = useAnimatedStyle(() => {
-    const translateX = interpolate(
-      progress.value,
-      [0, 1],
-      [0, OPTION_WIDTH]
-    );
+    const translateX = progress.value * OPTION_WIDTH;
 
-    const dynamicScale = interpolate(
-      progress.value,
-      [0, 0.5, 1],
-      [1, 1.05, 1]
-    );
+    const dynamicScale =
+      1 + Math.sin(progress.value * Math.PI) * 0.05;
 
     return {
-      transform: [
-        { translateX },
-        { scale: dynamicScale },
-      ],
+      transform: [{ translateX }, { scale: dynamicScale }],
     };
   });
 
@@ -113,11 +112,7 @@ export default function GameModeSelector() {
           ]}
         >
           <LinearGradient
-            colors={
-              gameMode === "normal"
-                ? ["#6366f1", "#4f46e5"]
-                : ["#6366f1", "#4f46e5"]
-            }
+            colors={["#6366f1", "#4f46e5"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.gradientFill}
@@ -139,6 +134,7 @@ export default function GameModeSelector() {
                 : "#94a3b8"
             }
           />
+
           <Text
             style={[
               styles.optionText,
@@ -167,6 +163,7 @@ export default function GameModeSelector() {
                 : "#94a3b8"
             }
           />
+
           <Text
             style={[
               styles.optionText,
@@ -182,14 +179,11 @@ export default function GameModeSelector() {
   );
 }
 
-/* ========================= */
-/* ===== STYLES ===== */
-/* ========================= */
-
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
     marginVertical: 20,
+    marginTop: 70,
   },
 
   label: {

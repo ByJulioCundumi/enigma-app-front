@@ -23,7 +23,7 @@ export default function GameRoom() {
     >
 
       <View style={styles.content}>
-        <TopicsCta />
+        <TopicsCta useTimer={true}/>
 
         <HintsSlider
           hints={[

@@ -9,7 +9,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { FontAwesome, FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -21,17 +21,19 @@ import Animated, {
   interpolate,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
-import HintsSlider from "./HintsSlider";
 
 const { width } = Dimensions.get("window");
 
 const TOTAL_SECONDS = 15;
 const TOTAL_MS = TOTAL_SECONDS * 1000;
 
-export default function TopicsCta() {
+type Props = {
+  useTimer?: boolean;
+};
+
+export default function TopicsCta({ useTimer = true }: Props) {
   const pulse = useSharedValue(0);
   const timerProgress = useSharedValue(1);
 
@@ -41,19 +43,16 @@ export default function TopicsCta() {
   const { currentPage } = useSelector(
     (state: IRootState) => state.currentPage
   );
+
   const { gameMode } = useSelector(
     (state: IRootState) => state.gameMode
   );
 
-  const router = useRouter();
-
   const mockImage =
     "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800";
 
-  // 🔥 Animaciones solo activas en GameRoom
   useEffect(() => {
     if (currentPage === "gameRoom") {
-      // Pulsación ligera
       pulse.value = withRepeat(
         withTiming(1, {
           duration: 1200,
@@ -63,28 +62,27 @@ export default function TopicsCta() {
         true
       );
 
-      // Reset timer
-      timerProgress.value = 1;
-      setSecondsLeft(TOTAL_SECONDS);
+      if (useTimer) {
+        timerProgress.value = 1;
+        setSecondsLeft(TOTAL_SECONDS);
 
-      // Animación visual del progreso (UI thread)
-      timerProgress.value = withTiming(0, {
-        duration: TOTAL_MS,
-        easing: Easing.linear,
-      });
-
-      // Timer real en JS cada 1 segundo (mucho más liviano)
-      const interval = setInterval(() => {
-        setSecondsLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
+        timerProgress.value = withTiming(0, {
+          duration: TOTAL_MS,
+          easing: Easing.linear,
         });
-      }, 1000);
 
-      return () => clearInterval(interval);
+        const interval = setInterval(() => {
+          setSecondsLeft((prev) => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+
+        return () => clearInterval(interval);
+      }
     } else {
       cancelAnimation(pulse);
       cancelAnimation(timerProgress);
@@ -92,17 +90,16 @@ export default function TopicsCta() {
       timerProgress.value = 1;
       setSecondsLeft(TOTAL_SECONDS);
     }
-  }, [currentPage]);
+  }, [currentPage, useTimer]);
 
-  // 🔥 Card pulse animado
   const popingStyle = useAnimatedStyle(() => {
     const scale = interpolate(pulse.value, [0, 1], [1, 1.02]);
+
     return {
       transform: [{ scale }],
     };
   });
 
-  // 🔥 Barra progresiva optimizada
   const timerBarStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
       timerProgress.value,
@@ -130,7 +127,7 @@ export default function TopicsCta() {
     <View style={styles.wrapper}>
       <Animated.View style={[styles.card, popingStyle]}>
         <LinearGradient
-          colors={["#425bac77", "#1e293b46", "#312e81a0"]}
+          colors={["#627fff7a", "#192e508c", "#312e81a4"]}
           start={{ x: 0, y: 1 }}
           end={{ x: 0, y: 0 }}
           style={styles.cardInner}
@@ -155,28 +152,28 @@ export default function TopicsCta() {
                   lava, ceniza y gases.
                 </Text>
 
-                {currentPage === "gameRoom" && gameMode === "survival" && (
-                  <View style={styles.timerRow}>
-                    <Animated.Text
-                      style={[styles.timerText, timerTextStyle]}
-                    >
-                      {gameMode === "survival" && (
-                        <FontAwesome6
-                          name="heart-circle-minus"
+                {useTimer &&
+                  currentPage === "gameRoom" &&
+                  gameMode === "survival" && (
+                    <View style={styles.timerRow}>
+                      <Animated.Text
+                        style={[styles.timerText, timerTextStyle]}
+                      >
+                        <MaterialCommunityIcons
+                          name="heart-minus-outline"
                           size={14}
                           color="#f44b81"
-                        />
-                      )}{" "}
-                      {secondsLeft}
-                    </Animated.Text>
+                        />{" "}
+                        {secondsLeft}
+                      </Animated.Text>
 
-                    <View style={styles.timerContainer}>
-                      <Animated.View
-                        style={[styles.timerBar, timerBarStyle]}
-                      />
+                      <View style={styles.timerContainer}>
+                        <Animated.View
+                          style={[styles.timerBar, timerBarStyle]}
+                        />
+                      </View>
                     </View>
-                  </View>
-                )}
+                  )}
               </View>
             </View>
 
@@ -196,6 +193,7 @@ export default function TopicsCta() {
                   <Text style={styles.percentageText}>
                     Nivel 28
                   </Text>
+
                   <FontAwesome6
                     style={{ marginTop: -2 }}
                     name="ranking-star"
@@ -208,18 +206,6 @@ export default function TopicsCta() {
           </View>
         </LinearGradient>
       </Animated.View>
-
-      {currentPage === "index" && (
-        <TouchableOpacity
-          activeOpacity={0.9}
-          style={styles.buttonOuter}
-          onPress={() => router.push("/GameRoom")}
-        >
-          <View style={styles.buttonInner}>
-            <Text style={styles.buttonText}>Jugar</Text>
-          </View>
-        </TouchableOpacity>
-      )}
 
       <Modal
         visible={imageVisible}
@@ -338,27 +324,6 @@ const styles = StyleSheet.create({
     color: "#b8b2c3",
     fontWeight: "700",
     fontSize: 13,
-  },
-
-  buttonOuter: {
-    marginTop: 18,
-    width: width * 0.66,
-    borderRadius: 24,
-  },
-
-  buttonInner: {
-    backgroundColor: "#5153ff",
-    borderRadius: 16,
-    paddingVertical: 11,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: "900",
-    fontSize: 17,
-    letterSpacing: 1,
   },
 
   modalOverlay: {
