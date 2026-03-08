@@ -51,6 +51,8 @@ export default function TopicsCta({ useTimer = true }: Props) {
   const mockImage =
     "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800";
 
+  const level = 7;
+
   useEffect(() => {
     if (currentPage === "gameRoom") {
       pulse.value = withRepeat(
@@ -143,6 +145,11 @@ export default function TopicsCta({ useTimer = true }: Props) {
                     source={{ uri: mockImage }}
                     style={styles.thumbnail}
                   />
+
+                  <View style={styles.levelBadge}>
+                    <FontAwesome6 name="ranking-star" size={10} color="#fff" />
+                    <Text style={styles.levelBadgeText}>Lv. {level}</Text>
+                  </View>
                 </View>
               </TouchableOpacity>
 
@@ -176,33 +183,6 @@ export default function TopicsCta({ useTimer = true }: Props) {
                   )}
               </View>
             </View>
-
-            <View style={styles.levelProgressWrapper}>
-              <View style={styles.progressHeader}>
-                <Text style={styles.levelTitle}>
-                  Que palabra es ¿...?
-                </Text>
-
-                <View
-                  style={{
-                    flexDirection: "row",
-                    gap: 7,
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <Text style={styles.percentageText}>
-                    Nivel 28
-                  </Text>
-
-                  <FontAwesome6
-                    style={{ marginTop: -2 }}
-                    name="ranking-star"
-                    size={15}
-                    color="#ffcc25"
-                  />
-                </View>
-              </View>
-            </View>
           </View>
         </LinearGradient>
       </Animated.View>
@@ -218,10 +198,7 @@ export default function TopicsCta({ useTimer = true }: Props) {
           onPress={() => setImageVisible(false)}
         >
           <View style={styles.popupContainer}>
-            <Image
-              source={{ uri: mockImage }}
-              style={styles.fullImage}
-            />
+            <Image source={{ uri: mockImage }} style={styles.fullImage} />
           </View>
         </Pressable>
       </Modal>
@@ -297,6 +274,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 110,
     borderRadius: 16,
+    position: "relative",
   },
 
   thumbnail: {
@@ -307,23 +285,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
 
-  levelProgressWrapper: { gap: 6 },
-
-  progressHeader: {
+  levelBadge: {
+    position: "absolute",
+    bottom: 6,
+    left: 6,
+    right: 6,
+    backgroundColor: "#000000b0",
+    borderRadius: 8,
+    paddingVertical: 3,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 4,
+    borderWidth: 1,
+    borderColor: "#ffffff55",
   },
 
-  levelTitle: {
-    color: "#b8b2c3",
-    fontWeight: "600",
-    fontSize: 14.5,
-  },
-
-  percentageText: {
-    color: "#b8b2c3",
-    fontWeight: "700",
-    fontSize: 13,
+  levelBadgeText: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "800",
   },
 
   modalOverlay: {

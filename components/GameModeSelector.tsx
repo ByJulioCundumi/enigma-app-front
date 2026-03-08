@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -30,41 +30,29 @@ export default function GameModeSelector() {
     (state: IRootState) => state.gameMode
   );
 
-  /* 🔥 inicia con la posición correcta para evitar retraso al montar */
+  /* posición inicial */
 
   const progress = useSharedValue(
     gameMode === "normal" ? 0 : 1
   );
 
-  const scale = useSharedValue(1);
-
-  /* ===== Animación cuando cambia el modo ===== */
-
-  useEffect(() => {
-    const target = gameMode === "normal" ? 0 : 1;
-
-    if (progress.value !== target) {
-      progress.value = withSpring(target, {
-        damping: 15,
-        stiffness: 160,
-        mass: 0.8,
-      });
-    }
-  }, [gameMode]);
-
   const handleChange = (mode: Mode) => {
     if (mode === gameMode) return;
 
-    scale.value = withSpring(0.95, { damping: 12 });
+    const target = mode === "normal" ? 0 : 1;
 
-    setTimeout(() => {
-      scale.value = withSpring(1);
-    }, 120);
+    /* animación inmediata */
+    progress.value = withSpring(target, {
+      damping: 15,
+      stiffness: 160,
+      mass: 0.8,
+    });
 
+    /* actualizar redux */
     dispatch(setGameMode(mode));
   };
 
-  /* ===== Indicador animado ===== */
+  /* indicador animado */
 
   const animatedIndicator = useAnimatedStyle(() => {
     const translateX = progress.value * OPTION_WIDTH;
@@ -77,7 +65,7 @@ export default function GameModeSelector() {
     };
   });
 
-  /* ===== Glow dinámico ===== */
+  /* glow dinámico */
 
   const animatedContainer = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
@@ -88,7 +76,6 @@ export default function GameModeSelector() {
 
     return {
       backgroundColor,
-      transform: [{ scale: scale.value }],
     };
   });
 
@@ -104,7 +91,7 @@ export default function GameModeSelector() {
           animatedContainer,
         ]}
       >
-        {/* Indicador */}
+        {/* indicador */}
         <Animated.View
           style={[
             styles.animatedIndicator,
@@ -119,7 +106,7 @@ export default function GameModeSelector() {
           />
         </Animated.View>
 
-        {/* Normal */}
+        {/* normal */}
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.option}
@@ -131,7 +118,7 @@ export default function GameModeSelector() {
             color={
               gameMode === "normal"
                 ? "#fff"
-                : "#94a3b8"
+                : "#ffffff"
             }
           />
 
@@ -146,7 +133,7 @@ export default function GameModeSelector() {
           </Text>
         </TouchableOpacity>
 
-        {/* Survival */}
+        {/* survival */}
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.option}
@@ -160,7 +147,7 @@ export default function GameModeSelector() {
             color={
               gameMode === "survival"
                 ? "#fff"
-                : "#94a3b8"
+                : "#ffffff"
             }
           />
 
@@ -182,15 +169,13 @@ export default function GameModeSelector() {
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
-    marginVertical: 20,
-    marginTop: 70,
   },
 
   label: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: "700",
     color: "#cbd5e1",
-    marginBottom: 12,
+    marginBottom: 10,
     letterSpacing: 1,
     textTransform: "uppercase",
   },
@@ -237,7 +222,7 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 13,
     fontWeight: "800",
-    color: "#94a3b8",
+    color: "#ffffff",
     letterSpacing: 0.5,
   },
 

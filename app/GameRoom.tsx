@@ -4,7 +4,7 @@ import TopicsCta from "@/components/TopicsCta";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { ImageBackground, StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 
 export default function GameRoom() {
@@ -15,6 +15,11 @@ export default function GameRoom() {
   }, []);
 
   return (
+    <ImageBackground
+          source={require("../assets/images/bg2.avif")}
+          resizeMode="cover"
+          style={styles.container}
+        >
     <LinearGradient
       colors={["#1231755b", "#162d51", "#312e81b9"]}
       start={{ x: 0, y: 1 }}
@@ -39,6 +44,7 @@ export default function GameRoom() {
       </View>
 
     </LinearGradient>
+    </ImageBackground>
   );
 }
 
