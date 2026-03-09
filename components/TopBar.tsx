@@ -8,8 +8,6 @@ import {
   Platform,
 } from "react-native";
 import {
-  Entypo,
-  FontAwesome5,
   FontAwesome6,
   Ionicons,
   MaterialCommunityIcons,
@@ -25,9 +23,10 @@ const { width } = Dimensions.get("window");
 
 interface Props {
   lives?: number;
+  level?: number;
 }
 
-export default function TopBar({ lives = 253 }: Props) {
+export default function TopBar({ lives = 253, level = 27 }: Props) {
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -69,6 +68,18 @@ export default function TopBar({ lives = 253 }: Props) {
             value={lives}
             type="lives"
           />
+
+          <Stat
+            icon={
+              <FontAwesome6
+                name="ranking-star"
+                size={12}
+                color="#60a5fa"
+              />
+            }
+            value={level}
+            type="level"
+          />
         </View>
 
         {/* BOTON REWARD ADS */}
@@ -89,9 +100,9 @@ const RewardAdsButton = () => {
         end={{ x: 1, y: 1 }}
         style={styles.adButton}
       >
-        <Entypo name="video" size={16} color="#fff" />
+        <MaterialCommunityIcons name="movie-open-play" size={16} color="#fff" />
 
-        <Text style={styles.adText}>AD</Text>
+        <Text style={styles.adText}>+5</Text>
 
         <FontAwesome6 name="bolt-lightning" size={13} color="#fff" />
       </LinearGradient>
@@ -109,29 +120,28 @@ const formatNumber = (num: number) => {
 
 const Stat = ({ icon, value, type }: any) => {
   const isLives = type === "lives";
+  const isLevel = type === "level";
 
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       style={[
         styles.statBadge,
-        isLives ? styles.livesBadge : styles.coinsBadge,
+        isLives && styles.livesBadge,
+        isLevel && styles.levelBadge,
       ]}
     >
       {icon}
 
       <Text style={styles.statText} numberOfLines={1}>
-        {formatNumber(value)}
+        {isLevel ? `Lv. ${value}` : formatNumber(value)}
       </Text>
 
-      <View
-        style={[
-          styles.plusButton,
-          isLives && styles.plusLives,
-        ]}
-      >
-        <Ionicons name="add" size={10} color="#fff" />
-      </View>
+      {isLives && (
+        <View style={[styles.plusButton, styles.plusLives]}>
+          <Ionicons name="add" size={10} color="#fff" />
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
@@ -175,12 +185,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     paddingHorizontal: 6,
+    marginRight: -32
   },
 
   statBadge: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     height: 32,
     borderRadius: 20,
   },
@@ -191,10 +202,10 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,92,124,0.35)",
   },
 
-  coinsBadge: {
-    backgroundColor: "rgba(251,191,36,0.15)",
+  levelBadge: {
+    backgroundColor: "rgba(96,165,250,0.15)",
     borderWidth: 1,
-    borderColor: "rgba(251,191,36,0.35)",
+    borderColor: "rgba(96,165,250,0.35)",
   },
 
   statText: {
@@ -209,7 +220,6 @@ const styles = StyleSheet.create({
     width: 15,
     height: 15,
     borderRadius: 8,
-    backgroundColor: "#FBBF24",
     alignItems: "center",
     justifyContent: "center",
   },

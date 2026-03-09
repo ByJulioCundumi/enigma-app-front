@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   Switch,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 export default function SettingsButton() {
   const [visible, setVisible] = useState(false);
@@ -30,6 +30,7 @@ export default function SettingsButton() {
 
         {/* Badge idioma */}
         <View style={styles.languageBadge}>
+          <MaterialIcons name="g-translate" size={8} color="#fff" />
           <Text style={styles.languageText}>{currentLanguage}</Text>
         </View>
       </TouchableOpacity>
@@ -88,7 +89,7 @@ export default function SettingsButton() {
 
 const styles = StyleSheet.create({
   settingsButton: {
-    width: 60,
+    width: 30,
     height: 60,
     borderRadius: 30,
     justifyContent: "center",
@@ -99,14 +100,17 @@ const styles = StyleSheet.create({
 
   languageBadge: {
     position: "absolute",
-    top: 6,
-    right: 6,
+    top: 14,
+    right: -20,
     backgroundColor: "#6366F1",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2
   },
 
   languageText: {
