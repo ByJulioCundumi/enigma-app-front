@@ -17,6 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
+import TopicList from "@/components/TopicList";
 
 export default function Index() {
   const dispatch = useDispatch();
@@ -115,7 +116,7 @@ export default function Index() {
                 <Text style={styles.buttonText}>Jugar</Text>
 
                 <View style={styles.energyBadge}>
-                  <FontAwesome6 name="heart-circle-bolt" size={14} color="#ff5c7c" />
+                  <FontAwesome6 name="bolt-lightning" size={14} color="#ff5c7c" />
                   <Text style={styles.energyText}>{requiredHearts}</Text>
                 </View>
               </View>
@@ -126,7 +127,7 @@ export default function Index() {
       </View>
 
       <View style={styles.rankingSection}>
-        <Ranking />
+        <TopicList />
       </View>
 
       <View style={styles.bottom}>

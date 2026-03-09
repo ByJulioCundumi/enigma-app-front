@@ -8,29 +8,26 @@ import {
   Platform,
 } from "react-native";
 import {
+  Entypo,
   FontAwesome5,
   FontAwesome6,
   Ionicons,
+  MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { useRouter } from "expo-router";
-import Profile from "./Profile";
-import VipButton from "./VipButton";
 import SettingsButton from "./SettingsButton";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
 
 interface Props {
   lives?: number;
-  coins?: number;
 }
 
-export default function TopBar({
-  lives = 253,
-  coins = 221,
-}: Props) {
+export default function TopBar({ lives = 253 }: Props) {
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -64,7 +61,7 @@ export default function TopBar({
           <Stat
             icon={
               <FontAwesome6
-                name="heart-circle-bolt"
+                name="bolt-lightning"
                 size={15}
                 color="#ff5c7c"
               />
@@ -72,25 +69,35 @@ export default function TopBar({
             value={lives}
             type="lives"
           />
-          <Stat
-            icon={
-              <FontAwesome5
-                name="coins"
-                size={14}
-                color="#FBBF24"
-              />
-            }
-            value={coins}
-            type="coins"
-          />
         </View>
 
-        {/* PERFIL */}
-        <Profile />
+        {/* BOTON REWARD ADS */}
+        <RewardAdsButton />
       </View>
     </View>
   );
 }
+
+/* ================= REWARD ADS ================= */
+
+const RewardAdsButton = () => {
+  return (
+    <TouchableOpacity activeOpacity={0.85} style={styles.adWrapper}>
+      <LinearGradient
+        colors={["#ff5c7c", "#ff2d55"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.adButton}
+      >
+        <Entypo name="video" size={16} color="#fff" />
+
+        <Text style={styles.adText}>AD</Text>
+
+        <FontAwesome6 name="bolt-lightning" size={13} color="#fff" />
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+};
 
 /* ================= STAT ================= */
 
@@ -112,9 +119,11 @@ const Stat = ({ icon, value, type }: any) => {
       ]}
     >
       {icon}
+
       <Text style={styles.statText} numberOfLines={1}>
         {formatNumber(value)}
       </Text>
+
       <View
         style={[
           styles.plusButton,
@@ -207,5 +216,30 @@ const styles = StyleSheet.create({
 
   plusLives: {
     backgroundColor: "#ff5c7c",
+  },
+
+  adWrapper: {
+    marginLeft: 6,
+  },
+
+  adButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    height: 36,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
+    shadowColor: "#ff2d55",
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+  },
+
+  adText: {
+    fontWeight: "900",
+    fontSize: 12,
+    color: "#fff",
+    letterSpacing: 0.8,
   },
 });
