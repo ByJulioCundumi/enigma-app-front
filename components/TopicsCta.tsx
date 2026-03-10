@@ -9,7 +9,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome6, MaterialCommunityIcons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -50,6 +50,8 @@ export default function TopicsCta({ useTimer = true }: Props) {
 
   const mockImage =
     "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800";
+
+  const topicName = "Volcanes";
 
   const level = 7;
 
@@ -127,6 +129,18 @@ export default function TopicsCta({ useTimer = true }: Props) {
 
   return (
     <View style={styles.wrapper}>
+      <View style={styles.topicHeader}>
+        <LinearGradient
+          colors={["#6366f1", "#4338ca"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.topicHeaderInner}
+        >
+          <Octicons name="multi-select" size={12} color="#fff" />
+          <Text style={styles.topicTitle}>{topicName}</Text>
+        </LinearGradient>
+      </View>
+
       <Animated.View style={[styles.card, popingStyle]}>
         <LinearGradient
           colors={["#627fff7a", "#192e508c", "#312e81a4"]}
@@ -210,6 +224,32 @@ const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
     alignItems: "center",
+    paddingTop: 20,
+  },
+
+  topicHeader: {
+    position: "absolute",
+    top: 6,
+    alignSelf: "center",
+    zIndex: 10,
+  },
+
+  topicHeaderInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 18,
+    paddingVertical: 3,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#ffffff4b",
+  },
+
+  topicTitle: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "500",
+    letterSpacing: 0.5,
   },
 
   card: {
@@ -217,12 +257,14 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     borderWidth: 1,
     borderColor: "#c1c1c147",
+    padding: 5
   },
 
   cardInner: {
     borderRadius: 30,
     paddingHorizontal: 22,
     paddingVertical: 15,
+    paddingTop: 28,
   },
 
   content: { gap: 10 },
@@ -231,6 +273,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
     alignItems: "center",
+    marginTop: -14
   },
 
   descriptionContainer: { flex: 1 },

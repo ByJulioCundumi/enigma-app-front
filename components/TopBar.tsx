@@ -16,17 +16,16 @@ import { useSelector, useDispatch } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { useRouter } from "expo-router";
-import SettingsButton from "./SettingsButton";
 import { LinearGradient } from "expo-linear-gradient";
+import SettingsButton from "./SettingsButton";
 
 const { width } = Dimensions.get("window");
 
 interface Props {
   lives?: number;
-  level?: number;
 }
 
-export default function TopBar({ lives = 253, level = 27 }: Props) {
+export default function TopBar({ lives = 253 }: Props) {
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -42,21 +41,21 @@ export default function TopBar({ lives = 253, level = 27 }: Props) {
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-        {/* IZQUIERDA DINÁMICA */}
-        {currentPage === "index" ? (
-          <SettingsButton />
-        ) : (
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.backButton}
-            onPress={goToIndex}
-          >
-            <Ionicons name="arrow-back" size={20} color="#fff" />
-          </TouchableOpacity>
-        )}
+        
+        {/* IZQUIERDA */}
+        <View style={styles.leftGroup}>
+          {currentPage === "index" ? (
+            <SettingsButton />
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.backButton}
+              onPress={goToIndex}
+            >
+              <Ionicons name="arrow-back" size={20} color="#fff" />
+            </TouchableOpacity>
+          )}
 
-        {/* STATS */}
-        <View style={styles.statsContainer}>
           <Stat
             icon={
               <FontAwesome6
@@ -66,24 +65,12 @@ export default function TopBar({ lives = 253, level = 27 }: Props) {
               />
             }
             value={lives}
-            type="lives"
-          />
-
-          <Stat
-            icon={
-              <FontAwesome6
-                name="ranking-star"
-                size={12}
-                color="#60a5fa"
-              />
-            }
-            value={level}
-            type="level"
           />
         </View>
 
-        {/* BOTON REWARD ADS */}
+        {/* DERECHA */}
         <RewardAdsButton />
+
       </View>
     </View>
   );
@@ -93,7 +80,7 @@ export default function TopBar({ lives = 253, level = 27 }: Props) {
 
 const RewardAdsButton = () => {
   return (
-    <TouchableOpacity activeOpacity={0.85} style={styles.adWrapper}>
+    <TouchableOpacity activeOpacity={0.85}>
       <LinearGradient
         colors={["#ff5c7c", "#ff2d55"]}
         start={{ x: 0, y: 0 }}
@@ -118,30 +105,16 @@ const formatNumber = (num: number) => {
   return num;
 };
 
-const Stat = ({ icon, value, type }: any) => {
-  const isLives = type === "lives";
-  const isLevel = type === "level";
-
+const Stat = ({ icon, value }: any) => {
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={[
-        styles.statBadge,
-        isLives && styles.livesBadge,
-        isLevel && styles.levelBadge,
-      ]}
-    >
+    <TouchableOpacity activeOpacity={0.8} style={styles.statBadge}>
       {icon}
 
-      <Text style={styles.statText} numberOfLines={1}>
-        {isLevel ? `Lv. ${value}` : formatNumber(value)}
-      </Text>
+      <Text style={styles.statText}>{formatNumber(value)}</Text>
 
-      {isLives && (
-        <View style={[styles.plusButton, styles.plusLives]}>
-          <Ionicons name="add" size={10} color="#fff" />
-        </View>
-      )}
+      <View style={styles.plusButton}>
+        <Ionicons name="add" size={10} color="#fff" />
+      </View>
     </TouchableOpacity>
   );
 };
@@ -160,6 +133,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     width: width * 0.95,
     height: 70,
     borderRadius: 28,
@@ -169,6 +143,12 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.12)",
   },
 
+  leftGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
   backButton: {
     width: 42,
     height: 42,
@@ -176,16 +156,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.08)",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 4,
-  },
-
-  statsContainer: {
-    flexDirection: "row",
-    flex: 1,
-    justifyContent: "center",
-    gap: 8,
-    paddingHorizontal: 6,
-    marginRight: -32
   },
 
   statBadge: {
@@ -194,23 +164,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 32,
     borderRadius: 20,
-  },
-
-  livesBadge: {
     backgroundColor: "rgba(255,92,124,0.15)",
     borderWidth: 1,
     borderColor: "rgba(255,92,124,0.35)",
-  },
-
-  levelBadge: {
-    backgroundColor: "rgba(96,165,250,0.15)",
-    borderWidth: 1,
-    borderColor: "rgba(96,165,250,0.35)",
+    gap: 5
   },
 
   statText: {
     marginLeft: 4,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "900",
     color: "#fff",
   },
@@ -220,16 +182,9 @@ const styles = StyleSheet.create({
     width: 15,
     height: 15,
     borderRadius: 8,
+    backgroundColor: "#ff5c7c",
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  plusLives: {
-    backgroundColor: "#ff5c7c",
-  },
-
-  adWrapper: {
-    marginLeft: 6,
   },
 
   adButton: {

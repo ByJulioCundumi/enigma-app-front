@@ -16,7 +16,7 @@ import Animated, {
   interpolate,
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
-import { FontAwesome6, Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 import TopicList from "@/components/TopicList";
 
 export default function Index() {
@@ -93,7 +93,6 @@ export default function Index() {
             onPress={() => router.push("/GameRoom")}
           >
             <View style={styles.buttonInner}>
-
               <Animated.View style={[styles.shineContainer, shineStyle]}>
                 <LinearGradient
                   colors={[
@@ -103,7 +102,7 @@ export default function Index() {
                     "rgba(255,255,255,0.27)",
                     "rgba(255,255,255,0.08)",
                     "rgba(255,255,255,0.28)",
-                    "rgba(255,255,255,0.3)"
+                    "rgba(255,255,255,0.3)",
                   ]}
                   locations={[0, 0.2, 0.35, 0.5, 0.65, 0.8, 1]}
                   start={{ x: 0, y: 0 }}
@@ -115,12 +114,13 @@ export default function Index() {
               <View style={styles.buttonContent}>
                 <Text style={styles.buttonText}>Jugar</Text>
 
+                <FontAwesome5 name="dice" size={18} color="#e7e7e7" />
+
                 <View style={styles.energyBadge}>
                   <FontAwesome6 name="bolt-lightning" size={14} color="#ff5c7c" />
                   <Text style={styles.energyText}>{requiredHearts}</Text>
                 </View>
               </View>
-
             </View>
           </TouchableOpacity>
         </Animated.View>
@@ -163,18 +163,21 @@ const styles = StyleSheet.create({
 
   bottom: {
     width: "100%",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   buttonOuter: {
     borderRadius: 24,
-    width: 240,
+    width: 230,
     overflow: "hidden",
   },
 
   buttonInner: {
     backgroundColor: "#5153ff",
     borderRadius: 16,
-    paddingVertical: 14,
+    paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -182,6 +185,7 @@ const styles = StyleSheet.create({
 
   buttonContent: {
     flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
     gap: 10,
   },
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
-    marginBottom: -4
+    marginBottom: -4,
   },
 
   energyText: {

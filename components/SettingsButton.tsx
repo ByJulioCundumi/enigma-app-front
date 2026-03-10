@@ -8,31 +8,24 @@ import {
   TouchableWithoutFeedback,
   Switch,
 } from "react-native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function SettingsButton() {
   const [visible, setVisible] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicEnabled, setMusicEnabled] = useState(true);
 
-  // 🔥 Idioma interno (luego puedes conectarlo a i18n)
   const currentLanguage = "ES";
 
   return (
     <>
-      {/* BOTÓN FLOTANTE */}
+      {/* BOTÓN AJUSTES */}
       <TouchableOpacity
         style={styles.settingsButton}
         onPress={() => setVisible(true)}
         activeOpacity={0.85}
       >
-        <Ionicons name="settings" size={32} color="#755dff" />
-
-        {/* Badge idioma */}
-        <View style={styles.languageBadge}>
-          <MaterialIcons name="g-translate" size={8} color="#fff" />
-          <Text style={styles.languageText}>{currentLanguage}</Text>
-        </View>
+        <Ionicons name="settings" size={22} color="#755dff" />
       </TouchableOpacity>
 
       {/* MODAL */}
@@ -89,35 +82,12 @@ export default function SettingsButton() {
 
 const styles = StyleSheet.create({
   settingsButton: {
-    width: 30,
-    height: 60,
-    borderRadius: 30,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-  },
-
-  /* NUEVO BADGE IDIOMA */
-
-  languageBadge: {
-    position: "absolute",
-    top: 14,
-    right: -20,
-    backgroundColor: "#6366F1",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2
-  },
-
-  languageText: {
-    fontSize: 9,
-    fontWeight: "900",
-    color: "#fff",
-    letterSpacing: 0.5,
+    backgroundColor: "rgba(255,255,255,0.08)",
   },
 
   overlay: {

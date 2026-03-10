@@ -16,12 +16,13 @@ interface Topic {
   levelsCompleted: number;
   totalLevels: number;
   favorite?: boolean;
+  popular?: boolean;
 }
 
 const MOCK_TOPICS: Topic[] = [
-  { id: "1", name: "Personajes", levelsCompleted: 20, totalLevels: 100 },
+  { id: "1", name: "Personajes", levelsCompleted: 20, totalLevels: 100, popular: true },
   { id: "2", name: "Películas", levelsCompleted: 12, totalLevels: 80 },
-  { id: "3", name: "Anime", levelsCompleted: 35, totalLevels: 120 },
+  { id: "3", name: "Anime", levelsCompleted: 35, totalLevels: 120, popular: true },
   { id: "4", name: "Videojuegos", levelsCompleted: 8, totalLevels: 60 },
   { id: "5", name: "Animales", levelsCompleted: 40, totalLevels: 90 },
 ];
@@ -30,6 +31,7 @@ export default function TopicList() {
   const [topics, setTopics] = useState(MOCK_TOPICS);
   const [search, setSearch] = useState("");
   const [showFavorites, setShowFavorites] = useState(false);
+  const [showPopular, setShowPopular] = useState(false);
 
   const toggleFavorite = (id: string) => {
     setTopics((prev) =>
@@ -44,10 +46,11 @@ export default function TopicList() {
         .includes(search.toLowerCase());
 
       const matchFavorite = showFavorites ? t.favorite : true;
+      const matchPopular = showPopular ? t.popular : true;
 
-      return matchSearch && matchFavorite;
+      return matchSearch && matchFavorite && matchPopular;
     });
-  }, [topics, search, showFavorites]);
+  }, [topics, search, showFavorites, showPopular]);
 
   const renderTopic = ({ item }: any) => {
     const progress = Math.floor(
@@ -56,25 +59,26 @@ export default function TopicList() {
 
     return (
       <View style={styles.card}>
+        {item.popular && (
+          <View style={styles.ribbon}>
+            <Ionicons name="flame" size={10} color="white" />
+            <Text style={styles.ribbonText}>POPULAR</Text>
+          </View>
+        )}
+
         <View style={styles.row}>
-          {/* IMÁGENES */}
           <View style={styles.imageStack}>
             <Image
-              source={{
-                uri: `https://picsum.photos/seed/${item.id}a/100/100`,
-              }}
+              source={{ uri: `https://picsum.photos/seed/${item.id}a/100/100` }}
               style={[styles.image, styles.imageBack]}
             />
 
             <Image
-              source={{
-                uri: `https://picsum.photos/seed/${item.id}b/100/100`,
-              }}
+              source={{ uri: `https://picsum.photos/seed/${item.id}b/100/100` }}
               style={[styles.image, styles.imageFront]}
             />
           </View>
 
-          {/* INFO */}
           <View style={styles.info}>
             <Text style={styles.name}>{item.name}</Text>
 
@@ -83,9 +87,7 @@ export default function TopicList() {
                 {item.levelsCompleted}/{item.totalLevels} niveles
               </Text>
 
-              <TouchableOpacity
-                onPress={() => toggleFavorite(item.id)}
-              >
+              <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
                 <Ionicons
                   name={item.favorite ? "heart" : "heart-outline"}
                   size={18}
@@ -95,7 +97,6 @@ export default function TopicList() {
             </View>
           </View>
 
-          {/* DERECHA */}
           <View style={styles.right}>
             <Text style={styles.percent}>{progress}%</Text>
 
@@ -106,11 +107,8 @@ export default function TopicList() {
           </View>
         </View>
 
-        {/* BARRA PROGRESO */}
         <View style={styles.progressContainer}>
-          <View
-            style={[styles.progressFill, { width: `${progress}%` }]}
-          />
+          <View style={[styles.progressFill, { width: `${progress}%` }]} />
         </View>
       </View>
     );
@@ -118,7 +116,6 @@ export default function TopicList() {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* BUSCADOR */}
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={18} color="#94A3B8" />
 
@@ -131,7 +128,30 @@ export default function TopicList() {
         />
 
         <TouchableOpacity
+          onPress={() => setShowPopular(!showPopular)}
+          style={[
+            styles.popularFilter,
+            showPopular && styles.popularFilterActive,
+          ]}
+        >
+          <Ionicons
+            name="flame"
+            size={14}
+            color={showPopular ? "white" : "#F97316"}
+          />
+          <Text
+            style={[
+              styles.popularText,
+              showPopular && styles.popularTextActive,
+            ]}
+          >
+            Popular
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           onPress={() => setShowFavorites(!showFavorites)}
+          style={styles.favoriteButton}
         >
           <Ionicons
             name={showFavorites ? "heart" : "heart-outline"}
@@ -171,6 +191,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
+  favoriteButton: {
+    marginLeft: 8,
+  },
+
+  popularFilter: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#F97316",
+  },
+
+  popularFilterActive: {
+    backgroundColor: "#F97316",
+  },
+
+  popularText: {
+    fontSize: 12,
+    marginLeft: 4,
+    color: "#F97316",
+    fontWeight: "700",
+  },
+
+  popularTextActive: {
+    color: "white",
+  },
+
   card: {
     backgroundColor: "#0B1220",
     borderRadius: 18,
@@ -178,6 +228,28 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: "#1E293B",
+    overflow: "hidden",
+  },
+
+  ribbon: {
+    position: "absolute",
+    top: 8,
+    left: -30,
+    transform: [{ rotate: "-35deg" }],
+    width: 140,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F97316",
+    paddingVertical: 3,
+    zIndex: 100
+  },
+
+  ribbonText: {
+    color: "white",
+    fontSize: 10,
+    fontWeight: "900",
+    marginLeft: 4,
   },
 
   row: {
@@ -226,7 +298,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 2,
-    marginRight: 2
+    marginRight: 2,
   },
 
   levels: {

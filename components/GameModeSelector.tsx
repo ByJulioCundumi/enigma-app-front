@@ -11,7 +11,7 @@ import Animated, {
   withSpring,
   interpolateColor,
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
@@ -82,7 +82,7 @@ export default function GameModeSelector() {
   return (
     <View style={styles.wrapper}>
       <Text style={styles.label}>
-        Modalidad de Juego
+        Modo de Juego
       </Text>
 
       <Animated.View
@@ -112,15 +112,7 @@ export default function GameModeSelector() {
           style={styles.option}
           onPress={() => handleChange("normal")}
         >
-          <Ionicons
-            name="flash"
-            size={16}
-            color={
-              gameMode === "normal"
-                ? "#fff"
-                : "#ffffff"
-            }
-          />
+          <MaterialIcons name="arrow-right" size={16} color="#fff" />
 
           <Text
             style={[
@@ -141,15 +133,7 @@ export default function GameModeSelector() {
             handleChange("survival")
           }
         >
-          <Ionicons
-            name="timer"
-            size={16}
-            color={
-              gameMode === "survival"
-                ? "#fff"
-                : "#ffffff"
-            }
-          />
+          <MaterialCommunityIcons name="timer-sand" size={16} color="#fff" />
 
           <Text
             style={[
@@ -158,7 +142,7 @@ export default function GameModeSelector() {
                 styles.activeText,
             ]}
           >
-            Supervivencia
+            Contra Reloj
           </Text>
         </TouchableOpacity>
       </Animated.View>
