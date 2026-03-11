@@ -21,7 +21,7 @@ export default function GameRoom() {
           style={styles.container}
         >
     <LinearGradient
-      colors={["#1231755b", "#162d51", "#312e81b9"]}
+      colors={["#264a975b", "#162d51", "#312e81b9"]}
       start={{ x: 0, y: 1 }}
       end={{ x: 0, y: 0 }}
       style={styles.container}
@@ -36,11 +36,9 @@ export default function GameRoom() {
             "Puede expulsar lava y ceniza.",
             "Entra en erupción cuando aumenta la presión interna.",
           ]}
-          baseCost={10}
-          increment={15}
         />
         
-        <GameKeyboard word="VOLCAN HUECO" />
+        <GameKeyboard word="VOLCAN" />
       </View>
 
     </LinearGradient>

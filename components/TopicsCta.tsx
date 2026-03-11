@@ -9,7 +9,12 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { FontAwesome6, MaterialCommunityIcons, MaterialIcons, Octicons } from "@expo/vector-icons";
+import {
+  FontAwesome,
+  FontAwesome6,
+  MaterialCommunityIcons,
+  Octicons,
+} from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -129,19 +134,20 @@ export default function TopicsCta({ useTimer = true }: Props) {
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.topicHeader}>
-        <LinearGradient
-          colors={["#6366f1", "#4338ca"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.topicHeaderInner}
-        >
-          <Octicons name="multi-select" size={12} color="#fff" />
-          <Text style={styles.topicTitle}>{topicName}</Text>
-        </LinearGradient>
-      </View>
-
       <Animated.View style={[styles.card, popingStyle]}>
+        {/* BADGE DE TEMÁTICA */}
+        <View style={styles.topicHeader}>
+          <LinearGradient
+            colors={["#6366f1", "#4338ca"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.topicHeaderInner}
+          >
+            <Octicons name="multi-select" size={12} color="#fff" />
+            <Text style={styles.topicTitle}>{topicName}</Text>
+          </LinearGradient>
+        </View>
+
         <LinearGradient
           colors={["#627fff7a", "#192e508c", "#312e81a4"]}
           start={{ x: 0, y: 1 }}
@@ -180,12 +186,7 @@ export default function TopicsCta({ useTimer = true }: Props) {
                       <Animated.Text
                         style={[styles.timerText, timerTextStyle]}
                       >
-                        <MaterialCommunityIcons
-                          name="heart-minus-outline"
-                          size={14}
-                          color="#f44b81"
-                        />{" "}
-                        {secondsLeft}
+                        <MaterialCommunityIcons name="timer-sand" size={15} color="#f44b81" />
                       </Animated.Text>
 
                       <View style={styles.timerContainer}>
@@ -229,8 +230,10 @@ const styles = StyleSheet.create({
 
   topicHeader: {
     position: "absolute",
-    top: 6,
-    alignSelf: "center",
+    top: -12,
+    left: 0,
+    right: 0,
+    alignItems: "center",
     zIndex: 10,
   },
 
@@ -248,7 +251,7 @@ const styles = StyleSheet.create({
   topicTitle: {
     color: "#fff",
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: "600",
     letterSpacing: 0.5,
   },
 
@@ -258,14 +261,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#c1c1c147",
     backgroundColor: "#0a033121",
-    padding: 5
+    padding: 6,
   },
 
   cardInner: {
     borderRadius: 30,
     paddingHorizontal: 15,
     paddingVertical: 15,
-    paddingTop: 28,
+    paddingTop: 15,
   },
 
   content: { gap: 10 },
@@ -274,7 +277,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
     alignItems: "center",
-    marginTop: -14
   },
 
   descriptionContainer: { flex: 1 },
@@ -291,7 +293,7 @@ const styles = StyleSheet.create({
   timerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 5,
+    marginTop: 6,
     gap: 5,
   },
 

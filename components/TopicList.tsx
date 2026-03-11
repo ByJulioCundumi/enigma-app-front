@@ -149,14 +149,6 @@ export default function TopicList() {
             size={14}
             color={showPopular ? "white" : "#F97316"}
           />
-          <Text
-            style={[
-              styles.popularText,
-              showPopular && styles.popularTextActive,
-            ]}
-          >
-            Popular
-          </Text>
         </TouchableOpacity>
       </View>
 
@@ -226,7 +218,7 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#1E293B",
+    borderColor: "#2f3949",
     overflow: "hidden",
   },
 

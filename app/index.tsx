@@ -84,7 +84,7 @@ export default function Index() {
     >
       <LinearGradient
         colors={[
-          "rgba(27, 46, 90, 0.4)",
+          "rgba(40, 70, 139, 0.4)",
           "rgba(18, 36, 66, 0.19)",
           "rgb(46, 45, 128)",
         ]}
@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 10
   },
 
   buttonOuter: {

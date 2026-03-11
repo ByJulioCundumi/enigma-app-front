@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,22 +12,19 @@ const { width } = Dimensions.get("window");
 
 interface Props {
   hints: string[];
-  baseCost?: number;
-  increment?: number;
-  onSpendCoins?: (amount: number) => boolean;
+  onSpendEnergy?: (amount: number) => boolean;
 }
 
 export default function HintsSlider({
   hints = [],
-  baseCost = 10,
-  increment = 10,
-  onSpendCoins,
+  onSpendEnergy,
 }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealedHints, setRevealedHints] = useState<boolean[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // 🔒 Mantener estado sincronizado si cambian las pistas
+  const ENERGY_COST = 1;
+
   useEffect(() => {
     setRevealedHints(hints.map(() => false));
     setCurrentIndex(0);
@@ -35,15 +32,7 @@ export default function HintsSlider({
 
   if (!hints || hints.length === 0) return null;
 
-  // 🔒 Asegurar índice válido
-  const safeIndex = Math.min(
-    Math.max(currentIndex, 0),
-    hints.length - 1
-  );
-
-  const currentCost = useMemo(() => {
-    return baseCost + safeIndex * increment;
-  }, [baseCost, increment, safeIndex]);
+  const safeIndex = Math.min(Math.max(currentIndex, 0), hints.length - 1);
 
   const isRevealed = revealedHints[safeIndex] ?? false;
 
@@ -56,12 +45,10 @@ export default function HintsSlider({
     try {
       let canUnlock = true;
 
-      // Si existe función real
-      if (onSpendCoins) {
-        canUnlock = onSpendCoins(currentCost);
+      if (onSpendEnergy) {
+        canUnlock = onSpendEnergy(ENERGY_COST);
       }
 
-      // Mock automático si no existe
       if (canUnlock) {
         setRevealedHints((prev) => {
           const updated = [...prev];
@@ -90,16 +77,14 @@ export default function HintsSlider({
 
   return (
     <View style={styles.container}>
-      {/* Flecha izquierda */}
       <TouchableOpacity
         onPress={handlePrev}
         disabled={safeIndex === 0}
         style={[styles.arrow, safeIndex === 0 && styles.disabled]}
       >
-        <FontAwesome6 name="chevron-left" size={14} color="#fff" />
+        <FontAwesome6 name="chevron-left" size={12} color="#fff" />
       </TouchableOpacity>
 
-      {/* Contenido central */}
       <View style={styles.content}>
         <Text style={styles.index}>
           {safeIndex + 1}/{hints.length}
@@ -107,16 +92,12 @@ export default function HintsSlider({
 
         <View style={styles.textWrapper}>
           {isRevealed ? (
-            <Text
-              style={styles.text}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
+            <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">
               {hints[safeIndex]}
             </Text>
           ) : (
             <Text style={styles.lockedText}>
-              🔒 Pista {safeIndex+1} bloqueada
+              Pista {safeIndex + 1} bloqueada
             </Text>
           )}
         </View>
@@ -124,20 +105,19 @@ export default function HintsSlider({
         {!isRevealed && (
           <TouchableOpacity
             style={[
-              styles.coinButton,
+              styles.energyButton,
               isProcessing && styles.disabledButton,
             ]}
             onPress={handleReveal}
             activeOpacity={0.8}
             disabled={isProcessing}
           >
-            <FontAwesome6 name="coins" size={12} color="#fff" />
-            <Text style={styles.coinText}>{currentCost}</Text>
+            <FontAwesome6 name="bolt-lightning" size={11} color="#fff" />
+            <Text style={styles.energyText}>1</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Flecha derecha */}
       <TouchableOpacity
         onPress={handleNext}
         disabled={safeIndex === hints.length - 1}
@@ -146,7 +126,7 @@ export default function HintsSlider({
           safeIndex === hints.length - 1 && styles.disabled,
         ]}
       >
-        <FontAwesome6 name="chevron-right" size={14} color="#fff" />
+        <FontAwesome6 name="chevron-right" size={12} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -183,7 +163,7 @@ const styles = StyleSheet.create({
 
   index: {
     fontSize: 11,
-    color: "#ffcc25",
+    color: "#ff2579",
     marginRight: 6,
     fontWeight: "700",
   },
@@ -203,10 +183,10 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
 
-  coinButton: {
+  energyButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f59e0b",
+    backgroundColor: "#ff6161bd",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -217,7 +197,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 
-  coinText: {
+  energyText: {
     marginLeft: 4,
     color: "#fff",
     fontWeight: "700",

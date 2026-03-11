@@ -230,7 +230,7 @@ export default function WordInputKeyboard({ word }: Props) {
                     onPress={handleBackspace}
                   >
                     <LinearGradient
-                      colors={["#7c2d12", "#451a03"]}
+                      colors={["#7a1134", "#520c21"]}
                       style={styles.keyOuter}
                     >
                       <View style={styles.keyInner}>
@@ -283,19 +283,18 @@ function ActionButton({
 const styles = StyleSheet.create({
   addContainer: {
     width: "100%",
-    minHeight: 50,
+    minHeight: 60,
   },
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingTop: 40,
     gap: 10,
   },
   wordWrapper: {
     alignItems: "center",
     paddingHorizontal: 20,
     gap: 10,
-    backgroundColor: "#ffffff0c",
+    backgroundColor: "#0e0b3a31",
     paddingVertical: 12,
     borderRadius: 20,
     width: "auto",
@@ -317,7 +316,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0f172a2c",
   },
   selectedBox: {
-    borderColor: "#f3b408",
+    borderColor: "#0881f3",
   },
   letterText: {
     fontSize: 18,
@@ -327,7 +326,7 @@ const styles = StyleSheet.create({
   actionsContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 15,
+    gap: 12,
     marginVertical: 20,
   },
   actionButton: {
@@ -341,25 +340,26 @@ const styles = StyleSheet.create({
     color: "#f3f3f3"
   },
   keyboardSection: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 10,
   },
   keyboardContainer: {
-    backgroundColor: "rgba(15, 23, 42, 0.98)",
+    backgroundColor: "rgba(13, 26, 58, 0.98)",
     borderRadius: 24,
-    padding: 16,
+    padding: 10,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 6,
+    marginVertical: 3,
   },
   keyWrapper: {
     flex: 1,
-    marginHorizontal: 4,
+    marginHorizontal: 0,
+    gap: 5
   },
   keyOuter: {
     height: 40,
-    minWidth: 25,
+    minWidth: 35,
     borderRadius: 14,
     padding: 2,
   },
