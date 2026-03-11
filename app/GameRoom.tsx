@@ -16,7 +16,7 @@ export default function GameRoom() {
 
   return (
     <ImageBackground
-          source={require("../assets/images/bg2.avif")}
+          source={require("../assets/images/bg9.avif")}
           resizeMode="cover"
           style={styles.container}
         >

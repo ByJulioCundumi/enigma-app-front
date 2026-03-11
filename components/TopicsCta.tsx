@@ -257,12 +257,13 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     borderWidth: 1,
     borderColor: "#c1c1c147",
+    backgroundColor: "#0a033121",
     padding: 5
   },
 
   cardInner: {
     borderRadius: 30,
-    paddingHorizontal: 22,
+    paddingHorizontal: 15,
     paddingVertical: 15,
     paddingTop: 28,
   },

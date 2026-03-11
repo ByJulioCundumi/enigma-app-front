@@ -59,13 +59,6 @@ export default function TopicList() {
 
     return (
       <View style={styles.card}>
-        {item.popular && (
-          <View style={styles.ribbon}>
-            <Ionicons name="flame" size={10} color="white" />
-            <Text style={styles.ribbonText}>POPULAR</Text>
-          </View>
-        )}
-
         <View style={styles.row}>
           <View style={styles.imageStack}>
             <Image
@@ -77,6 +70,12 @@ export default function TopicList() {
               source={{ uri: `https://picsum.photos/seed/${item.id}b/100/100` }}
               style={[styles.image, styles.imageFront]}
             />
+
+            {item.popular && (
+              <View style={styles.popularIcon}>
+                <Ionicons name="flame" size={14} color="white" />
+              </View>
+            )}
           </View>
 
           <View style={styles.info}>
@@ -128,6 +127,17 @@ export default function TopicList() {
         />
 
         <TouchableOpacity
+          onPress={() => setShowFavorites(!showFavorites)}
+          style={styles.favoriteButton}
+        >
+          <Ionicons
+            name={showFavorites ? "heart" : "heart-outline"}
+            size={22}
+            color="#EF4444"
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
           onPress={() => setShowPopular(!showPopular)}
           style={[
             styles.popularFilter,
@@ -148,17 +158,6 @@ export default function TopicList() {
             Popular
           </Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setShowFavorites(!showFavorites)}
-          style={styles.favoriteButton}
-        >
-          <Ionicons
-            name={showFavorites ? "heart" : "heart-outline"}
-            size={22}
-            color="#EF4444"
-          />
-        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -175,7 +174,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#0B1220",
+    backgroundColor: "#071a41",
     borderRadius: 14,
     paddingHorizontal: 14,
     marginBottom: 12,
@@ -222,34 +221,13 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#0B1220",
+    backgroundColor: "#070d24",
     borderRadius: 18,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: "#1E293B",
     overflow: "hidden",
-  },
-
-  ribbon: {
-    position: "absolute",
-    top: 8,
-    left: -30,
-    transform: [{ rotate: "-35deg" }],
-    width: 140,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F97316",
-    paddingVertical: 3,
-    zIndex: 100
-  },
-
-  ribbonText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "900",
-    marginLeft: 4,
   },
 
   row: {
@@ -281,6 +259,21 @@ const styles = StyleSheet.create({
     left: 18,
     borderWidth: 2,
     borderColor: "#0B1220",
+  },
+
+  popularIcon: {
+    position: "absolute",
+    bottom: -4,
+    left: -4,
+    backgroundColor: "#F97316",
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#050c33",
+    zIndex: 10,
   },
 
   info: {
@@ -335,8 +328,8 @@ const styles = StyleSheet.create({
   },
 
   progressContainer: {
-    height: 6,
-    backgroundColor: "#020617",
+    height: 3,
+    backgroundColor: "#090e27",
     borderRadius: 6,
     marginTop: 10,
     overflow: "hidden",
@@ -344,6 +337,6 @@ const styles = StyleSheet.create({
 
   progressFill: {
     height: "100%",
-    backgroundColor: "#22C55E",
+    backgroundColor: "#437eff",
   },
 });

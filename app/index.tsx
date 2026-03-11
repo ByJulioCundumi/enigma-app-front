@@ -6,7 +6,13 @@ import { IRootState } from "@/store/rootState";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ImageBackground,
+} from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -71,69 +77,84 @@ export default function Index() {
   });
 
   return (
-    <LinearGradient
-      colors={[
-        "rgba(9, 21, 49, 0.7)",
-        "rgba(18, 36, 66, 0.78)",
-        "rgba(47, 45, 128, 0.71)",
-      ]}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 0, y: 0 }}
-      style={styles.container}
+    <ImageBackground
+      source={require("../assets/images/bg7.webp")}
+      style={{ flex: 1 }}
+      resizeMode="cover"
     >
-      <View style={styles.top}>
-        <TopicsCta useTimer={false} />
-      </View>
+      <LinearGradient
+        colors={[
+          "rgba(27, 46, 90, 0.4)",
+          "rgba(18, 36, 66, 0.19)",
+          "rgb(46, 45, 128)",
+        ]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.container}
+      >
+        <View style={styles.top}>
+          <TopicsCta useTimer={false} />
+        </View>
 
-      <View style={styles.playSection}>
-        <Animated.View style={floatStyle}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            style={styles.buttonOuter}
-            onPress={() => router.push("/GameRoom")}
-          >
-            <View style={styles.buttonInner}>
-              <Animated.View style={[styles.shineContainer, shineStyle]}>
-                <LinearGradient
-                  colors={[
-                    "rgba(255,255,255,0.27)",
-                    "rgba(255,255,255,0.05)",
-                    "rgba(255,255,255,0.25)",
-                    "rgba(255,255,255,0.27)",
-                    "rgba(255,255,255,0.08)",
-                    "rgba(255,255,255,0.28)",
-                    "rgba(255,255,255,0.3)",
-                  ]}
-                  locations={[0, 0.2, 0.35, 0.5, 0.65, 0.8, 1]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.shine}
-                />
-              </Animated.View>
+        <View style={styles.playSection}>
+          <Animated.View style={floatStyle}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.buttonOuter}
+              onPress={() => router.push("/GameRoom")}
+            >
+              <View style={styles.buttonInner}>
+                {/* brillo animado */}
+                <Animated.View
+                  pointerEvents="none"
+                  style={[styles.shineContainer, shineStyle]}
+                >
+                  <LinearGradient
+                    colors={[
+                      "rgba(255,255,255,0.27)",
+                      "rgba(255,255,255,0.05)",
+                      "rgba(255,255,255,0.25)",
+                      "rgba(255,255,255,0.27)",
+                      "rgba(255,255,255,0.08)",
+                      "rgba(255,255,255,0.28)",
+                      "rgba(255,255,255,0.3)",
+                    ]}
+                    locations={[0, 0.2, 0.35, 0.5, 0.65, 0.8, 1]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.shine}
+                  />
+                </Animated.View>
 
-              <View style={styles.buttonContent}>
-                <Text style={styles.buttonText}>Jugar</Text>
+                {/* contenido */}
+                <View style={styles.buttonContent}>
+                  <Text style={styles.buttonText}>Jugar</Text>
 
-                <FontAwesome5 name="dice" size={18} color="#e7e7e7" />
+                  <FontAwesome5 name="dice" size={18} color="#e7e7e7" />
 
-                <View style={styles.energyBadge}>
-                  <FontAwesome6 name="bolt-lightning" size={14} color="#ff5c7c" />
-                  <Text style={styles.energyText}>{requiredHearts}</Text>
+                  <View style={styles.energyBadge}>
+                    <FontAwesome6
+                      name="bolt-lightning"
+                      size={14}
+                      color="#ff5c7c"
+                    />
+                    <Text style={styles.energyText}>{requiredHearts}</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
 
-      <View style={styles.rankingSection}>
-        <TopicList />
-      </View>
+        <View style={styles.rankingSection}>
+          <TopicList />
+        </View>
 
-      <View style={styles.bottom}>
-        <GameModeSelector />
-      </View>
-    </LinearGradient>
+        <View style={styles.bottom}>
+          <GameModeSelector />
+        </View>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
@@ -172,10 +193,12 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     width: 230,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#ffffff6e",
+    backgroundColor: "#714aff",
   },
 
   buttonInner: {
-    backgroundColor: "#5153ff",
     borderRadius: 16,
     paddingVertical: 12,
     alignItems: "center",
@@ -188,6 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 10,
+    zIndex: 2,
   },
 
   buttonText: {
@@ -218,6 +242,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 20,
     height: 200,
+    zIndex: 1,
   },
 
   shine: {
