@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
 
   topicHeader: {
     position: "absolute",
-    top: -12,
+    top: -13,
     left: 0,
     right: 0,
     alignItems: "center",

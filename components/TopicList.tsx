@@ -7,8 +7,10 @@ import {
   FlatList,
   Image,
   TextInput,
+  Modal,
+  Pressable,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 
 interface Topic {
   id: string;
@@ -32,6 +34,7 @@ export default function TopicList() {
   const [search, setSearch] = useState("");
   const [showFavorites, setShowFavorites] = useState(false);
   const [showPopular, setShowPopular] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   const toggleFavorite = (id: string) => {
     setTopics((prev) =>
@@ -41,10 +44,7 @@ export default function TopicList() {
 
   const filteredTopics = useMemo(() => {
     return topics.filter((t) => {
-      const matchSearch = t.name
-        .toLowerCase()
-        .includes(search.toLowerCase());
-
+      const matchSearch = t.name.toLowerCase().includes(search.toLowerCase());
       const matchFavorite = showFavorites ? t.favorite : true;
       const matchPopular = showPopular ? t.popular : true;
 
@@ -114,63 +114,158 @@ export default function TopicList() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={18} color="#94A3B8" />
+    <View>
 
-        <TextInput
-          placeholder="Buscar temática"
-          placeholderTextColor="#64748B"
-          style={styles.searchInput}
-          value={search}
-          onChangeText={setSearch}
-        />
+      {/* BOTON QUE ABRE EL POPUP */}
+      <TouchableOpacity
+        style={styles.openButton}
+        onPress={() => setVisible(true)}
+      >
+        <Octicons name="multi-select" size={12} color="#fff" />
+        <Text style={styles.openButtonText}>Temáticas</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setShowFavorites(!showFavorites)}
-          style={styles.favoriteButton}
-        >
-          <Ionicons
-            name={showFavorites ? "heart" : "heart-outline"}
-            size={22}
-            color="#EF4444"
-          />
-        </TouchableOpacity>
+      {/* POPUP */}
+      <Modal visible={visible} transparent animationType="fade">
+        <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
+          <Pressable style={styles.modalContainer}>
 
-        <TouchableOpacity
-          onPress={() => setShowPopular(!showPopular)}
-          style={[
-            styles.popularFilter,
-            showPopular && styles.popularFilterActive,
-          ]}
-        >
-          <Ionicons
-            name="flame"
-            size={14}
-            color={showPopular ? "white" : "#F97316"}
-          />
-        </TouchableOpacity>
-      </View>
+            {/* HEADER */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Temáticas</Text>
 
-      <FlatList
-        data={filteredTopics}
-        keyExtractor={(item) => item.id}
-        renderItem={renderTopic}
-        showsVerticalScrollIndicator={false}
-      />
+              <TouchableOpacity onPress={() => setVisible(false)}>
+                <Ionicons name="close" size={22} color="white" />
+              </TouchableOpacity>
+            </View>
+
+            {/* BUSCADOR */}
+            <View style={styles.searchContainer}>
+              <Ionicons name="search" size={18} color="#94A3B8" />
+
+              <TextInput
+                placeholder="Buscar temática"
+                placeholderTextColor="#64748B"
+                style={styles.searchInput}
+                value={search}
+                onChangeText={setSearch}
+              />
+
+              <TouchableOpacity
+                onPress={() => setShowFavorites(!showFavorites)}
+                style={styles.favoriteButton}
+              >
+                <Ionicons
+                  name={showFavorites ? "heart" : "heart-outline"}
+                  size={22}
+                  color="#EF4444"
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setShowPopular(!showPopular)}
+                style={[
+                  styles.popularFilter,
+                  showPopular && styles.popularFilterActive,
+                ]}
+              >
+                <Ionicons
+                  name="flame"
+                  size={14}
+                  color={showPopular ? "white" : "#F97316"}
+                />
+                <Text style={{color: "#F97316", marginLeft: 3}}>Popular</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* LISTA */}
+            <FlatList
+              data={filteredTopics}
+              keyExtractor={(item) => item.id}
+              renderItem={renderTopic}
+              showsVerticalScrollIndicator={false}
+            />
+
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+
+  /* BOTON ABRIR */
+
+  openButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3f41c2",
+    paddingHorizontal: 18,
+    paddingVertical: 7,
+    borderRadius: 16,
+    alignSelf: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0)",
+  },
+
+  openButtonText: {
+    color: "white",
+    fontWeight: "800",
+    fontSize: 14,
+    letterSpacing: 0.5,
+  },
+
+  /* OVERLAY */
+
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.75)",
+    justifyContent: "center",
+    padding: 14,
+  },
+
+  /* MODAL */
+
+  modalContainer: {
+    backgroundColor: "#0B1220",
+    borderRadius: 26,
+    padding: 18,
+    height: "75%",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+
+  /* HEADER */
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 14,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.05)",
+  },
+
+  title: {
+    color: "white",
+    fontWeight: "900",
+    fontSize: 20,
+    letterSpacing: 0.6,
+  },
+
+  /* BUSCADOR */
+
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#071a41",
-    borderRadius: 14,
+    backgroundColor: "#071A41",
+    borderRadius: 16,
     paddingHorizontal: 14,
-    marginBottom: 12,
-    height: 46,
+    marginBottom: 16,
+    height: 48,
     borderWidth: 1,
     borderColor: "#1E293B",
   },
@@ -183,15 +278,15 @@ const styles = StyleSheet.create({
   },
 
   favoriteButton: {
-    marginLeft: 8,
+    marginLeft: 10,
   },
 
   popularFilter: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 8,
+    marginLeft: 10,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#F97316",
@@ -201,25 +296,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#F97316",
   },
 
-  popularText: {
-    fontSize: 12,
-    marginLeft: 4,
-    color: "#F97316",
-    fontWeight: "700",
-  },
-
-  popularTextActive: {
-    color: "white",
-  },
+  /* CARD */
 
   card: {
-    backgroundColor: "#070d24",
-    borderRadius: 18,
-    padding: 14,
-    marginBottom: 12,
+    backgroundColor: "#070D24",
+    borderRadius: 20,
+    padding: 16,
+    paddingVertical: 10,
+    marginBottom: 14,
     borderWidth: 1,
-    borderColor: "#2f3949",
-    overflow: "hidden",
+    borderColor: "#1E293B",
   },
 
   row: {
@@ -227,16 +313,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  /* IMAGENES */
+
   imageStack: {
     width: 60,
     height: 50,
-    marginRight: 12,
+    marginRight: 14,
   },
 
   image: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
+    width: 46,
+    height: 46,
+    borderRadius: 12,
     position: "absolute",
   },
 
@@ -253,20 +341,23 @@ const styles = StyleSheet.create({
     borderColor: "#0B1220",
   },
 
+  /* ICONO POPULAR */
+
   popularIcon: {
     position: "absolute",
-    bottom: -4,
-    left: -4,
+    bottom: -5,
+    left: -5,
     backgroundColor: "#F97316",
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#050c33",
-    zIndex: 10,
+    borderColor: "#070D24",
   },
+
+  /* INFO */
 
   info: {
     flex: 1,
@@ -274,22 +365,24 @@ const styles = StyleSheet.create({
 
   name: {
     color: "white",
-    fontWeight: "700",
-    fontSize: 15,
+    fontWeight: "800",
+    fontSize: 16,
   },
 
   levelRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 2,
-    marginRight: 2,
+    marginTop: 0,
+    paddingRight: 5
   },
 
   levels: {
     color: "#94A3B8",
     fontSize: 12,
   },
+
+  /* DERECHA */
 
   right: {
     alignItems: "center",
@@ -298,37 +391,42 @@ const styles = StyleSheet.create({
 
   percent: {
     color: "#38BDF8",
-    fontWeight: "700",
-    fontSize: 14,
+    fontWeight: "900",
+    fontSize: 15,
     marginBottom: 6,
   },
+
+  /* BOTON JUGAR */
 
   playButton: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#2563EB",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4.5,
+    borderRadius: 10,
+    gap: 4,
   },
 
   playText: {
     color: "white",
     fontSize: 11,
-    fontWeight: "700",
-    marginLeft: 4,
+    fontWeight: "800",
   },
 
+  /* PROGRESO */
+
   progressContainer: {
-    height: 3,
-    backgroundColor: "#090e27",
+    height: 4,
+    backgroundColor: "#090e25",
     borderRadius: 6,
-    marginTop: 10,
+    marginTop: 12,
     overflow: "hidden",
   },
 
   progressFill: {
     height: "100%",
-    backgroundColor: "#437eff",
+    backgroundColor: "#3B82F6",
   },
 });
+

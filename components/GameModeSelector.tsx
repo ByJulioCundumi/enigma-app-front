@@ -16,10 +16,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { setGameMode } from "@/store/reducers/gameModeSlice";
+import TopicList from "./TopicList";
 
 type Mode = "normal" | "survival";
 
-const SWITCH_WIDTH = 300;
+const SWITCH_WIDTH = 320;
 const SWITCH_HEIGHT = 50;
 const OPTION_WIDTH = SWITCH_WIDTH / 2;
 
@@ -81,6 +82,8 @@ export default function GameModeSelector() {
 
   return (
     <View style={styles.wrapper}>
+      <TopicList/>
+
       <Text style={styles.label}>
         Modo de Juego
       </Text>
@@ -153,6 +156,8 @@ export default function GameModeSelector() {
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
+    position: "absolute",
+    bottom: 40,
   },
 
   label: {
@@ -162,6 +167,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     letterSpacing: 1,
     textTransform: "uppercase",
+    marginTop: 30
   },
 
   switchContainer: {
@@ -204,7 +210,7 @@ const styles = StyleSheet.create({
   },
 
   optionText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "800",
     color: "#ffffff",
     letterSpacing: 0.5,

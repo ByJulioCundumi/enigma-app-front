@@ -56,16 +56,7 @@ export default function TopBar({ lives = 253 }: Props) {
             </TouchableOpacity>
           )}
 
-          <Stat
-            icon={
-              <FontAwesome6
-                name="bolt-lightning"
-                size={15}
-                color="#ff5c7c"
-              />
-            }
-            value={lives}
-          />
+          <Stat value={lives} />
         </View>
 
         {/* DERECHA */}
@@ -82,16 +73,23 @@ const RewardAdsButton = () => {
   return (
     <TouchableOpacity activeOpacity={0.85}>
       <LinearGradient
-        colors={["#ff5c7c", "#ff2d55"]}
+        colors={["#db3859", "#f84868"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.adButton}
       >
-        <MaterialCommunityIcons name="movie-open-play" size={16} color="#fff" />
+        <MaterialCommunityIcons
+          name="play-circle"
+          size={18}
+          color="#fff"
+        />
 
-        <Text style={styles.adText}>+5</Text>
+        <Text style={styles.adText}>ADS</Text>
 
-        <FontAwesome6 name="bolt-lightning" size={13} color="#fff" />
+        <View style={styles.rewardBadge}>
+          <Text style={styles.rewardText}>+5</Text>
+          <FontAwesome6 name="bolt-lightning" size={10} color="#fff" />
+        </View>
       </LinearGradient>
     </TouchableOpacity>
   );
@@ -105,16 +103,20 @@ const formatNumber = (num: number) => {
   return num;
 };
 
-const Stat = ({ icon, value }: any) => {
+const Stat = ({ value }: any) => {
   return (
-    <TouchableOpacity activeOpacity={0.8} style={styles.statBadge}>
-      {icon}
+    <TouchableOpacity activeOpacity={0.85} style={styles.statBadge}>
+      
+      <View style={styles.energyIcon}>
+        <FontAwesome6 name="bolt-lightning" size={9} color="#fff" />
+      </View>
 
       <Text style={styles.statText}>{formatNumber(value)}</Text>
 
       <View style={styles.plusButton}>
-        <Ionicons name="add" size={10} color="#fff" />
+        <Ionicons name="add" size={12} color="#fff" />
       </View>
+
     </TouchableOpacity>
   );
 };
@@ -158,42 +160,54 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  /* ENERGIA */
+
   statBadge: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
-    height: 32,
+    height: 36,
     borderRadius: 20,
     backgroundColor: "rgba(255,92,124,0.15)",
     borderWidth: 1,
     borderColor: "rgba(255,92,124,0.35)",
-    gap: 5
+    gap: 6,
+  },
+
+  energyIcon: {
+    width: 17.5,
+    height: 17.5,
+    borderRadius: 10,
+    backgroundColor: "#e03b5a",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   statText: {
-    marginLeft: 4,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "900",
     color: "#fff",
   },
 
   plusButton: {
     marginLeft: 6,
-    width: 15,
-    height: 15,
-    borderRadius: 8,
-    backgroundColor: "#ff5c7c",
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: "#f84868",
     alignItems: "center",
     justifyContent: "center",
   },
 
+  /* REWARD ADS */
+
   adButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 12,
-    height: 36,
-    borderRadius: 20,
+    gap: 8,
+    paddingHorizontal: 14,
+    height: 38,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.25)",
     shadowColor: "#ff2d55",
@@ -202,9 +216,24 @@ const styles = StyleSheet.create({
   },
 
   adText: {
-    fontWeight: "900",
+    fontWeight: "800",
     fontSize: 12,
     color: "#fff",
-    letterSpacing: 0.8,
+  },
+
+  rewardBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.25)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    gap: 3,
+  },
+
+  rewardText: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "900",
   },
 });
