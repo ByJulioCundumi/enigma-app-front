@@ -38,8 +38,6 @@ export default function RootLayout() {
         {/* 🔥 OCULTA BARRA SUPERIOR */}
         <StatusBar hidden />
 
-        <TopBar />
-
         <View style={styles.stackContainer}>
           <Stack
             screenOptions={{

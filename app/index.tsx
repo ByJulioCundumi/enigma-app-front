@@ -13,6 +13,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useEffect } from "react";
+import TopBar from "@/components/TopBar";
 
 export default function Index() {
 
@@ -54,6 +55,8 @@ export default function Index() {
         end={{ x: 0, y: 0 }}
         style={styles.container}
       >
+
+        <TopBar/>
 
         <Animated.Image
           source={require("../assets/images/logo3.png")}
