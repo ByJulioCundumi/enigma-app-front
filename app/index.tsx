@@ -13,7 +13,6 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useEffect } from "react";
-import StreakList from "@/components/StreakList";
 
 export default function Index() {
 
@@ -56,11 +55,15 @@ export default function Index() {
         style={styles.container}
       >
 
+        <Animated.Image
+          source={require("../assets/images/logo3.png")}
+          style={[styles.logo, logoStyle]}
+          resizeMode="contain"
+        />
 
         <View style={styles.gameSection}>
           <TopicsCta useTimer={false} />
           <PlayButton />
-          <StreakList/>
         </View>
 
         <GameModeSelector />
@@ -74,7 +77,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 150,
+    paddingTop: 120,
   },
 
   gameSection: {

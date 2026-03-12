@@ -21,7 +21,9 @@ const ROWS = [
 ];
 
 export default function WordInputKeyboard({ word }: Props) {
-  const {gameMode} = useSelector((state:IRootState)=> state.gameMode)
+
+  const { gameMode } = useSelector((state: IRootState) => state.gameMode);
+
   const cleanWord = useMemo(
     () => word.trim().toUpperCase(),
     [word]
@@ -45,10 +47,6 @@ export default function WordInputKeyboard({ word }: Props) {
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
-  /* ===============================
-     TECLADO
-  =============================== */
-
   const handleKeyPress = (key: string) => {
     const updated = [...letters];
     updated[selectedIndex] = key;
@@ -64,13 +62,10 @@ export default function WordInputKeyboard({ word }: Props) {
     setSelectedIndex(index);
   };
 
-  /* 🔥 BACKSPACE REAL */
   const handleBackspace = () => {
     const updated = [...letters];
-
     let targetIndex = selectedIndex;
 
-    // Si posición actual está vacía, buscar hacia la izquierda
     if (!updated[targetIndex]) {
       for (let i = targetIndex - 1; i >= 0; i--) {
         if (updated[i]) {
@@ -82,9 +77,7 @@ export default function WordInputKeyboard({ word }: Props) {
       if (!updated[targetIndex]) return;
     }
 
-    // Borra solo esa letra
     updated[targetIndex] = null;
-
     setLetters(updated);
     setSelectedIndex(targetIndex);
   };
@@ -106,20 +99,19 @@ export default function WordInputKeyboard({ word }: Props) {
 
     const updated = [...letters];
     updated[randomIndex] = hiddenLetters[randomIndex];
+
     setLetters(updated);
   };
-
-  /* ===============================
-     RENDER
-  =============================== */
 
   let globalIndex = 0;
 
   return (
     <View style={styles.container}>
-      {/* 🔤 PALABRAS */}
+
+      {/* PALABRAS */}
       <View style={styles.wordWrapper}>
         {words.map((singleWord, wordIndex) => {
+
           const wordLength = singleWord.length;
 
           const wordBoxes = letters.slice(
@@ -128,20 +120,20 @@ export default function WordInputKeyboard({ word }: Props) {
           );
 
           const currentStartIndex = globalIndex;
+
           globalIndex += wordLength;
 
           return (
             <View key={wordIndex} style={styles.wordRow}>
               {wordBoxes.map((letter, i) => {
+
                 const absoluteIndex = currentStartIndex + i;
 
                 return (
                   <TouchableOpacity
                     key={absoluteIndex}
                     activeOpacity={0.8}
-                    onPress={() =>
-                      handleSelectBox(absoluteIndex)
-                    }
+                    onPress={() => handleSelectBox(absoluteIndex)}
                     style={[
                       styles.letterBox,
                       selectedIndex === absoluteIndex &&
@@ -159,49 +151,48 @@ export default function WordInputKeyboard({ word }: Props) {
         })}
       </View>
 
-      {/* 🧩 ACCIONES */}
+      {/* ACCIONES */}
       <View style={styles.actionsContainer}>
+
         <ActionButton
           icon="trash-outline"
           onPress={handleClearAll}
         />
-        {
-          gameMode === "normal" && 
-          (
-            <ActionButton
-              icon="share-social-outline"
-              onPress={() => {}}
-            />
-          )
-        }
 
-        {
-          gameMode === "survival" && 
-          (
-            <View style={styles.actionButton}> 
-              <MaterialCommunityIcons
-              name="timer-refresh-outline"
-              onPress={() => {}}
-              size={24}
-              color={"#dddddd"}
-            />
-          </View> 
-          )
-        }
+        {gameMode === "normal" && (
+          <ActionButton
+            icon="share-social-outline"
+            onPress={() => {}}
+          />
+        )}
+
+        {gameMode === "survival" && (
+          <ActionButton
+            icon="timer-outline"
+            onPress={() => {}}
+            energyCost={1}
+          />
+        )}
+
         <ActionButton
           icon="shuffle-outline"
           onPress={handleRevealRandomLetter}
+          energyCost={1}
         />
+
       </View>
 
-      {/* ⌨️ TECLADO */}
+      {/* TECLADO */}
       <View style={styles.keyboardSection}>
         <View style={styles.keyboardContainer}>
+
           {ROWS.map((row, rowIndex) => {
+
             const lettersRow = row.split("");
 
             return (
               <View key={rowIndex} style={styles.row}>
+
                 {lettersRow.map((letter) => (
                   <TouchableOpacity
                     key={letter}
@@ -222,7 +213,6 @@ export default function WordInputKeyboard({ word }: Props) {
                   </TouchableOpacity>
                 ))}
 
-                {/* 🔥 TECLA BACKSPACE */}
                 {rowIndex === ROWS.length - 1 && (
                   <TouchableOpacity
                     activeOpacity={0.85}
@@ -243,27 +233,31 @@ export default function WordInputKeyboard({ word }: Props) {
                     </LinearGradient>
                   </TouchableOpacity>
                 )}
+
               </View>
             );
           })}
+
         </View>
       </View>
 
       <View style={styles.addContainer}></View>
+
     </View>
   );
 }
 
-/* ===============================
-   BOTÓN REUTILIZABLE
-=============================== */
+
+/* BOTON REUTILIZABLE */
 
 function ActionButton({
   icon,
   onPress,
+  energyCost,
 }: {
   icon: any;
   onPress: () => void;
+  energyCost?: number;
 }) {
   return (
     <TouchableOpacity
@@ -272,24 +266,34 @@ function ActionButton({
       onPress={onPress}
     >
       <Ionicons name={icon} size={22} color="#f8fafc" />
+
+      {energyCost && (
+        <View style={styles.energyBadge}>
+          <Ionicons name="flash" size={10} color="#fff" />
+          <Text style={styles.energyText}>{energyCost}</Text>
+        </View>
+      )}
+
     </TouchableOpacity>
   );
 }
 
-/* ===============================
-   ESTILOS
-=============================== */
+
+/* ESTILOS */
 
 const styles = StyleSheet.create({
+
   addContainer: {
     width: "100%",
     minHeight: 60,
   },
+
   container: {
     flex: 1,
     justifyContent: "center",
     gap: 10,
   },
+
   wordWrapper: {
     alignItems: "center",
     paddingHorizontal: 20,
@@ -298,13 +302,15 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 20,
     width: "auto",
-    marginHorizontal: "auto"
+    marginHorizontal: "auto",
   },
+
   wordRow: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 8,
   },
+
   letterBox: {
     width: 35,
     height: 35,
@@ -315,54 +321,81 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#0f172a2c",
   },
+
   selectedBox: {
     borderColor: "#0881f3",
   },
+
   letterText: {
     fontSize: 18,
     fontWeight: "900",
     color: "#cdcecf",
   },
+
   actionsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 12,
     marginVertical: 20,
   },
+
   actionButton: {
     width: 50,
     height: 50,
     borderRadius: 14,
     backgroundColor: "#1e293b",
-    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    color: "#f3f3f3"
   },
+
+  energyBadge: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 10,
+    backgroundColor: "#f50b65",
+  },
+
+  energyText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "900",
+    marginLeft: 2,
+  },
+
   keyboardSection: {
     paddingHorizontal: 10,
   },
+
   keyboardContainer: {
     backgroundColor: "rgba(13, 26, 58, 0.98)",
     borderRadius: 24,
     padding: 10,
   },
+
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginVertical: 3,
   },
+
   keyWrapper: {
     flex: 1,
     marginHorizontal: 0,
-    gap: 5
+    gap: 5,
   },
+
   keyOuter: {
     height: 40,
     minWidth: 35,
     borderRadius: 14,
     padding: 2,
   },
+
   keyInner: {
     flex: 1,
     borderRadius: 12,
@@ -370,9 +403,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   keyText: {
     color: "#f8fafc",
     fontSize: 17,
     fontWeight: "900",
   },
+
 });
