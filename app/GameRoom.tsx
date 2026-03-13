@@ -4,14 +4,11 @@ import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import LevelCard from "@/components/LevelCard";
 import { useRouter } from "expo-router";
+import SunburstBackground from "@/components/SunburstBackground";
+import EnergyStat from "@/components/EnergyStat";
 
 const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
 const word = "ARNOLD";
-const hints = [
-  "Actor famoso de Terminator",
-  "Ex gobernador de California",
-  "Protagonista de películas de acción de los 80 y 90",
-];
 
 const TOTAL_TIME = 30;
 
@@ -26,10 +23,6 @@ export default function GameRoom() {
     word.split("").map((l) => (l === " " ? " " : ""))
   );
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [unlockedHints, setUnlockedHints] = useState<boolean[]>(
-    hints.map((_, i) => i === 0)
-  );
-
   const router = useRouter()
 
   useEffect(() => {
@@ -67,27 +60,6 @@ export default function GameRoom() {
     setTimeLeft((prev) => prev + 30);
     setMaxTime((prev) => prev + 30);
     setTimePurchases((prev) => prev + 1);
-  };
-
-  const nextHint = () => {
-    setCurrentHintIndex((prev) =>
-      prev === hints.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevHint = () => {
-    setCurrentHintIndex((prev) =>
-      prev === 0 ? hints.length - 1 : prev - 1
-    );
-  };
-
-  const unlockHint = () => {
-    if (unlockedHints[currentHintIndex] || energy <= 0) return;
-
-    const newUnlocked = [...unlockedHints];
-    newUnlocked[currentHintIndex] = true;
-    setUnlockedHints(newUnlocked);
-    setEnergy((prev) => prev - 1);
   };
 
   const moveCursorNext = (start: number) => {
@@ -162,7 +134,10 @@ export default function GameRoom() {
   };
 
   return (
+    <View style={styles.screen}>
+      <SunburstBackground color="green"/>
     <View style={styles.container}>
+
       {/* --- HEADER --- */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -171,10 +146,7 @@ export default function GameRoom() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.energyBadge}>
-          <MaterialCommunityIcons name="lightning-bolt" size={18} color="#fff" />
-          <Text style={styles.energyText}>{energy}</Text>
-        </View>
+        <EnergyStat value={22}/>
       </View>
 
       {/* --- GAME AREA --- */}
@@ -222,11 +194,7 @@ export default function GameRoom() {
 
       {/* --- FOOTER --- */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.shareButton}>
-          <Ionicons name="share-social" size={18} color="#fff" />
-          <Text style={styles.shareText}>Compartir</Text>
-        </TouchableOpacity>
-
+      
         <View style={styles.timeBarContainer}>
           <MaterialCommunityIcons name="timer-outline" size={18} color="#fff" />
           <View style={styles.timeBarBackground}>
@@ -241,6 +209,7 @@ export default function GameRoom() {
         </View>
 
         <View style={styles.footerActions}>
+        
           <TouchableOpacity style={styles.clearButton} onPress={clearLetters}>
             <MaterialCommunityIcons name="delete-sweep" size={20} color="#fff" />
           </TouchableOpacity>
@@ -274,28 +243,25 @@ export default function GameRoom() {
         </View>
       </View>
     </View>
+    </View>
   );
 }
 
 // --- ESTILOS ---
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0f172a", paddingHorizontal: 30, paddingTop: 10, paddingBottom: 10 },
+  screen: {
+  flex: 1,
+  backgroundColor: "#0f172a",
+},
+  container: { flex: 1, paddingHorizontal: 30, paddingTop: 10, paddingBottom: 10 },
   disabledButton: { opacity: 0.4 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   headerLeft: { flexDirection: "row", alignItems: "center" },
-  backButton: { backgroundColor: "#1e293b", padding: 5, borderRadius: 10, marginRight: 8 },
+  backButton: { backgroundColor: "#1e293b", padding: 5, borderRadius: 10, paddingHorizontal: 10, marginRight: 8 },
   levelText: { color: "#fff", fontWeight: "700" },
-  hintContainer: { flexDirection: "row", alignItems: "center", gap: 5, flex: 1, marginHorizontal: 0, backgroundColor: "#1e293b", padding: 8, paddingVertical: 13, borderRadius: 12, height: 40 },
-  hintTextWrapper: { flex: 1, alignItems: "center", flexDirection: "row", gap: 20, marginTop: -2 },
-  hintCounter: { color: "#94a3b8", fontSize: 11, marginBottom: -2.5 },
-  hintText: { color: "#fff", fontSize: 13 },
-  lockedHint: { flexDirection: "row", alignItems: "center" },
-  lockedHintText: { color: "#fff", marginHorizontal: 6 },
-  hintUnlockBadge: { flexDirection: "row", alignItems: "center", backgroundColor: "#facc15", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginLeft: 4 },
-  hintUnlockCostText: { color: "#000", fontSize: 10, fontWeight: "700", marginLeft: 2 },
   energyBadge: { flexDirection: "row", alignItems: "center", backgroundColor: "#f97316", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
   energyText: { color: "#fff", fontWeight: "700", marginLeft: 4 },
-  gameArea: { flexDirection: "row", alignItems: "center", flex: 1, marginTop: 15, gap: 20 },
+  gameArea: { flexDirection: "row", alignItems: "center", flex: 1, marginTop: 0, gap: 20 },
   imageWrapper: { width: 400, height: 230, borderRadius: 16, },
   image: { width: "100%", height: "100%" },
   rightArea: { flex: 1, justifyContent: "center" },
@@ -308,9 +274,9 @@ const styles = StyleSheet.create({
   letterText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   space: { width: 14 },
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginVertical: 10 },
-  shareButton: { flexDirection: "row", alignItems: "center", backgroundColor: "#22c55e", paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
+  shareButton: { flexDirection: "row", alignItems: "center", backgroundColor: "#22c55e", marginRight: 8, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
   shareText: { color: "#fff", marginLeft: 6, fontWeight: "700" },
-  timeBarContainer: { flexDirection: "row", alignItems: "center", backgroundColor: "#1e293b", paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, gap: 10, width: 300 },
+  timeBarContainer: { flexDirection: "row", alignItems: "center", backgroundColor: "#1e293b", paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, gap: 10, width: 400 },
   timeBarBackground: { flex: 1, height: 8, backgroundColor: "#334155", borderRadius: 10, overflow: "hidden" },
   timeBarFill: { height: "100%", borderRadius: 10 },
   timeText: { color: "#fff", fontWeight: "700" },
