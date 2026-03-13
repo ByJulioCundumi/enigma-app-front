@@ -122,7 +122,7 @@ export default function TopicList() {
         onPress={() => setVisible(true)}
       >
         <Octicons name="multi-select" size={12} color="#fff" />
-        <Text style={styles.openButtonText}>Temáticas</Text>
+        <Text style={styles.openButtonText}>Mas Temática</Text>
       </TouchableOpacity>
 
       {/* POPUP */}
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   openButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#3f41c2",
+    backgroundColor: "#255fb6",
     paddingHorizontal: 18,
     paddingVertical: 7,
     borderRadius: 16,
@@ -208,6 +208,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0)",
+    marginTop: 15
   },
 
   openButtonText: {

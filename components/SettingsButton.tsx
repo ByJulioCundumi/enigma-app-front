@@ -25,7 +25,7 @@ export default function SettingsButton() {
         onPress={() => setVisible(true)}
         activeOpacity={0.85}
       >
-        <Ionicons name="settings" size={22} color="#755dff" />
+        <Ionicons name="settings" size={22} color="#f0f1ff" />
       </TouchableOpacity>
 
       {/* MODAL */}

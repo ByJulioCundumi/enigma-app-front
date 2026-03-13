@@ -92,15 +92,13 @@ export default function PlayButton() {
             <View style={styles.buttonContent}>
               <Text style={styles.buttonText}>Jugar</Text>
 
-              <FontAwesome5 name="dice" size={18} color="#e7e7e7" />
-
               <View style={styles.energyBadge}>
                 <FontAwesome6
                   name="bolt-lightning"
                   size={14}
-                  color="#ff5c7c"
+                  color="#ffffff"
                 />
-                <Text style={styles.energyText}>{requiredHearts}</Text>
+                <Text style={styles.energyText}>-{requiredHearts}</Text>
               </View>
             </View>
           </View>
@@ -113,6 +111,8 @@ const styles = StyleSheet.create({
   card: {
     alignItems: "center",
     justifyContent: "center",
+    position: "absolute",
+    bottom: 30
   },
 
   buttonOuter: {
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#ffffff6e",
-    backgroundColor: "#714aff",
+    backgroundColor: "#ffa600",
   },
 
   buttonInner: {

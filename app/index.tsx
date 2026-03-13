@@ -1,9 +1,8 @@
 import GameModeSelector from "@/components/GameModeSelector";
 import PlayButton from "@/components/PlayButton";
 import TopicList from "@/components/TopicList";
-import TopicsCta from "@/components/TopicsCta";
 import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, ImageBackground, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,9 +13,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import TopBar from "@/components/TopBar";
+import LevelCard from "@/components/LevelCard";
 
 export default function Index() {
-
   const float = useSharedValue(0);
 
   useEffect(() => {
@@ -40,39 +39,33 @@ export default function Index() {
   });
 
   return (
-    <ImageBackground
-      source={require("../assets/images/bg7.webp")}
-      style={{ flex: 1 }}
-      resizeMode="cover"
+    <LinearGradient
+      colors={[
+        "#1732a7",  // azul oscuro profundo
+        "#1e3abf",  // azul intenso
+        "#2f6bff",  // azul vibrante
+        "#3195cf",  // azul claro brillante
+      ]}
+      locations={[0, 0.35, 0.7, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
     >
-      <LinearGradient
-        colors={[
-          "rgba(40, 70, 139, 0.4)",
-          "rgba(18, 36, 66, 0.19)",
-          "rgb(46, 45, 128)",
-        ]}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        style={styles.container}
-      >
+      <TopBar />
 
-        <TopBar/>
+      <Animated.Image
+        source={require("../assets/images/logo3.png")}
+        style={[styles.logo, logoStyle]}
+        resizeMode="contain"
+      />
 
-        <Animated.Image
-          source={require("../assets/images/logo3.png")}
-          style={[styles.logo, logoStyle]}
-          resizeMode="contain"
-        />
+      <View style={styles.gameSection}>
+        <LevelCard isIndex={true} />
+      </View>
 
-        <View style={styles.gameSection}>
-          <TopicsCta useTimer={false} />
-          <PlayButton />
-        </View>
-
-        <GameModeSelector />
-
-      </LinearGradient>
-    </ImageBackground>
+      <TopicList />
+      <PlayButton />
+    </LinearGradient>
   );
 }
 
@@ -84,12 +77,12 @@ const styles = StyleSheet.create({
   },
 
   gameSection: {
-    gap: 20,
+    gap: 15,
     marginTop: -20,
   },
 
   logo: {
-    width: 300,
-    height: 205,
+    width: 450,
+    height: 240,
   },
 });
