@@ -10,15 +10,12 @@ import Animated, {
   withTiming,
   interpolate,
 } from "react-native-reanimated";
-import { useSelector } from "react-redux";
-import { IRootState } from "@/store/rootState";
 import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 
 export default function PlayButton() {
   const router = useRouter();
-  const { gameMode } = useSelector((state: IRootState) => state.gameMode);
 
-  const requiredHearts = gameMode === "normal" ? 3 : 1;
+  const requiredHearts = 2;
 
   const floatProgress = useSharedValue(0);
   const shineProgress = useSharedValue(0);
@@ -112,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: 90
+    bottom: 80
   },
 
   buttonOuter: {

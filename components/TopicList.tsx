@@ -30,6 +30,7 @@ const MOCK_TOPICS: Topic[] = [
 ];
 
 export default function TopicList() {
+
   const [topics, setTopics] = useState(MOCK_TOPICS);
   const [search, setSearch] = useState("");
   const [showFavorites, setShowFavorites] = useState(false);
@@ -47,19 +48,21 @@ export default function TopicList() {
       const matchSearch = t.name.toLowerCase().includes(search.toLowerCase());
       const matchFavorite = showFavorites ? t.favorite : true;
       const matchPopular = showPopular ? t.popular : true;
-
       return matchSearch && matchFavorite && matchPopular;
     });
   }, [topics, search, showFavorites, showPopular]);
 
   const renderTopic = ({ item }: any) => {
+
     const progress = Math.floor(
       (item.levelsCompleted / item.totalLevels) * 100
     );
 
     return (
       <View style={styles.card}>
+
         <View style={styles.row}>
+
           <View style={styles.imageStack}>
             <Image
               source={{ uri: `https://picsum.photos/seed/${item.id}a/100/100` }}
@@ -73,15 +76,19 @@ export default function TopicList() {
 
             {item.popular && (
               <View style={styles.popularIcon}>
-                <Ionicons name="flame" size={14} color="white" />
+                <Ionicons name="flame" size={13} color="white" />
               </View>
             )}
           </View>
 
           <View style={styles.info}>
-            <Text style={styles.name}>{item.name}</Text>
+
+            <Text style={styles.name} numberOfLines={1}>
+              {item.name}
+            </Text>
 
             <View style={styles.levelRow}>
+
               <Text style={styles.levels}>
                 {item.levelsCompleted}/{item.totalLevels} niveles
               </Text>
@@ -93,22 +100,26 @@ export default function TopicList() {
                   color={item.favorite ? "#EF4444" : "#94A3B8"}
                 />
               </TouchableOpacity>
+
             </View>
           </View>
 
           <View style={styles.right}>
+
             <Text style={styles.percent}>{progress}%</Text>
 
             <TouchableOpacity style={styles.playButton}>
               <MaterialCommunityIcons name="play" size={14} color="white" />
               <Text style={styles.playText}>Jugar</Text>
             </TouchableOpacity>
+
           </View>
         </View>
 
         <View style={styles.progressContainer}>
           <View style={[styles.progressFill, { width: `${progress}%` }]} />
         </View>
+
       </View>
     );
   };
@@ -116,36 +127,50 @@ export default function TopicList() {
   return (
     <View>
 
-      {/* BOTON QUE ABRE EL POPUP */}
-      <TouchableOpacity
-        style={styles.openButton}
-        onPress={() => setVisible(true)}
-      >
-        <Octicons name="multi-select" size={12} color="#fff" />
-        <Text style={styles.openButtonText}>Mas Temática</Text>
-      </TouchableOpacity>
+      {/* BOTON ORIGINAL */}
+      <View style={styles.openButtonWrapper}>
+
+        <TouchableOpacity
+          style={styles.openButton}
+          onPress={() => setVisible(true)}
+        >
+          <View style={styles.vipBadge}>
+          <MaterialCommunityIcons name="crown" size={10} color="#fff" />
+        </View>
+          <Text style={styles.openButtonText}>Mas Temática</Text>
+        </TouchableOpacity>
+
+      </View>
 
       {/* POPUP */}
       <Modal visible={visible} transparent animationType="fade">
+
         <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
+
           <Pressable style={styles.modalContainer}>
 
             {/* HEADER */}
             <View style={styles.header}>
-              <Text style={styles.title}>Temáticas</Text>
+
+              <Text style={styles.title}>
+                Temáticas ({filteredTopics.length})
+              </Text>
 
               <TouchableOpacity onPress={() => setVisible(false)}>
-                <Ionicons name="close" size={22} color="white" />
+                <Ionicons name="close" size={22} color="#F1F5F9" />
               </TouchableOpacity>
+
             </View>
 
             {/* BUSCADOR */}
+
             <View style={styles.searchContainer}>
+
               <Ionicons name="search" size={18} color="#94A3B8" />
 
               <TextInput
                 placeholder="Buscar temática"
-                placeholderTextColor="#64748B"
+                placeholderTextColor="#94A3B8"
                 style={styles.searchInput}
                 value={search}
                 onChangeText={setSearch}
@@ -157,7 +182,7 @@ export default function TopicList() {
               >
                 <Ionicons
                   name={showFavorites ? "heart" : "heart-outline"}
-                  size={22}
+                  size={20}
                   color="#EF4444"
                 />
               </TouchableOpacity>
@@ -174,40 +199,45 @@ export default function TopicList() {
                   size={14}
                   color={showPopular ? "white" : "#F97316"}
                 />
-                <Text style={{color: "#F97316", marginLeft: 3}}>Popular</Text>
               </TouchableOpacity>
+
             </View>
 
             {/* LISTA */}
+
             <FlatList
               data={filteredTopics}
               keyExtractor={(item) => item.id}
               renderItem={renderTopic}
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
             />
 
           </Pressable>
+
         </Pressable>
+
       </Modal>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
 
-  /* BOTON ABRIR */
+  /* BOTON ORIGINAL (SIN CAMBIOS) */
 
   openButton: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#255fb6",
-    paddingHorizontal: 18,
+    paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: 16,
     alignSelf: "center",
     gap: 8,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0)",
+    borderColor: "rgba(255, 255, 255, 0.1)",
     marginTop: 15
   },
 
@@ -218,24 +248,40 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
+  openButtonWrapper: {
+    alignSelf: "center",
+    position: "relative",
+  },
+
+  vipBadge: {
+    backgroundColor: "#f59e0b",
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#ffffff",
+  },
+
   /* OVERLAY */
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.75)",
+    backgroundColor: "rgba(0,0,0,0.55)",
     justifyContent: "center",
-    padding: 14,
+    padding: 16,
   },
 
   /* MODAL */
 
   modalContainer: {
-    backgroundColor: "#0B1220",
-    borderRadius: 26,
+    backgroundColor: "#1E293B",
+    borderRadius: 24,
     padding: 18,
-    height: "75%",
+    maxHeight: "70%",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.06)",
   },
 
   /* HEADER */
@@ -245,16 +291,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 14,
-    paddingBottom: 8,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.05)",
   },
 
   title: {
-    color: "white",
+    color: "#F1F5F9",
     fontWeight: "900",
     fontSize: 20,
-    letterSpacing: 0.6,
   },
 
   /* BUSCADOR */
@@ -262,18 +307,16 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#071A41",
-    borderRadius: 16,
+    backgroundColor: "#2F3E57",
+    borderRadius: 14,
     paddingHorizontal: 14,
     marginBottom: 16,
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#1E293B",
+    height: 46,
   },
 
   searchInput: {
     flex: 1,
-    color: "white",
+    color: "#F1F5F9",
     marginLeft: 10,
     fontSize: 14,
   },
@@ -283,12 +326,10 @@ const styles = StyleSheet.create({
   },
 
   popularFilter: {
-    flexDirection: "row",
-    alignItems: "center",
     marginLeft: 10,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 12,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "#F97316",
   },
@@ -300,21 +341,18 @@ const styles = StyleSheet.create({
   /* CARD */
 
   card: {
-    backgroundColor: "#070D24",
-    borderRadius: 20,
-    padding: 16,
-    paddingVertical: 10,
-    marginBottom: 14,
+    backgroundColor: "#273449",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#1E293B",
+    borderColor: "rgba(255,255,255,0.04)",
   },
 
   row: {
     flexDirection: "row",
     alignItems: "center",
   },
-
-  /* IMAGENES */
 
   imageStack: {
     width: 60,
@@ -339,33 +377,27 @@ const styles = StyleSheet.create({
     transform: [{ rotate: "10deg" }],
     left: 18,
     borderWidth: 2,
-    borderColor: "#0B1220",
+    borderColor: "#1E293B",
   },
-
-  /* ICONO POPULAR */
 
   popularIcon: {
     position: "absolute",
     bottom: -5,
     left: -5,
     backgroundColor: "#F97316",
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#070D24",
   },
-
-  /* INFO */
 
   info: {
     flex: 1,
   },
 
   name: {
-    color: "white",
+    color: "#F1F5F9",
     fontWeight: "800",
     fontSize: 16,
   },
@@ -373,17 +405,13 @@ const styles = StyleSheet.create({
   levelRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 0,
-    paddingRight: 5
+    marginTop: 3,
   },
 
   levels: {
     color: "#94A3B8",
     fontSize: 12,
   },
-
-  /* DERECHA */
 
   right: {
     alignItems: "center",
@@ -397,14 +425,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
 
-  /* BOTON JUGAR */
-
   playButton: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#2563EB",
     paddingHorizontal: 10,
-    paddingVertical: 4.5,
+    paddingVertical: 5,
     borderRadius: 10,
     gap: 4,
   },
@@ -415,19 +441,17 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  /* PROGRESO */
-
   progressContainer: {
-    height: 4,
-    backgroundColor: "#090e25",
+    height: 5,
+    backgroundColor: "#0B1220",
     borderRadius: 6,
-    marginTop: 12,
+    marginTop: 10,
     overflow: "hidden",
   },
 
   progressFill: {
     height: "100%",
-    backgroundColor: "#3B82F6",
+    backgroundColor: "#60A5FA",
   },
-});
 
+});
