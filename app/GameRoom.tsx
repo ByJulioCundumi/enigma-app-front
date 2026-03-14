@@ -12,11 +12,14 @@ const word = "ARNOLD VULEVAR";
 const words = word.split(" ");
 
 const TOTAL_TIME = 30;
+const EXTRA_TIME = 30;
+const MAX_TIME_USES = 1;
 
 export default function GameRoom() {
 
   const [timeLeft, setTimeLeft] = useState<number>(TOTAL_TIME);
   const [energy, setEnergy] = useState<number>(15);
+  const [timeUses, setTimeUses] = useState<number>(0);
 
   const [letters, setLetters] = useState<string[]>(
     word.split("").map((l) => (l === " " ? " " : ""))
@@ -128,6 +131,8 @@ export default function GameRoom() {
 
     if (energy <= 0) return;
 
+    if (remainingLetters <= 3) return;
+
     const availableIndexes = letters
       .map((l, i) => (word[i] !== " " && l !== word[i] ? i : -1))
       .filter((i) => i !== -1);
@@ -149,14 +154,29 @@ export default function GameRoom() {
 
   };
 
+  const addExtraTime = () => {
+
+    if (timeUses >= MAX_TIME_USES) return;
+
+    setTimeLeft((prev) => prev + EXTRA_TIME);
+    setTimeUses((prev) => prev + 1);
+
+  };
+
+  const remainingLetters = letters.filter(
+    (l, i) => word[i] !== " " && l === ""
+  ).length;
+
+  const hintDisabled = remainingLetters <= 3 || energy <= 0;
+
+  const timeDisabled = timeUses >= MAX_TIME_USES;
+
   return (
     <View style={styles.screen}>
 
       <SunburstBackground color="green" />
 
       <View style={styles.container}>
-
-        {/* HEADER */}
 
         <View style={styles.header}>
 
@@ -175,8 +195,6 @@ export default function GameRoom() {
 
         </View>
 
-        {/* GAME AREA */}
-
         <View style={styles.gameArea}>
 
           <View style={styles.imageWrapper}>
@@ -184,8 +202,6 @@ export default function GameRoom() {
           </View>
 
           <View style={styles.rightArea}>
-
-            {/* KEYBOARD */}
 
             <View style={styles.keyboard}>
 
@@ -202,8 +218,6 @@ export default function GameRoom() {
               ))}
 
             </View>
-
-            {/* WORD */}
 
             <View style={styles.wordContainer}>
 
@@ -255,8 +269,6 @@ export default function GameRoom() {
 
         </View>
 
-        {/* FOOTER */}
-
         <View style={styles.footer}>
 
           <View style={styles.timeBarContainer}>
@@ -299,8 +311,12 @@ export default function GameRoom() {
             <View style={styles.hintWrapper}>
 
               <TouchableOpacity
-                style={styles.hintButton}
+                style={[
+                  styles.hintButton,
+                  hintDisabled && styles.disabledButton
+                ]}
                 onPress={useHint}
+                disabled={hintDisabled}
               >
                 <MaterialCommunityIcons
                   name="lightbulb-on"
@@ -310,6 +326,34 @@ export default function GameRoom() {
               </TouchableOpacity>
 
               <View style={styles.hintCostBadge}>
+                <MaterialCommunityIcons
+                  name="lightning-bolt"
+                  size={10}
+                  color="#fff"
+                />
+                <Text style={styles.hintCostText}>1</Text>
+              </View>
+
+            </View>
+
+            <View style={styles.timeWrapper}>
+
+              <TouchableOpacity
+                style={[
+                  styles.timeButton,
+                  timeDisabled && styles.disabledButton
+                ]}
+                onPress={addExtraTime}
+                disabled={timeDisabled}
+              >
+                <MaterialCommunityIcons
+                  name="timer-plus"
+                  size={20}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+
+              <View style={styles.timeBadge}>
                 <MaterialCommunityIcons
                   name="lightning-bolt"
                   size={10}
@@ -500,6 +544,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  timeWrapper: {
+    marginLeft: 8,
+  },
+
+  timeButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: "#22c55e",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  disabledButton: {
+    backgroundColor: "#334155",
+    opacity: 0.5,
+  },
+
   hintCostBadge: {
     position: "absolute",
     top: -6,
@@ -517,6 +579,18 @@ const styles = StyleSheet.create({
     fontSize: 9,
     marginLeft: 1,
     fontWeight: "700",
+  },
+
+  timeBadge: {
+    position: "absolute",
+    top: -6,
+    right: -6,
+    backgroundColor: "#16a34a",
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 6,
+    flexDirection: "row",
+    alignItems: "center"
   },
 
 });

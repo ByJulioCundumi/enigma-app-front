@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: 80
+    bottom: 90
   },
 
   buttonOuter: {
