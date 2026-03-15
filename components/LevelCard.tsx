@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { FontAwesome6, Octicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import VipButton from "./VipButton";
 
 const { width } = Dimensions.get("window");
 
@@ -57,6 +58,8 @@ export default function LevelCard({
           <Text style={styles.descriptionText}>{description}</Text>
         </View>
       </View>
+
+      <VipButton/>
     </View>
   );
 }

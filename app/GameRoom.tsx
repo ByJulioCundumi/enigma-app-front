@@ -191,7 +191,7 @@ export default function GameRoom() {
 
           </View>
 
-          <EnergyStat value={22} />
+          <EnergyStat/>
 
         </View>
 

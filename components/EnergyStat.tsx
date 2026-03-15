@@ -1,10 +1,15 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { FontAwesome6, Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Pressable
+} from "react-native";
+import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
-interface Props {
-  value: number;
-}
+const ENERGY_REWARD = 3;
 
 const formatNumber = (num: number) => {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
@@ -12,25 +17,159 @@ const formatNumber = (num: number) => {
   return num;
 };
 
-export default function EnergyStat({ value }: Props) {
+export default function EnergyStat() {
+
+  const [energy, setEnergy] = useState(5);
+  const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const watchAd = async () => {
+
+    if (loading) return;
+
+    setLoading(true);
+
+    // simulación de anuncio
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    setEnergy(prev => prev + ENERGY_REWARD);
+
+    setLoading(false);
+    setVisible(false);
+
+  };
+
   return (
-    <TouchableOpacity activeOpacity={0.85} style={styles.statBadge}>
-      
-      <View style={styles.energyIcon}>
-        <FontAwesome6 name="bolt-lightning" size={9} color="#fff" />
-      </View>
+    <>
 
-      <Text style={styles.statText}>{formatNumber(value)}</Text>
+      {/* BOTON ENERGIA */}
 
-      <View style={styles.plusButton}>
-        <Ionicons name="add" size={12} color="#fff" />
-      </View>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        style={styles.statBadge}
+        onPress={() => setVisible(true)}
+      >
+        
+        <View style={styles.energyIcon}>
+          <FontAwesome6 name="bolt-lightning" size={9} color="#fff" />
+        </View>
 
-    </TouchableOpacity>
+        <Text style={styles.statText}>
+          {formatNumber(energy)}
+        </Text>
+
+        <View style={styles.plusButton}>
+          <Ionicons name="add" size={12} color="#fff" />
+        </View>
+
+      </TouchableOpacity>
+
+
+      {/* POPUP */}
+
+      <Modal visible={visible} transparent animationType="fade">
+
+        <Pressable
+          style={styles.overlay}
+          onPress={() => setVisible(false)}
+        >
+
+          <Pressable style={styles.popup}>
+
+            {/* HEADER */}
+
+            <View style={styles.header}>
+
+              <View style={styles.energyCircle}>
+                <FontAwesome6
+                  name="bolt-lightning"
+                  size={28}
+                  color="#FFD54A"
+                />
+              </View>
+
+              <Text style={styles.title}>
+                Obtener Energía
+              </Text>
+
+              <Text style={styles.subtitle}>
+                Mira un anuncio corto para continuar jugando
+              </Text>
+
+            </View>
+
+
+            {/* RECOMPENSA */}
+
+            <View style={styles.rewardCard}>
+
+              <Text style={styles.rewardLabel}>
+                Recompensa
+              </Text>
+
+              <View style={styles.rewardRow}>
+
+                <FontAwesome6
+                  name="bolt-lightning"
+                  size={18}
+                  color="#FFD54A"
+                />
+
+                <Text style={styles.rewardText}>
+                  +{ENERGY_REWARD} Energía
+                </Text>
+
+              </View>
+
+            </View>
+
+
+            {/* BOTON */}
+
+            <TouchableOpacity
+              style={styles.watchButton}
+              onPress={watchAd}
+              disabled={loading}
+            >
+
+              <MaterialCommunityIcons
+                name="play-circle"
+                size={20}
+                color="white"
+              />
+
+              <Text style={styles.watchText}>
+                {loading ? "Cargando..." : "Ver anuncio"}
+              </Text>
+
+            </TouchableOpacity>
+
+
+            {/* CANCELAR */}
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setVisible(false)}
+            >
+
+              <Text style={styles.cancelText}>
+                Ahora no
+              </Text>
+
+            </TouchableOpacity>
+
+          </Pressable>
+
+        </Pressable>
+
+      </Modal>
+
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+
   statBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -67,4 +206,100 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    padding: 24,
+  },
+
+  popup: {
+    backgroundColor: "#162033",
+    borderRadius: 26,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: "#2a3955",
+  },
+
+  header: {
+    alignItems: "center",
+    marginBottom: 18,
+  },
+
+  energyCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "#22304a",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+
+  title: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "900",
+  },
+
+  subtitle: {
+    color: "#94A3B8",
+    fontSize: 13,
+    textAlign: "center",
+    marginTop: 4,
+  },
+
+  rewardCard: {
+    backgroundColor: "#1E2A44",
+    borderRadius: 16,
+    padding: 16,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+
+  rewardLabel: {
+    color: "#94A3B8",
+    fontSize: 12,
+    marginBottom: 6,
+  },
+
+  rewardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  rewardText: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: "#FFD54A",
+  },
+
+  watchButton: {
+    flexDirection: "row",
+    backgroundColor: "#2563EB",
+    paddingVertical: 14,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  watchText: {
+    color: "white",
+    fontWeight: "900",
+    fontSize: 16,
+  },
+
+  cancelButton: {
+    marginTop: 12,
+    alignItems: "center",
+  },
+
+  cancelText: {
+    color: "#94A3B8",
+    fontSize: 13,
+  },
+
 });

@@ -1,4 +1,3 @@
-import GameModeSelector from "@/components/GameModeSelector";
 import PlayButton from "@/components/PlayButton";
 import TopicList from "@/components/TopicList";
 import { LinearGradient } from "expo-linear-gradient";
