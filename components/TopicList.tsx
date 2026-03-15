@@ -9,6 +9,7 @@ import {
   TextInput,
   Modal,
   Pressable,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 
@@ -19,14 +20,15 @@ interface Topic {
   totalLevels: number;
   favorite?: boolean;
   popular?: boolean;
+  vip?: boolean;
 }
 
 const MOCK_TOPICS: Topic[] = [
-  { id: "1", name: "Personajes", levelsCompleted: 20, totalLevels: 100, popular: true },
-  { id: "2", name: "Películas", levelsCompleted: 12, totalLevels: 80 },
-  { id: "3", name: "Anime", levelsCompleted: 35, totalLevels: 120, popular: true },
-  { id: "4", name: "Videojuegos", levelsCompleted: 8, totalLevels: 60 },
-  { id: "5", name: "Animales", levelsCompleted: 40, totalLevels: 90 },
+  { id: "1", name: "Personajes", levelsCompleted: 20, totalLevels: 100, popular: true, vip: true },
+  { id: "2", name: "Películas", levelsCompleted: 12, totalLevels: 80, vip: true },
+  { id: "3", name: "Anime", levelsCompleted: 35, totalLevels: 120, popular: true, vip: true },
+  { id: "4", name: "Videojuegos", levelsCompleted: 8, totalLevels: 60, vip: true },
+  { id: "5", name: "Animales", levelsCompleted: 40, totalLevels: 90, vip: true },
 ];
 
 export default function TopicList() {
@@ -40,6 +42,10 @@ export default function TopicList() {
     setTopics((prev) =>
       prev.map((t) => (t.id === id ? { ...t, favorite: !t.favorite } : t))
     );
+  };
+
+  const playTopic = (topic: Topic) => {
+    console.log("Jugar temática:", topic.name);
   };
 
   const filteredTopics = useMemo(() => {
@@ -57,12 +63,27 @@ export default function TopicList() {
     );
 
     return (
-      <TouchableOpacity style={styles.card} activeOpacity={0.8}>
 
-        <Image
-          source={{ uri: `https://picsum.photos/seed/${item.id}/100/100` }}
-          style={styles.topicImage}
-        />
+      <View style={styles.card}>
+
+        <View style={styles.imageWrapper}>
+
+          <Image
+            source={{ uri: `https://picsum.photos/seed/${item.id}/100/100` }}
+            style={styles.topicImage}
+          />
+
+          {item.vip && (
+            <View style={styles.vipBadge}>
+              <MaterialCommunityIcons
+                name="crown"
+                size={12}
+                color="#FFD700"
+              />
+            </View>
+          )}
+
+        </View>
 
         <View style={styles.topicInfo}>
 
@@ -70,39 +91,59 @@ export default function TopicList() {
             <Text style={styles.topicName}>{item.name}</Text>
           </View>
 
-          <Text style={styles.levelText}>
-            {item.levelsCompleted}/{item.totalLevels} niveles
-          </Text>
+          <View style={styles.progressRow}>
+
+            <Text style={styles.levelText}>
+              {item.levelsCompleted}/{item.totalLevels}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.playButton}
+              onPress={() => playTopic(item)}
+            >
+              <Ionicons name="play" size={9} color="white" />
+              <Text style={styles.playText}>Jugar</Text>
+            </TouchableOpacity>
+
+          </View>
 
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress}%` }]} />
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${progress}%` }
+              ]}
+            />
           </View>
 
         </View>
 
         <View style={styles.rightSection}>
+
           <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
-              <Ionicons
-                name={item.favorite ? "heart" : "heart-outline"}
-                size={18}
-                color={item.favorite ? "#EF4444" : "#94A3B8"}
-              />
-            </TouchableOpacity>
+            <Ionicons
+              name={item.favorite ? "heart" : "heart-outline"}
+              size={18}
+              color={item.favorite ? "#EF4444" : "#94A3B8"}
+            />
+          </TouchableOpacity>
 
           <View style={styles.percentBox}>
-            <Text style={styles.percentText}>{progress}%</Text>
+            <Text style={styles.percentText}>
+              {progress}%
+            </Text>
           </View>
 
         </View>
 
-      </TouchableOpacity>
+      </View>
+
     );
   };
 
   return (
-    <View>
 
-      {/* BOTON ORIGINAL */}
+    <View>
 
       <View style={styles.openButtonWrapper}>
 
@@ -116,15 +157,15 @@ export default function TopicList() {
 
       </View>
 
-      {/* POPUP */}
-
       <Modal visible={visible} transparent animationType="fade">
 
-        <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
+        <View style={styles.overlay}>
 
-          <Pressable style={styles.modalContainer}>
+          <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+            <View style={StyleSheet.absoluteFillObject} />
+          </TouchableWithoutFeedback>
 
-            {/* HEADER VIP */}
+          <View style={styles.modalContainer}>
 
             <View style={styles.header}>
 
@@ -138,8 +179,6 @@ export default function TopicList() {
               </TouchableOpacity>
 
             </View>
-
-            {/* BOTON VIP */}
 
             <TouchableOpacity style={styles.vipButton}>
 
@@ -156,8 +195,6 @@ export default function TopicList() {
               />
 
             </TouchableOpacity>
-
-            {/* BUSCADOR */}
 
             <View style={styles.searchContainer}>
 
@@ -183,23 +220,22 @@ export default function TopicList() {
 
             </View>
 
-            {/* LISTA */}
-
             <FlatList
               data={filteredTopics}
               keyExtractor={(item) => item.id}
               renderItem={renderTopic}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
+              contentContainerStyle={styles.listContent}
             />
 
-          </Pressable>
+          </View>
 
-        </Pressable>
+        </View>
 
       </Modal>
 
     </View>
+
   );
 }
 
@@ -297,6 +333,10 @@ const styles = StyleSheet.create({
     color: "#E2E8F0",
   },
 
+  listContent: {
+    paddingBottom: 20,
+  },
+
   card: {
     flexDirection: "row",
     alignItems: "center",
@@ -306,11 +346,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
+  imageWrapper: {
+    position: "relative",
+    marginRight: 10,
+  },
+
   topicImage: {
     width: 50,
     height: 50,
     borderRadius: 12,
-    marginRight: 10,
+  },
+
+  vipBadge: {
+    position: "absolute",
+    bottom: -4,
+    left: -4,
+    backgroundColor: "#243047",
+    borderRadius: 10,
+    padding: 3,
   },
 
   topicInfo: {
@@ -328,28 +381,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 
+  progressRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 4,
+  },
+
   levelText: {
     color: "#94A3B8",
     fontSize: 11,
-    marginTop: 2,
-  },
-
-  progressBar: {
-    height: 4,
-    backgroundColor: "#0F172A",
-    borderRadius: 6,
-    marginTop: 6,
-    overflow: "hidden",
-  },
-
-  progressFill: {
-    height: "100%",
-    backgroundColor: "rgb(255, 196, 0)",
-  },
-
-  rightSection: {
-    alignItems: "center",
-    width: 50,
+    fontWeight: "600",
   },
 
   percentBox: {
@@ -365,11 +407,43 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
 
-  popularBadge: {
-    backgroundColor: "#ffae00",
+  progressBar: {
+    height: 5,
+    backgroundColor: "#0F172A",
+    borderRadius: 6,
+    marginTop: 6,
+    overflow: "hidden",
+  },
+
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#FFC400",
+  },
+
+  playButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2563EB",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: 10,
-    padding: 3,
-    marginBottom: 4,
+    gap: 4,
+    position: "absolute",
+    right: 0,
+    bottom: 0
+  },
+
+  playText: {
+    color: "white",
+    fontSize: 11,
+    fontWeight: "800",
+  },
+
+  rightSection: {
+    alignItems: "center",
+    width: 50,
+    justifyContent: "space-between",
+    height: 45,
   },
 
 });
