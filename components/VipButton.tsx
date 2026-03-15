@@ -8,6 +8,9 @@ import {
   Pressable
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
+import { activateVip, incrementAd, tickVip } from "@/store/reducers/vipSlice";
 
 interface Props {
   onWatchAd?: () => Promise<boolean>;
@@ -18,10 +21,24 @@ export default function VipButton({ onWatchAd }: Props) {
   const REQUIRED_ADS = 3;
   const VIP_DURATION = 15 * 60;
 
+  const dispatch = useDispatch();
+
+  const adsWatched = useSelector(
+    (state: IRootState) => state.vip.adsWatched
+  );
+
+  const vipExpireAt = useSelector(
+    (state: IRootState) => state.vip.vipExpireAt
+  );
+
+  const vipStartAt = useSelector(
+    (state: IRootState) => state.vip.vipStartAt
+  );
+
+  const vipActive = vipExpireAt !== null;
+
   const [visible, setVisible] = useState(false);
-  const [adsWatched, setAdsWatched] = useState(0);
-  const [vipTime, setVipTime] = useState(VIP_DURATION);
-  const [vipActive, setVipActive] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(VIP_DURATION);
 
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60);
@@ -31,30 +48,31 @@ export default function VipButton({ onWatchAd }: Props) {
 
   useEffect(() => {
 
-    if (!vipActive) return;
-
     const interval = setInterval(() => {
 
-      setVipTime((prev) => {
+      dispatch(tickVip());
 
-        if (prev <= 1) {
+      if (vipExpireAt) {
 
-          clearInterval(interval);
-          setVipActive(false);
-          setAdsWatched(0);
-          return VIP_DURATION;
+        const remaining = Math.max(
+          0,
+          Math.floor((vipExpireAt - Date.now()) / 1000)
+        );
 
-        }
+        setTimeLeft(remaining);
 
-        return prev - 1;
+      } else {
 
-      });
+        setTimeLeft(VIP_DURATION);
+
+      }
 
     }, 1000);
 
     return () => clearInterval(interval);
 
-  }, [vipActive]);
+  }, [vipExpireAt, vipStartAt]);
+
 
 
   const watchAd = async () => {
@@ -70,11 +88,12 @@ export default function VipButton({ onWatchAd }: Props) {
     if (!success) return;
 
     const newCount = adsWatched + 1;
-    setAdsWatched(newCount);
+
+    dispatch(incrementAd());
 
     if (newCount >= REQUIRED_ADS) {
 
-      setVipActive(true);
+      dispatch(activateVip());
       setVisible(false);
 
     }
@@ -85,7 +104,6 @@ export default function VipButton({ onWatchAd }: Props) {
 
   return (
     <>
-
       {/* BOTON VIP */}
 
       <TouchableOpacity
@@ -100,22 +118,26 @@ export default function VipButton({ onWatchAd }: Props) {
           name="crown"
           size={20}
           color="#FFD700"
-          style={{marginTop: -8}}
+          style={{marginTop:-8}}
         />
 
         <View style={styles.badge}>
 
           {vipActive ? (
+
             <Text style={styles.badgeText}>
-              {formatTime(vipTime)}
+              {formatTime(timeLeft)}
             </Text>
+
           ) : (
-            <View style={{flexDirection: "row", alignItems: "center", gap: 3}}>
-              <MaterialCommunityIcons name="movie-open-play" size={14} color="black" />
+
+            <View style={{flexDirection:"row",alignItems:"center",gap:3}}>
+              <MaterialCommunityIcons name="movie-open-play" size={14} color="black"/>
               <Text style={styles.badgeText}>
                 {adsWatched}/{REQUIRED_ADS}
               </Text>
             </View>
+
           )}
 
         </View>
@@ -134,8 +156,6 @@ export default function VipButton({ onWatchAd }: Props) {
         >
 
           <Pressable style={styles.popup}>
-
-            {/* HEADER VIP */}
 
             <View style={styles.header}>
 
@@ -158,7 +178,7 @@ export default function VipButton({ onWatchAd }: Props) {
             </View>
 
 
-            {/* CRONOMETRO */}
+            {/* TIMER */}
 
             <View style={styles.timerCard}>
 
@@ -167,13 +187,48 @@ export default function VipButton({ onWatchAd }: Props) {
               </Text>
 
               <Text style={styles.timer}>
-                {formatTime(vipActive ? vipTime : VIP_DURATION)}
+                {formatTime(vipActive ? timeLeft : VIP_DURATION)}
               </Text>
 
             </View>
 
 
-            {/* PROGRESO */}
+            {/* BENEFICIOS */}
+
+            <View style={styles.benefitsContainer}>
+
+              <View style={styles.benefitCard}>
+                <View style={[styles.iconCircle,{backgroundColor:"#1f3a2a"}]}>
+                  <Ionicons name="flash" size={18} color="#22c55e"/>
+                </View>
+                <View>
+                  <Text style={styles.benefitTitle}>Energía x2</Text>
+                  <Text style={styles.benefitDesc}>Duplica la energía obtenida</Text>
+                </View>
+              </View>
+
+              <View style={styles.benefitCard}>
+                <View style={[styles.iconCircle,{backgroundColor:"#3a2e12"}]}>
+                  <MaterialCommunityIcons name="crown" size={18} color="#FFD700"/>
+                </View>
+                <View>
+                  <Text style={styles.benefitTitle}>Temáticas exclusivas</Text>
+                  <Text style={styles.benefitDesc}>Acceso a retos VIP</Text>
+                </View>
+              </View>
+
+              <View style={styles.benefitCard}>
+                <View style={[styles.iconCircle,{backgroundColor:"#2b2f45"}]}>
+                  <Ionicons name="ban" size={18} color="#60a5fa"/>
+                </View>
+                <View>
+                  <Text style={styles.benefitTitle}>Sin anuncios</Text>
+                  <Text style={styles.benefitDesc}>Juega sin interrupciones</Text>
+                </View>
+              </View>
+
+            </View>
+
 
             {!vipActive && (
 
@@ -207,36 +262,6 @@ export default function VipButton({ onWatchAd }: Props) {
             )}
 
 
-            {/* BENEFICIOS */}
-
-            <View style={styles.benefitsContainer}>
-
-              <View style={styles.benefitCard}>
-                <Ionicons name="flash" size={18} color="#22c55e"/>
-                <Text style={styles.benefitText}>
-                  Energía x2
-                </Text>
-              </View>
-
-              <View style={styles.benefitCard}>
-                <MaterialCommunityIcons name="crown" size={18} color="#eab308"/>
-                <Text style={styles.benefitText}>
-                  Temáticas VIP
-                </Text>
-              </View>
-
-              <View style={styles.benefitCard}>
-                <Ionicons name="ban" size={18} color="#3b82f6"/>
-                <Text style={styles.benefitText}>
-                  Sin anuncios
-                </Text>
-              </View>
-
-            </View>
-
-
-            {/* BOTON VER ANUNCIO */}
-
             {!vipActive && (
 
               <TouchableOpacity
@@ -259,7 +284,6 @@ export default function VipButton({ onWatchAd }: Props) {
         </Pressable>
 
       </Modal>
-
     </>
   );
 }
@@ -278,9 +302,9 @@ const styles = StyleSheet.create({
     borderWidth:2,
     borderColor:"#FFD700",
     elevation:8,
-    position: "absolute",
-    top: 15,
-    right: 15
+    position:"absolute",
+    top:15,
+    right:15
   },
 
   glow:{
@@ -369,6 +393,39 @@ const styles = StyleSheet.create({
     marginTop:2
   },
 
+  benefitsContainer:{
+    gap:12,
+    marginBottom:20
+  },
+
+  benefitCard:{
+    flexDirection:"row",
+    alignItems:"center",
+    gap:12,
+    backgroundColor:"#1B273E",
+    padding:14,
+    borderRadius:14
+  },
+
+  iconCircle:{
+    width:34,
+    height:34,
+    borderRadius:10,
+    justifyContent:"center",
+    alignItems:"center"
+  },
+
+  benefitTitle:{
+    color:"white",
+    fontWeight:"700",
+    fontSize:14
+  },
+
+  benefitDesc:{
+    color:"#94A3B8",
+    fontSize:11
+  },
+
   progressCard:{
     backgroundColor:"#1B273E",
     padding:14,
@@ -402,26 +459,6 @@ const styles = StyleSheet.create({
   progressFill:{
     height:"100%",
     backgroundColor:"#FFD700"
-  },
-
-  benefitsContainer:{
-    gap:10,
-    marginBottom:20
-  },
-
-  benefitCard:{
-    flexDirection:"row",
-    alignItems:"center",
-    gap:10,
-    backgroundColor:"#1E2B45",
-    padding:12,
-    borderRadius:12
-  },
-
-  benefitText:{
-    color:"#E2E8F0",
-    fontSize:13,
-    fontWeight:"600"
   },
 
   watchButton:{

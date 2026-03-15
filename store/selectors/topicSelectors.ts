@@ -1,0 +1,24 @@
+import { topics } from "@/assets/data/topics/topics";
+import { IRootState } from "../rootState";
+
+export const selectCurrentTopic = (state: IRootState) => {
+
+  const topicId = state.topics.selectedTopic;
+
+  return topics[topicId] ?? null;
+
+};
+
+export const selectCurrentLevel = (state: IRootState) => {
+
+  const topicId = state.topics.selectedTopic;
+
+  const topic = topics[topicId];
+
+  if (!topic) return null;
+
+  const levelIndex = state.topics.progress[topicId].currentLevel;
+
+  return topic.levels[levelIndex] ?? null;
+
+};

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -7,73 +7,143 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Switch,
+  Animated,
+  Easing,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+
+import { useDispatch, useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
+import { toggleSound } from "@/store/reducers/soundSlice";
+import { toggleMusic } from "@/store/reducers/musicSlice";
 
 export default function SettingsButton() {
   const [visible, setVisible] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [musicEnabled, setMusicEnabled] = useState(true);
 
-  const currentLanguage = "ES";
+  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  const dispatch = useDispatch();
+
+  const soundEnabled = useSelector((state: IRootState) => state.sound.enabled);
+  const musicEnabled = useSelector((state: IRootState) => state.music.enabled);
+
+  const openModal = () => {
+    setVisible(true);
+
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 7,
+        tension: 90,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 180,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const closeModal = () => {
+    Animated.parallel([
+      Animated.timing(scaleAnim, {
+        toValue: 0.85,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setVisible(false));
+  };
 
   return (
     <>
       {/* BOTÓN AJUSTES */}
       <TouchableOpacity
         style={styles.settingsButton}
-        onPress={() => setVisible(true)}
+        onPress={openModal}
         activeOpacity={0.85}
       >
-        <Ionicons name="settings" size={22} color="#f0f1ff" />
+        <Ionicons name="settings" size={22} color="#f1f5f9" />
       </TouchableOpacity>
 
       {/* MODAL */}
       <Modal
         visible={visible}
         transparent
-        animationType="fade"
-        onRequestClose={() => setVisible(false)}
+        animationType="none"
+        onRequestClose={closeModal}
       >
-        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
-          <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <Animated.View style={[styles.overlay, { opacity: opacityAnim }]}>
             <TouchableWithoutFeedback>
-              <View style={styles.popup}>
-                {/* Header */}
+              <Animated.View
+                style={[
+                  styles.popup,
+                  {
+                    transform: [{ scale: scaleAnim }],
+                  },
+                ]}
+              >
+                {/* HEADER */}
                 <View style={styles.header}>
                   <Text style={styles.title}>Ajustes</Text>
-                  <TouchableOpacity onPress={() => setVisible(false)}>
-                    <Ionicons name="close" size={24} color="#334155" />
+
+                  <TouchableOpacity onPress={closeModal}>
+                    <Ionicons name="close" size={26} color="#cbd5f5" />
                   </TouchableOpacity>
                 </View>
 
-                {/* Opciones */}
-                <View style={styles.optionRow}>
-                  <Text style={styles.optionText}>Sonidos</Text>
+                {/* SONIDOS */}
+                <View style={styles.card}>
+                  <View style={styles.optionLeft}>
+                    <MaterialCommunityIcons
+                      name="volume-high"
+                      size={22}
+                      color="#60a5fa"
+                    />
+                    <Text style={styles.optionText}>Sonidos</Text>
+                  </View>
+
                   <Switch
                     value={soundEnabled}
-                    onValueChange={setSoundEnabled}
+                    onValueChange={(value) => {
+                      dispatch(toggleSound());
+                    }}
+                    trackColor={{ false: "#334155", true: "#3b82f6" }}
+                    thumbColor="#ffffff"
                   />
                 </View>
 
-                <View style={styles.optionRow}>
-                  <Text style={styles.optionText}>Música</Text>
+                {/* MUSICA */}
+                <View style={styles.card}>
+                  <View style={styles.optionLeft}>
+                    <Ionicons
+                      name="musical-notes"
+                      size={22}
+                      color="#34d399"
+                    />
+                    <Text style={styles.optionText}>Música</Text>
+                  </View>
+
                   <Switch
                     value={musicEnabled}
-                    onValueChange={setMusicEnabled}
+                    onValueChange={(value) => {
+                      dispatch(toggleMusic());
+                    }}
+                    trackColor={{ false: "#334155", true: "#22c55e" }}
+                    thumbColor="#ffffff"
                   />
                 </View>
-
-                <View style={styles.divider} />
-
-                <TouchableOpacity style={styles.resetButton}>
-                  <Text style={styles.resetText}>
-                    Restablecer progreso
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              </Animated.View>
             </TouchableWithoutFeedback>
-          </View>
+          </Animated.View>
         </TouchableWithoutFeedback>
       </Modal>
     </>
@@ -82,9 +152,9 @@ export default function SettingsButton() {
 
 const styles = StyleSheet.create({
   settingsButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.08)",
@@ -92,18 +162,24 @@ const styles = StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.65)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
   },
 
   popup: {
-    width: "85%",
-    backgroundColor: "#f8fafc",
-    borderRadius: 20,
-    padding: 20,
-    elevation: 10,
+    width: "88%",
+    backgroundColor: "#0f172a",
+    borderRadius: 26,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: "#1e293b",
+    shadowColor: "#000",
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 12,
   },
 
   header: {
@@ -114,39 +190,34 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "800",
-    color: "#1e293b",
+    color: "#f1f5f9",
+    letterSpacing: 0.3,
   },
 
-  optionRow: {
+  card: {
+    backgroundColor: "#1e293b",
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
+    justifyContent: "space-between",
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+
+  optionLeft: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   optionText: {
+    marginLeft: 10,
     fontSize: 15,
     fontWeight: "600",
-    color: "#334155",
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: "#e2e8f0",
-    marginVertical: 15,
-  },
-
-  resetButton: {
-    backgroundColor: "#ef4444",
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-
-  resetText: {
-    color: "#fff",
-    fontWeight: "700",
+    color: "#e2e8f0",
   },
 });

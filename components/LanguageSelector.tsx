@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -6,16 +6,64 @@ import {
   TouchableOpacity,
   Modal,
   TouchableWithoutFeedback,
+  Animated,
+  Easing,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+import { useDispatch, useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
+import { setLanguage } from "@/store/reducers/languageSlice";
+
 export default function LanguageSelector() {
   const [visible, setVisible] = useState(false);
-  const [language, setLanguage] = useState<"EN" | "ES">("EN");
 
-  const selectLanguage = (lang: "EN" | "ES") => {
-    setLanguage(lang);
-    setVisible(false);
+  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  const dispatch = useDispatch();
+
+  const language = useSelector(
+    (state: IRootState) => state.language.language
+  );
+
+  const openModal = () => {
+    setVisible(true);
+
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 7,
+        tension: 90,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 180,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const closeModal = () => {
+    Animated.parallel([
+      Animated.timing(scaleAnim, {
+        toValue: 0.85,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setVisible(false));
+  };
+
+  const selectLanguage = (lang: "es" | "en") => {
+    dispatch(setLanguage(lang));
+    closeModal();
   };
 
   return (
@@ -23,64 +71,73 @@ export default function LanguageSelector() {
       {/* BOTÓN IDIOMA */}
       <TouchableOpacity
         style={styles.languageButton}
-        onPress={() => setVisible(true)}
+        onPress={openModal}
         activeOpacity={0.85}
       >
-        <Ionicons name="language" size={18} color="#f0f1ff" />
-        <Text style={styles.languageText}>{language}</Text>
+        <Ionicons name="language" size={18} color="#f1f5f9" />
+        <Text style={styles.languageText}>{language.toUpperCase()}</Text>
       </TouchableOpacity>
 
       {/* MODAL */}
       <Modal
         visible={visible}
         transparent
-        animationType="fade"
-        onRequestClose={() => setVisible(false)}
+        animationType="none"
+        onRequestClose={closeModal}
       >
-        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
-          <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <Animated.View style={[styles.overlay, { opacity: opacityAnim }]}>
             <TouchableWithoutFeedback>
-              <View style={styles.popup}>
-                
-                {/* Header */}
+              <Animated.View
+                style={[
+                  styles.popup,
+                  {
+                    transform: [{ scale: scaleAnim }],
+                  },
+                ]}
+              >
+                {/* HEADER */}
                 <View style={styles.header}>
-                  <Text style={styles.title}>Language</Text>
-                  <TouchableOpacity onPress={() => setVisible(false)}>
-                    <Ionicons name="close" size={24} color="#334155" />
+                  <Text style={styles.title}>Idioma</Text>
+
+                  <TouchableOpacity onPress={closeModal}>
+                    <Ionicons name="close" size={26} color="#cbd5f5" />
                   </TouchableOpacity>
                 </View>
 
-                {/* OPCIONES */}
-
+                {/* ENGLISH */}
                 <TouchableOpacity
                   style={[
                     styles.languageOption,
-                    language === "EN" && styles.selectedOption,
+                    language === "en" && styles.selectedOption,
                   ]}
-                  onPress={() => selectLanguage("EN")}
+                  onPress={() => selectLanguage("en")}
                 >
                   <Text style={styles.optionText}>English</Text>
-                  {language === "EN" && (
-                    <Ionicons name="checkmark" size={20} color="#2563eb" />
+
+                  {language === "en" && (
+                    <Ionicons name="checkmark-circle" size={22} color="#22c55e" />
                   )}
                 </TouchableOpacity>
 
+                {/* ESPAÑOL */}
                 <TouchableOpacity
                   style={[
                     styles.languageOption,
-                    language === "ES" && styles.selectedOption,
+                    language === "es" && styles.selectedOption,
                   ]}
-                  onPress={() => selectLanguage("ES")}
+                  onPress={() => selectLanguage("es")}
                 >
                   <Text style={styles.optionText}>Español</Text>
-                  {language === "ES" && (
-                    <Ionicons name="checkmark" size={20} color="#2563eb" />
+
+                  {language === "es" && (
+                    <Ionicons name="checkmark-circle" size={22} color="#22c55e" />
                   )}
                 </TouchableOpacity>
 
-              </View>
+              </Animated.View>
             </TouchableWithoutFeedback>
-          </View>
+          </Animated.View>
         </TouchableWithoutFeedback>
       </Modal>
     </>
@@ -92,21 +149,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    height: 40,
+    height: 42,
     paddingHorizontal: 12,
     borderRadius: 20,
     backgroundColor: "rgba(255,255,255,0.08)",
   },
 
   languageText: {
-    color: "#f0f1ff",
+    color: "#f1f5f9",
     fontWeight: "700",
     fontSize: 13,
   },
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.65)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -114,10 +171,18 @@ const styles = StyleSheet.create({
 
   popup: {
     width: "85%",
-    backgroundColor: "#f8fafc",
-    borderRadius: 20,
-    padding: 20,
-    elevation: 10,
+    backgroundColor: "#0f172a",
+    borderRadius: 26,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: "#1e293b",
+
+    shadowColor: "#000",
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+
+    elevation: 12,
   },
 
   header: {
@@ -128,27 +193,32 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "800",
-    color: "#1e293b",
+    color: "#f1f5f9",
   },
 
   languageOption: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    marginBottom: 12,
+    backgroundColor: "#1e293b",
+    borderWidth: 1,
+    borderColor: "#334155",
   },
 
   selectedOption: {
-    backgroundColor: "#e2e8f0",
+    backgroundColor: "#1e293b",
+    borderColor: "#22c55e",
   },
 
   optionText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#334155",
+    color: "#e2e8f0",
   },
 });

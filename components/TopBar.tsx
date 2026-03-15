@@ -58,7 +58,7 @@ export default function TopBar({ lives = 253 }: Props) {
         </View>
 
         {/* DERECHA */}
-        <EnergyStat value={lives} />
+        <EnergyStat />
 
       </View>
     </View>

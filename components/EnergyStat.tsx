@@ -9,6 +9,10 @@ import {
 } from "react-native";
 import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
+import { useDispatch, useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
+import { addEnergy } from "@/store/reducers/energySlice";
+
 const ENERGY_REWARD = 3;
 
 const formatNumber = (num: number) => {
@@ -19,7 +23,12 @@ const formatNumber = (num: number) => {
 
 export default function EnergyStat() {
 
-  const [energy, setEnergy] = useState(5);
+  const dispatch = useDispatch();
+
+  const energy = useSelector(
+    (state: IRootState) => state.energy.energy
+  );
+
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -29,10 +38,10 @@ export default function EnergyStat() {
 
     setLoading(true);
 
-    // simulación de anuncio
+    // simulación anuncio
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    setEnergy(prev => prev + ENERGY_REWARD);
+    dispatch(addEnergy(ENERGY_REWARD));
 
     setLoading(false);
     setVisible(false);
@@ -41,7 +50,6 @@ export default function EnergyStat() {
 
   return (
     <>
-
       {/* BOTON ENERGIA */}
 
       <TouchableOpacity

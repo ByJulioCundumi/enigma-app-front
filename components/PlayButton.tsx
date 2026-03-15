@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   Easing,
@@ -9,16 +9,30 @@ import Animated, {
   withRepeat,
   withTiming,
   interpolate,
+  withSequence,
 } from "react-native-reanimated";
-import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
+
+import { useDispatch, useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
+import { consumeEnergy } from "@/store/reducers/energySlice";
 
 export default function PlayButton() {
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  const requiredHearts = 2;
+  const energy = useSelector(
+    (state: IRootState) => state.energy.energy
+  );
+
+  const requiredEnergy = 2;
+
+  const [showMessage, setShowMessage] = useState(false);
 
   const floatProgress = useSharedValue(0);
   const shineProgress = useSharedValue(0);
+  const messageOpacity = useSharedValue(0);
+  const messageTranslate = useSharedValue(20);
 
   useEffect(() => {
     floatProgress.value = withRepeat(
@@ -57,12 +71,58 @@ export default function PlayButton() {
     };
   });
 
+  const messageStyle = useAnimatedStyle(() => {
+    return {
+      opacity: messageOpacity.value,
+      transform: [{ translateY: messageTranslate.value }],
+    };
+  });
+
+  const showEnergyMessage = () => {
+    setShowMessage(true);
+
+    messageOpacity.value = withSequence(
+      withTiming(1, { duration: 200 }),
+      withTiming(1, { duration: 1500 }),
+      withTiming(0, { duration: 300 })
+    );
+
+    messageTranslate.value = withSequence(
+      withTiming(0, { duration: 200 }),
+      withTiming(0, { duration: 1500 }),
+      withTiming(20, { duration: 300 })
+    );
+
+    setTimeout(() => setShowMessage(false), 2000);
+  };
+
+  const handlePlay = () => {
+    if (energy < requiredEnergy) {
+      showEnergyMessage();
+      return;
+    }
+
+    dispatch(consumeEnergy(requiredEnergy));
+    router.push("/GameRoom");
+  };
+
   return (
     <View style={styles.card}>
+
+      {showMessage && (
+        <Animated.View style={[styles.toast, messageStyle]}>
+          <FontAwesome6 name="bolt-lightning" size={12} color="#FFD54A" />
+          <Text style={styles.toastText}>
+            No tienes suficiente energía
+          </Text>
+        </Animated.View>
+      )}
+
+      <Animated.View style={floatStyle}>
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.buttonOuter}
-          onPress={() => router.push("/GameRoom")}
+          onPress={handlePlay}
         >
           <View style={styles.buttonInner}>
             <Animated.View
@@ -95,11 +155,14 @@ export default function PlayButton() {
                   size={14}
                   color="#ffffff"
                 />
-                <Text style={styles.energyText}>-{requiredHearts}</Text>
+                <Text style={styles.energyText}>
+                  -{requiredEnergy}
+                </Text>
               </View>
             </View>
           </View>
         </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 }
@@ -109,7 +172,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: 90
+    bottom: 90,
+  },
+
+  toast: {
+    position: "absolute",
+    bottom: 70,
+    flexDirection: "row",
+    gap: 6,
+    backgroundColor: "#1e293b",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#334155",
+    alignItems: "center",
+  },
+
+  toastText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 12,
   },
 
   buttonOuter: {
