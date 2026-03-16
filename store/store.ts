@@ -7,6 +7,8 @@ import soundSlice from "@/store/reducers/soundSlice"
 import musicSlice from "@/store/reducers/musicSlice"
 import vipSlice from "@/store/reducers/vipSlice"
 import topicSlice from "@/store/reducers/topicsSlice"
+import timerSlice from "@/store/reducers/timerSlice"
+import favoritesSlice from "@/store/reducers/favoritesSlice"
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +19,8 @@ export const store = configureStore({
     sound: soundSlice,
     music: musicSlice,
     vip: vipSlice,
-    topics: topicSlice
+    topics: topicSlice,
+    timer: timerSlice,
+    favorites: favoritesSlice
   },
 })

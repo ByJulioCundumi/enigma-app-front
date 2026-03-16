@@ -6,51 +6,101 @@ import LevelCard from "@/components/LevelCard";
 import { useRouter } from "expo-router";
 import SunburstBackground from "@/components/SunburstBackground";
 import EnergyStat from "@/components/EnergyStat";
-import { resetSelectedTopic } from "@/store/reducers/topicsSlice";
-import { useDispatch } from "react-redux";
+import { nextLevel, resetSelectedTopic } from "@/store/reducers/topicsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCurrentLevel } from "@/store/selectors/topicSelectors";
+import LevelResultPopup from "@/components/LevelResultPopup";
+import { addEnergy, consumeEnergy } from "@/store/reducers/energySlice";
+import { addExtraTimeToTimer, resetTimer, startLevelTimer } from "@/store/reducers/timerSlice";
 
 const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
-const word = "ARNOLD VULEVAR";
-const words = word.split(" ");
+const keyboardRows = [
+  ["Q","W","E","R","T","Y","U","I","O","P"],
+  ["A","S","D","F","G","H","J","K","L","Ñ"],
+  ["Z","X","C","V","B","N","M"],
+];
 
 const TOTAL_TIME = 30;
 const EXTRA_TIME = 30;
+const MAX_TIME = 60;
 const MAX_TIME_USES = 1;
 
 export default function GameRoom() {
   const dispatch = useDispatch()
+  const [showResult, setShowResult] = useState(false);
+  const [levelSuccess, setLevelSuccess] = useState(false);
+  const [timerActive, setTimerActive] = useState(true);
   const [timeLeft, setTimeLeft] = useState<number>(TOTAL_TIME);
-  const [energy, setEnergy] = useState<number>(15);
-  const [timeUses, setTimeUses] = useState<number>(0);
-
+  const levelData = useSelector(selectCurrentLevel);
+  const energy = useSelector((state: any) => state.energy.energy);
+  const word = levelData?.word ?? "";
+  const words = word.split(" ");
+  
   const [letters, setLetters] = useState<string[]>(
     word.split("").map((l) => (l === " " ? " " : ""))
   );
+
+  const { startTimestamp, endTimestamp, extraTimeUsed } = useSelector(
+  (state: any) => state.timer
+);
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   const router = useRouter();
 
   useEffect(() => {
-
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          console.log("Tiempo terminado → mostrar anuncio");
-          return TOTAL_TIME;
-        }
-        return prev - 1;
-      });
-    }, 1000);
 
     return () => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-      clearInterval(timer);
+      dispatch(resetTimer());
     };
-
   }, []);
+
+  useEffect(() => {
+
+  if (!timerActive) return;
+  if (!startTimestamp || !endTimestamp) return;
+
+  const interval = setInterval(() => {
+
+    const now = Date.now();
+
+    const elapsed = (now - startTimestamp) / 1000;
+    const remaining = Math.ceil((endTimestamp - now) / 1000);
+
+    // detección de manipulación
+    if (elapsed > MAX_TIME) {
+
+      clearInterval(interval);
+
+      setTimerActive(false);
+      setLevelSuccess(false);
+      setShowResult(true);
+
+      return;
+    }
+
+    if (remaining <= 0) {
+
+      clearInterval(interval);
+
+      setTimerActive(false);
+      setLevelSuccess(false);
+      setShowResult(true);
+
+      setTimeLeft(0);
+
+      return;
+    }
+
+    setTimeLeft(remaining);
+
+  }, 250);
+
+  return () => clearInterval(interval);
+
+}, [timerActive, startTimestamp, endTimestamp]);
 
   useEffect(() => {
 
@@ -62,6 +112,17 @@ export default function GameRoom() {
 
 }, []);
 
+useEffect(() => {
+
+  if (!word) return;
+
+  dispatch(startLevelTimer(TOTAL_TIME));
+
+  setLetters(word.split("").map((l) => (l === " " ? " " : "")));
+  setSelectedIndex(0);
+
+}, [word]);
+
   const progress = timeLeft / TOTAL_TIME;
 
   const getBarColor = () => {
@@ -72,48 +133,86 @@ export default function GameRoom() {
 
   const moveCursorNext = (start: number) => {
 
-    for (let i = start + 1; i < letters.length; i++) {
+  for (let i = start + 1; i < letters.length; i++) {
 
-      if (letters[i] !== " ") {
-        setSelectedIndex(i);
-        return;
-      }
+    if (letters[i] !== " " && letters[i] === "") {
+
+      setSelectedIndex(i);
+      return;
 
     }
 
-  };
+  }
+
+};
 
   const checkWordCompletion = (currentLetters: string[]) => {
 
-    const allFilled = currentLetters.every((l, i) => l === " " || l !== "");
+  const allFilled = currentLetters.every((l, i) => l === " " || l !== "");
 
-    if (!allFilled) return;
+  if (!allFilled) return;
 
-    const formedWord = currentLetters.join("");
+  const formedWord = currentLetters.join("");
 
-    if (formedWord === word) {
-      console.log("¡Palabra correcta!: ", formedWord);
-    } else {
-      console.log("Palabra incorrecta: ", formedWord);
-    }
+  if (formedWord === word) {
 
-  };
+  setTimerActive(false);
+  setLevelSuccess(true);
+  setShowResult(true);
+
+  dispatch(addEnergy(2));
+
+  return;
+
+}
+};
+
+
+const handleContinue = () => {
+
+  dispatch(nextLevel());
+  dispatch(startLevelTimer(TOTAL_TIME));
+
+  setShowResult(false);
+  setTimerActive(true);
+
+};
+
+const handleRetry = () => {
+
+  clearLetters();
+
+  dispatch(startLevelTimer(TOTAL_TIME));
+
+  setShowResult(false);
+  setTimerActive(true);
+
+};
+
+const handleHome = () => {
+
+  dispatch(resetTimer());
+  router.replace("/");
+
+};
 
   const addLetter = (letter: string) => {
 
-    const newLetters = [...letters];
+  if (!timerActive) return;
 
-    if (newLetters[selectedIndex] === " ") return;
+  const newLetters = [...letters];
 
-    newLetters[selectedIndex] = letter;
+  if (newLetters[selectedIndex] === " ") return;
 
-    setLetters(newLetters);
+  newLetters[selectedIndex] = letter;
 
-    moveCursorNext(selectedIndex);
+  setLetters(newLetters);
 
-    checkWordCompletion(newLetters);
+  moveCursorNext(selectedIndex);
 
-  };
+  checkWordCompletion(newLetters);
+
+};
 
   const removeLetter = (index: number) => {
 
@@ -160,7 +259,8 @@ export default function GameRoom() {
 
     setLetters(newLetters);
 
-    setEnergy((prev) => prev - 1);
+    dispatch(consumeEnergy(1));
+    moveCursorNext(randomIndex);
 
     checkWordCompletion(newLetters);
 
@@ -168,12 +268,13 @@ export default function GameRoom() {
 
   const addExtraTime = () => {
 
-    if (timeUses >= MAX_TIME_USES) return;
+  if (energy <= 0) return;
+  if (extraTimeUsed >= MAX_TIME_USES) return;
 
-    setTimeLeft((prev) => prev + EXTRA_TIME);
-    setTimeUses((prev) => prev + 1);
+  dispatch(addExtraTimeToTimer(EXTRA_TIME));
+  dispatch(consumeEnergy(1));
 
-  };
+};
 
   const remainingLetters = letters.filter(
     (l, i) => word[i] !== " " && l === ""
@@ -181,7 +282,7 @@ export default function GameRoom() {
 
   const hintDisabled = remainingLetters <= 3 || energy <= 0;
 
-  const timeDisabled = timeUses >= MAX_TIME_USES;
+  const timeDisabled = extraTimeUsed >= MAX_TIME_USES || energy <= 0;
 
   return (
     <View style={styles.screen}>
@@ -217,19 +318,31 @@ export default function GameRoom() {
 
             <View style={styles.keyboard}>
 
-              {alphabet.map((letter, index) => (
+  {keyboardRows.map((row, rowIndex) => (
 
-                <TouchableOpacity
-                  key={index}
-                  style={styles.key}
-                  onPress={() => addLetter(letter)}
-                >
-                  <Text style={styles.keyText}>{letter}</Text>
-                </TouchableOpacity>
+    <View key={rowIndex} style={[
+    styles.keyboardRow,
+    rowIndex === 1 && { paddingHorizontal: 20 },
+    rowIndex === 2 && { paddingHorizontal: 50 },
+  ]}>
 
-              ))}
+      {row.map((letter, index) => (
 
-            </View>
+        <TouchableOpacity
+          key={index}
+          style={styles.key}
+          onPress={() => addLetter(letter)}
+        >
+          <Text style={styles.keyText}>{letter}</Text>
+        </TouchableOpacity>
+
+      ))}
+
+    </View>
+
+  ))}
+
+</View>
 
             <View style={styles.wordContainer}>
 
@@ -382,6 +495,14 @@ export default function GameRoom() {
 
       </View>
 
+      <LevelResultPopup
+        visible={showResult}
+        success={levelSuccess}
+        energy={energy}
+        onContinue={handleContinue}
+        onRetry={handleRetry}
+        onHome={handleHome}
+      />
     </View>
   );
 }
@@ -399,6 +520,11 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
   },
+
+  keyboardRow: {
+  flexDirection: "row",
+  justifyContent: "center",
+},
 
   header: {
     flexDirection: "row",
@@ -447,8 +573,8 @@ const styles = StyleSheet.create({
   },
 
   key: {
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
     margin: 3,
     borderRadius: 8,
     backgroundColor: "#334155",
@@ -462,18 +588,24 @@ const styles = StyleSheet.create({
   },
 
   wordContainer: {
-    marginTop: 8,
+    marginTop: 10,
     alignItems: "center",
+    backgroundColor: "#ffffff1e",
+    borderRadius: 10,
+    padding: 4,
+    paddingHorizontal: 10,
+    alignSelf: "center",
   },
 
   wordRow: {
     flexDirection: "row",
     justifyContent: "center",
+    width: "auto"
   },
 
   letterBox: {
-    width: 30,
-    height: 32,
+    width: 28,
+    height: 28,
     margin: 3,
     borderRadius: 6,
     backgroundColor: "#1e293b",

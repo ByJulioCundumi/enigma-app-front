@@ -4,7 +4,7 @@ import { animalsLevels } from "./animalsLevels";
 export const topics = {
   random: {
     id: "random",
-    name: "Aleatorio",
+    name: "General",
     levels: randomLevels,
   },
 

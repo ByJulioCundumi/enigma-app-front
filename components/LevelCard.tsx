@@ -89,7 +89,7 @@ export default function LevelCard({ isIndex = true }: Props) {
         {/* Badge temática */}
         <View style={styles.categoryBadge}>
           <Octicons name="multi-select" size={12} color="#fff" />
-          <Text style={styles.categoryText}>Tema: {category}</Text>
+          <Text style={styles.categoryText}>{category}</Text>
         </View>
 
         {/* Nivel */}

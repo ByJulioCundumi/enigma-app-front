@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -9,14 +9,18 @@ import {
   TextInput,
   Modal,
   TouchableWithoutFeedback,
+  Animated,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
+
+import { Ionicons, MaterialCommunityIcons, Octicons, FontAwesome6 } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 
 import { topics } from "@/assets/data/topics/topics";
 import { IRootState } from "@/store/rootState";
 import { selectTopic } from "@/store/reducers/topicsSlice";
+import { consumeEnergy } from "@/store/reducers/energySlice";
+import { toggleFavoriteTopic } from "@/store/reducers/favoritesSlice";
 
 interface TopicItem {
   id: string;
@@ -27,23 +31,46 @@ interface TopicItem {
   vip?: boolean;
 }
 
+const PLAY_COST = 2;
+
 export default function TopicList() {
   const dispatch = useDispatch();
   const router = useRouter();
 
   const progress = useSelector((state: IRootState) => state.topics.progress);
+  const energy = useSelector((state: IRootState) => state.energy.energy);
 
   const [search, setSearch] = useState("");
   const [showFavorites, setShowFavorites] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+
+  const favorites = useSelector(
+  (state: IRootState) => state.favorites.topics
+);
+
+  const warningOpacity = useRef(new Animated.Value(0)).current;
+
+  const showEnergyWarning = () => {
+    Animated.sequence([
+      Animated.timing(warningOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+
+      Animated.delay(1500),
+
+      Animated.timing(warningOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   const toggleFavorite = (id: string) => {
-    setFavorites((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
+  dispatch(toggleFavoriteTopic(id));
+};
 
   const topicsData: TopicItem[] = useMemo(() => {
     return Object.values(topics)
@@ -63,7 +90,15 @@ export default function TopicList() {
   }, [progress, favorites]);
 
   const playTopic = (topicId: string) => {
+
+    if (energy < PLAY_COST) {
+      showEnergyWarning();
+      return;
+    }
+
+    dispatch(consumeEnergy(PLAY_COST));
     dispatch(selectTopic(topicId as any));
+
     setVisible(false);
     router.push("/GameRoom");
   };
@@ -110,12 +145,12 @@ export default function TopicList() {
               {item.levelsCompleted}/{item.totalLevels}
             </Text>
 
-            <TouchableOpacity
-              style={styles.playButton}
-              onPress={() => playTopic(item.id)}
-            >
-              <Ionicons name="play" size={9} color="white" />
-              <Text style={styles.playText}>Jugar</Text>
+            <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+              <Ionicons
+                name={item.favorite ? "heart" : "heart-outline"}
+                size={18}
+                color={item.favorite ? "#EF4444" : "#94A3B8"}
+              />
             </TouchableOpacity>
           </View>
 
@@ -130,12 +165,17 @@ export default function TopicList() {
         </View>
 
         <View style={styles.rightSection}>
-          <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
-            <Ionicons
-              name={item.favorite ? "heart" : "heart-outline"}
-              size={18}
-              color={item.favorite ? "#EF4444" : "#94A3B8"}
-            />
+          <TouchableOpacity
+            style={styles.playButton}
+            onPress={() => playTopic(item.id)}
+          >
+            <Ionicons name="play" size={9} color="white" />
+            <Text style={styles.playText}>Jugar</Text>
+
+            <View style={styles.energyCost}>
+              <FontAwesome6 name="bolt-lightning" size={8} color="#fff" />
+              <Text style={styles.energyCostText}>-{PLAY_COST}</Text>
+            </View>
           </TouchableOpacity>
 
           <View style={styles.percentBox}>
@@ -148,6 +188,22 @@ export default function TopicList() {
 
   return (
     <View>
+
+      {/* Notificación de energía insuficiente */}
+
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.energyWarning,
+          { opacity: warningOpacity },
+        ]}
+      >
+        <FontAwesome6 name="bolt-lightning" size={14} color="#fff" />
+        <Text style={styles.energyWarningText}>
+          No tienes suficiente energía
+        </Text>
+      </Animated.View>
+
       <View style={styles.openButtonWrapper}>
         <TouchableOpacity
           style={styles.openButton}
@@ -179,18 +235,6 @@ export default function TopicList() {
                 <Ionicons name="close" size={22} color="#E2E8F0" />
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity style={styles.vipButton}>
-              <Text style={styles.vipButtonText}>
-                Hazte VIP Gratis -{" "}
-                <MaterialCommunityIcons
-                  name="movie-open-play"
-                  size={18}
-                  color="#fff"
-                />{" "}
-                (0/3)
-              </Text>
-            </TouchableOpacity>
 
             <View style={styles.searchContainer}>
               <Ionicons name="search" size={18} color="#94A3B8" />
@@ -229,6 +273,42 @@ export default function TopicList() {
 }
 
 const styles = StyleSheet.create({
+
+  energyWarning:{
+    position:"absolute",
+    top:-35,
+    alignSelf:"center",
+    flexDirection:"row",
+    alignItems:"center",
+    backgroundColor:"#ef4444",
+    paddingHorizontal:12,
+    paddingVertical:6,
+    borderRadius:12,
+    gap:6,
+    zIndex:10
+  },
+
+  energyWarningText:{
+    color:"#fff",
+    fontWeight:"800",
+    fontSize:12
+  },
+
+  energyCost:{
+    flexDirection:"row",
+    alignItems:"center",
+    backgroundColor:"#1665c0",
+    paddingHorizontal:4,
+    borderRadius:6,
+    gap:2
+  },
+
+  energyCostText:{
+    color:"#fff",
+    fontSize:8,
+    fontWeight:"900"
+  },
+
   openButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -288,23 +368,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
-  vipButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ffbb00",
-    borderRadius: 14,
-    paddingVertical: 10,
-    marginBottom: 14,
-    gap: 6,
-  },
-
-  vipButtonText: {
-    color: "white",
-    fontWeight: "900",
-    fontSize: 14,
-  },
-
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -356,6 +419,7 @@ const styles = StyleSheet.create({
 
   topicInfo: {
     flex: 1,
+    marginRight: 48
   },
 
   topicHeader: {
@@ -387,6 +451,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
+    marginLeft: -30
   },
 
   percentText: {
@@ -413,12 +478,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#2563EB",
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 4,
     borderRadius: 10,
     gap: 4,
     position: "absolute",
     right: 0,
-    bottom: 0,
+    bottom: -6,
   },
 
   playText: {
