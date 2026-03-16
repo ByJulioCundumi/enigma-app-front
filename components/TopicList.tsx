@@ -8,66 +8,82 @@ import {
   Image,
   TextInput,
   Modal,
-  Pressable,
   TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "expo-router";
 
-interface Topic {
+import { topics } from "@/assets/data/topics/topics";
+import { IRootState } from "@/store/rootState";
+import { selectTopic } from "@/store/reducers/topicsSlice";
+
+interface TopicItem {
   id: string;
   name: string;
   levelsCompleted: number;
   totalLevels: number;
   favorite?: boolean;
-  popular?: boolean;
   vip?: boolean;
 }
 
-const MOCK_TOPICS: Topic[] = [
-  { id: "1", name: "Personajes", levelsCompleted: 20, totalLevels: 100, popular: true, vip: true },
-  { id: "2", name: "Películas", levelsCompleted: 12, totalLevels: 80, vip: true },
-  { id: "3", name: "Anime", levelsCompleted: 35, totalLevels: 120, popular: true, vip: true },
-  { id: "4", name: "Videojuegos", levelsCompleted: 8, totalLevels: 60, vip: true },
-  { id: "5", name: "Animales", levelsCompleted: 40, totalLevels: 90, vip: true },
-];
-
 export default function TopicList() {
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  const [topics, setTopics] = useState(MOCK_TOPICS);
+  const progress = useSelector((state: IRootState) => state.topics.progress);
+
   const [search, setSearch] = useState("");
   const [showFavorites, setShowFavorites] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
 
   const toggleFavorite = (id: string) => {
-    setTopics((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, favorite: !t.favorite } : t))
-    );
+    setFavorites((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
-  const playTopic = (topic: Topic) => {
-    console.log("Jugar temática:", topic.name);
+  const topicsData: TopicItem[] = useMemo(() => {
+    return Object.values(topics)
+      .filter((topic) => topic.id !== "random")
+      .map((topic) => {
+        const topicProgress = progress[topic.id];
+
+        return {
+          id: topic.id,
+          name: topic.name,
+          levelsCompleted: topicProgress?.currentLevel ?? 0,
+          totalLevels: topic.levels.length,
+          vip: true,
+          favorite: favorites[topic.id] ?? false,
+        };
+      });
+  }, [progress, favorites]);
+
+  const playTopic = (topicId: string) => {
+    dispatch(selectTopic(topicId as any));
+    setVisible(false);
+    router.push("/GameRoom");
   };
 
   const filteredTopics = useMemo(() => {
-    return topics.filter((t) => {
+    return topicsData.filter((t) => {
       const matchSearch = t.name.toLowerCase().includes(search.toLowerCase());
       const matchFavorite = showFavorites ? t.favorite : true;
       return matchSearch && matchFavorite;
     });
-  }, [topics, search, showFavorites]);
+  }, [topicsData, search, showFavorites]);
 
-  const renderTopic = ({ item }: any) => {
-
-    const progress = Math.floor(
+  const renderTopic = ({ item }: { item: TopicItem }) => {
+    const progressPercent = Math.floor(
       (item.levelsCompleted / item.totalLevels) * 100
     );
 
     return (
-
       <View style={styles.card}>
-
         <View style={styles.imageWrapper}>
-
           <Image
             source={{ uri: `https://picsum.photos/seed/${item.id}/100/100` }}
             style={styles.topicImage}
@@ -82,44 +98,38 @@ export default function TopicList() {
               />
             </View>
           )}
-
         </View>
 
         <View style={styles.topicInfo}>
-
           <View style={styles.topicHeader}>
             <Text style={styles.topicName}>{item.name}</Text>
           </View>
 
           <View style={styles.progressRow}>
-
             <Text style={styles.levelText}>
               {item.levelsCompleted}/{item.totalLevels}
             </Text>
 
             <TouchableOpacity
               style={styles.playButton}
-              onPress={() => playTopic(item)}
+              onPress={() => playTopic(item.id)}
             >
               <Ionicons name="play" size={9} color="white" />
               <Text style={styles.playText}>Jugar</Text>
             </TouchableOpacity>
-
           </View>
 
           <View style={styles.progressBar}>
             <View
               style={[
                 styles.progressFill,
-                { width: `${progress}%` }
+                { width: `${progressPercent}%` },
               ]}
             />
           </View>
-
         </View>
 
         <View style={styles.rightSection}>
-
           <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
             <Ionicons
               name={item.favorite ? "heart" : "heart-outline"}
@@ -129,24 +139,16 @@ export default function TopicList() {
           </TouchableOpacity>
 
           <View style={styles.percentBox}>
-            <Text style={styles.percentText}>
-              {progress}%
-            </Text>
+            <Text style={styles.percentText}>{progressPercent}%</Text>
           </View>
-
         </View>
-
       </View>
-
     );
   };
 
   return (
-
     <View>
-
       <View style={styles.openButtonWrapper}>
-
         <TouchableOpacity
           style={styles.openButton}
           onPress={() => setVisible(true)}
@@ -154,50 +156,43 @@ export default function TopicList() {
           <Octicons name="multi-select" size={12} color="#fff" />
           <Text style={styles.openButtonText}>Mas Temática</Text>
         </TouchableOpacity>
-
       </View>
 
       <Modal visible={visible} transparent animationType="fade">
-
         <View style={styles.overlay}>
-
           <TouchableWithoutFeedback onPress={() => setVisible(false)}>
             <View style={StyleSheet.absoluteFillObject} />
           </TouchableWithoutFeedback>
 
           <View style={styles.modalContainer}>
-
             <View style={styles.header}>
-
               <View style={styles.headerLeft}>
-                <MaterialCommunityIcons name="crown-outline" size={18} color="#FACC15" />
+                <MaterialCommunityIcons
+                  name="crown-outline"
+                  size={18}
+                  color="#FACC15"
+                />
                 <Text style={styles.title}>Temáticas Exclusivas</Text>
               </View>
 
               <TouchableOpacity onPress={() => setVisible(false)}>
                 <Ionicons name="close" size={22} color="#E2E8F0" />
               </TouchableOpacity>
-
             </View>
 
             <TouchableOpacity style={styles.vipButton}>
-
-              <MaterialCommunityIcons name="crown-outline" size={18} color="#fff" />
-
               <Text style={styles.vipButtonText}>
-                Hazte VIP: $1.99
+                Hazte VIP Gratis -{" "}
+                <MaterialCommunityIcons
+                  name="movie-open-play"
+                  size={18}
+                  color="#fff"
+                />{" "}
+                (0/3)
               </Text>
-
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={18}
-                color="white"
-              />
-
             </TouchableOpacity>
 
             <View style={styles.searchContainer}>
-
               <Ionicons name="search" size={18} color="#94A3B8" />
 
               <TextInput
@@ -217,7 +212,6 @@ export default function TopicList() {
                   color="#EF4444"
                 />
               </TouchableOpacity>
-
             </View>
 
             <FlatList
@@ -227,20 +221,14 @@ export default function TopicList() {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContent}
             />
-
           </View>
-
         </View>
-
       </Modal>
-
     </View>
-
   );
 }
 
 const styles = StyleSheet.create({
-
   openButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -252,7 +240,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderColor: "rgba(215, 232, 255, 0.03)",
-    marginTop: 15
+    marginTop: 15,
   },
 
   openButtonText: {
@@ -430,7 +418,7 @@ const styles = StyleSheet.create({
     gap: 4,
     position: "absolute",
     right: 0,
-    bottom: 0
+    bottom: 0,
   },
 
   playText: {
@@ -445,5 +433,4 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     height: 45,
   },
-
 });

@@ -1,65 +1,127 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Image,
   Dimensions,
+  TouchableOpacity,
+  Animated,
 } from "react-native";
-import { FontAwesome6, Octicons } from "@expo/vector-icons";
+import { FontAwesome6, Octicons, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import VipButton from "./VipButton";
+import { useSelector } from "react-redux";
+
+import { IRootState } from "@/store/rootState";
+import {
+  selectCurrentLevel,
+  selectCurrentTopic,
+} from "@/store/selectors/topicSelectors";
 
 const { width } = Dimensions.get("window");
 
 type Props = {
-  description?: string;
-  category?: string;
-  level?: number;
-  imageUrl?: string;
   isIndex?: boolean;
 };
 
-export default function LevelCard({
-  description = "Este actor protagonizó Terminator y es un icono de acción de los 80",
-  category = "Personajes",
-  level = 12,
-  imageUrl = `https://picsum.photos/600/400?random=${Math.floor(Math.random() * 1000)}`,
-  isIndex = true,
-}: Props) {
+export default function LevelCard({ isIndex = true }: Props) {
+
+  const topic = useSelector(selectCurrentTopic);
+  const levelData = useSelector(selectCurrentLevel);
+
+  const selectedTopicId = useSelector(
+    (state: IRootState) => state.topics.selectedTopic
+  );
+
+  const topicProgress = useSelector((state: IRootState) =>
+    state.topics.progress[state.topics.selectedTopic]
+  );
+
+  const description = levelData?.description ?? "";
+  const image = levelData?.image;
+  const category = topic?.name ?? "";
+
+  const currentLevelIndex = topicProgress?.currentLevel ?? 0;
+  const level = currentLevelIndex + 1;
+
+  const totalLevels = topic?.levels.length ?? 0;
+
+  const levelText =
+    selectedTopicId === "random"
+      ? `${level}`
+      : `${currentLevelIndex}/${totalLevels}`;
+
   const cardSize = isIndex
     ? { width: width * 0.9, height: 230 }
     : { width: 400, height: 230 };
 
+  const [showHint, setShowHint] = useState(false);
+  const slideAnim = useRef(new Animated.Value(-250)).current;
+
+  const toggleHint = () => {
+    if (showHint) {
+      Animated.timing(slideAnim, {
+        toValue: -250,
+        duration: 250,
+        useNativeDriver: true,
+      }).start(() => setShowHint(false));
+    } else {
+      setShowHint(true);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
   return (
     <View style={styles.wrapper}>
       <View style={[styles.card, cardSize]}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+        {image && <Image source={image} style={styles.image} />}
 
         <LinearGradient
           colors={["transparent", "rgba(0,0,0,0.6)"]}
           style={styles.gradient}
         />
 
-        {/* Badge de categoría */}
+        {/* Badge temática */}
         <View style={styles.categoryBadge}>
           <Octicons name="multi-select" size={12} color="#fff" />
           <Text style={styles.categoryText}>Tema: {category}</Text>
         </View>
 
-        {/* Badge de nivel */}
+        {/* Nivel */}
         <View style={styles.levelBadge}>
           <FontAwesome6 name="ranking-star" size={16} color="#fff" />
-          <Text style={styles.levelText}>{level}</Text>
+          <Text style={styles.levelText}>{levelText}</Text>
         </View>
 
-        {/* Descripción */}
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.descriptionText}>{description}</Text>
-        </View>
+        {/* Botón de pista */}
+        <TouchableOpacity style={styles.hintButton} onPress={toggleHint}>
+          <Ionicons name="information-circle" size={28} color="#fff" />
+          {
+            !showHint && <Text style={{color: "#fff"}}>Pista</Text>
+          }
+        </TouchableOpacity>
+
+        {/* Panel deslizante */}
+        {showHint && (
+          <Animated.View
+            style={[
+              styles.hintPanel,
+              {
+                transform: [{ translateX: slideAnim }],
+              },
+            ]}
+          >
+            <Text style={styles.hintText}>{description}</Text>
+          </Animated.View>
+        )}
       </View>
 
-      <VipButton/>
+      <VipButton />
     </View>
   );
 }
@@ -132,20 +194,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  descriptionContainer: {
+  hintButton: {
     position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    padding: 12,
+    bottom: 15,
+    left: 15,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderRadius: 30,
+    padding: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3
   },
 
-  descriptionText: {
+  hintPanel: {
+    position: "absolute",
+    bottom: 12,
+    left: 60,
+    maxWidth: 240,
+    backgroundColor: "rgba(0,0,0,0.8)",
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+  },
+
+  hintText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
-    textAlign: "center",
-    lineHeight: 22,
+    lineHeight: 20,
   },
 });

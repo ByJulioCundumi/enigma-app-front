@@ -10,7 +10,9 @@ import {
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
+
 import { activateVip, incrementAd, tickVip } from "@/store/reducers/vipSlice";
+import { addEnergy } from "@/store/reducers/energySlice";
 
 interface Props {
   onWatchAd?: () => Promise<boolean>;
@@ -20,6 +22,7 @@ export default function VipButton({ onWatchAd }: Props) {
 
   const REQUIRED_ADS = 3;
   const VIP_DURATION = 15 * 60;
+  const ENERGY_REWARD = 25;
 
   const dispatch = useDispatch();
 
@@ -94,6 +97,10 @@ export default function VipButton({ onWatchAd }: Props) {
     if (newCount >= REQUIRED_ADS) {
 
       dispatch(activateVip());
+
+      // 🎁 RECOMPENSA DE ENERGÍA
+      dispatch(addEnergy(ENERGY_REWARD));
+
       setVisible(false);
 
     }
@@ -202,8 +209,8 @@ export default function VipButton({ onWatchAd }: Props) {
                   <Ionicons name="flash" size={18} color="#22c55e"/>
                 </View>
                 <View>
-                  <Text style={styles.benefitTitle}>Energía x2</Text>
-                  <Text style={styles.benefitDesc}>Duplica la energía obtenida</Text>
+                  <Text style={styles.benefitTitle}>+25 Energía</Text>
+                  <Text style={styles.benefitDesc}>Obtén energía extra al activar VIP</Text>
                 </View>
               </View>
 
@@ -288,10 +295,7 @@ export default function VipButton({ onWatchAd }: Props) {
   );
 }
 
-
-
 const styles = StyleSheet.create({
-
   vipButton:{
     width:40,
     height:40,
@@ -321,10 +325,13 @@ const styles = StyleSheet.create({
     backgroundColor:"#FFD700",
     paddingHorizontal:8,
     paddingVertical:2,
-    borderRadius:10
+    borderRadius:10,
+    width: 50,
+    alignItems: "center"
   },
-
+  
   badgeText:{
+    textAlign: "center",
     fontSize:10,
     fontWeight:"900",
     color:"#1e293b"
@@ -378,19 +385,19 @@ const styles = StyleSheet.create({
     borderRadius:16,
     paddingVertical:16,
     alignItems:"center",
-    marginBottom:16
+    marginBottom:16,
   },
 
   timerLabel:{
     color:"#94A3B8",
-    fontSize:12
+    fontSize:12,
   },
 
   timer:{
     color:"#FFD700",
     fontSize:30,
     fontWeight:"900",
-    marginTop:2
+    marginTop:2,
   },
 
   benefitsContainer:{

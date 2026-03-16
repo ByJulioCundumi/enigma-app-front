@@ -6,6 +6,8 @@ import LevelCard from "@/components/LevelCard";
 import { useRouter } from "expo-router";
 import SunburstBackground from "@/components/SunburstBackground";
 import EnergyStat from "@/components/EnergyStat";
+import { resetSelectedTopic } from "@/store/reducers/topicsSlice";
+import { useDispatch } from "react-redux";
 
 const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
 const word = "ARNOLD VULEVAR";
@@ -16,7 +18,7 @@ const EXTRA_TIME = 30;
 const MAX_TIME_USES = 1;
 
 export default function GameRoom() {
-
+  const dispatch = useDispatch()
   const [timeLeft, setTimeLeft] = useState<number>(TOTAL_TIME);
   const [energy, setEnergy] = useState<number>(15);
   const [timeUses, setTimeUses] = useState<number>(0);
@@ -49,6 +51,16 @@ export default function GameRoom() {
     };
 
   }, []);
+
+  useEffect(() => {
+
+  return () => {
+
+    dispatch(resetSelectedTopic());
+
+  };
+
+}, []);
 
   const progress = timeLeft / TOTAL_TIME;
 
