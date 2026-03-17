@@ -12,6 +12,7 @@ import LevelResultPopup from "@/components/LevelResultPopup";
 import { addEnergy, consumeEnergy } from "@/store/reducers/energySlice";
 import { addExtraTimeToTimer, resetTimer, startLevelTimer } from "@/store/reducers/timerSlice";
 import { LinearGradient } from "expo-linear-gradient";
+import { IRootState } from "@/store/rootState";
 
 const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
 
@@ -60,23 +61,23 @@ export default function GameRoom() {
   const [levelSuccess, setLevelSuccess] = useState(false);
   const [timerActive, setTimerActive] = useState(true);
   const [timeLeft, setTimeLeft] = useState<number>(TOTAL_TIME);
-
   const levelData = useSelector(selectCurrentLevel);
   const energy = useSelector((state: any) => state.energy.energy);
   const word = levelData?.word ?? "";
   const words = word.split(" ");
-
+  
   const [letters, setLetters] = useState<string[]>(
     word.split("").map((l) => (l === " " ? " " : ""))
   );
   const [keyboardLetters, setKeyboardLetters] = useState<
-    { letter: string; used: boolean }[]
+  { letter: string; used: boolean }[]
   >([]);
-
+  
   const { startTimestamp, endTimestamp, extraTimeUsed } = useSelector(
     (state: any) => state.timer
   );
-
+  
+  const {isVip} = useSelector((state:IRootState)=>state.vip)
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const router = useRouter();
 
@@ -167,7 +168,9 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
       setTimerActive(false);
       setLevelSuccess(true);
       setShowResult(true);
-      dispatch(addEnergy(2));
+      if(!isVip){
+        dispatch(addEnergy(2));
+      }
     }
   };
 
@@ -232,29 +235,52 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
   };
 
   const useHint = () => {
-    if (energy <= 0) return;
-    if (remainingLetters <= 3) return;
+  if (!isVip && energy <= 0) return;
+  if (remainingLetters <= 3) return;
 
-    const availableIndexes = letters
-      .map((l, i) => (word[i] !== " " && l !== word[i] ? i : -1))
-      .filter((i) => i !== -1);
+  const availableIndexes = letters
+    .map((l, i) => (word[i] !== " " && l !== word[i] ? i : -1))
+    .filter((i) => i !== -1);
 
-    if (availableIndexes.length === 0) return;
+  if (availableIndexes.length === 0) return;
 
-    const randomIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
-    const newLetters = [...letters];
-    newLetters[randomIndex] = word[randomIndex];
-    setLetters(newLetters);
+  const randomIndex =
+    availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+
+  const correctLetter = word[randomIndex];
+
+  // 👉 1. Colocar la letra en el tablero
+  const newLetters = [...letters];
+  newLetters[randomIndex] = correctLetter;
+  setLetters(newLetters);
+
+  // 👉 2. Marcar la letra como usada en el teclado
+  const keyboardIndex = keyboardLetters.findIndex(
+    (k) => k.letter === correctLetter && !k.used
+  );
+
+  if (keyboardIndex !== -1) {
+    const newKeyboard = [...keyboardLetters];
+    newKeyboard[keyboardIndex].used = true;
+    setKeyboardLetters(newKeyboard);
+  }
+
+  // 👉 3. Consumir energía
+  if (!isVip) {
     dispatch(consumeEnergy(1));
-    moveCursorNext(randomIndex);
-    checkWordCompletion(newLetters);
-  };
+  }
+
+  moveCursorNext(randomIndex);
+  checkWordCompletion(newLetters);
+};
 
   const addExtraTime = () => {
-    if (energy <= 0) return;
+    if ( !isVip && energy <= 0) return;
     if (extraTimeUsed >= MAX_TIME_USES) return;
     dispatch(addExtraTimeToTimer(EXTRA_TIME));
-    dispatch(consumeEnergy(1));
+    if(!isVip){
+      dispatch(consumeEnergy(1));
+    }
   };
 
   const remainingLetters = letters.filter(

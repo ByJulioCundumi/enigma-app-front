@@ -7,7 +7,7 @@ import {
   Modal,
   Pressable
 } from "react-native";
-import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Entypo, FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
@@ -22,7 +22,7 @@ const formatNumber = (num: number) => {
 };
 
 export default function EnergyStat() {
-
+  const {isVip} = useSelector((state:IRootState)=>state.vip)
   const dispatch = useDispatch();
 
   const energy = useSelector(
@@ -55,7 +55,9 @@ export default function EnergyStat() {
       <TouchableOpacity
         activeOpacity={0.85}
         style={styles.statBadge}
-        onPress={() => setVisible(true)}
+        onPress={() => {
+          if (!isVip) setVisible(true);
+        }}
       >
         
         <View style={styles.energyIcon}>
@@ -63,12 +65,14 @@ export default function EnergyStat() {
         </View>
 
         <Text style={styles.statText}>
-          {formatNumber(energy)}
+          {!isVip ? formatNumber(energy) : <Entypo name="infinity" size={14} color="#fff" />}
         </Text>
 
-        <View style={styles.plusButton}>
+        {
+          !isVip && <View style={styles.plusButton}>
           <Ionicons name="add" size={12} color="#fff" />
         </View>
+        }
 
       </TouchableOpacity>
 
@@ -188,6 +192,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,92,124,0.35)",
     gap: 6,
+    minWidth: 70
   },
 
   energyIcon: {

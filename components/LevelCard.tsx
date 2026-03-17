@@ -7,8 +7,10 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
-import { FontAwesome6, Octicons, Ionicons } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import VipButton from "./VipButton";
 import { useSelector } from "react-redux";
@@ -19,14 +21,13 @@ import {
   selectCurrentTopic,
 } from "@/store/selectors/topicSelectors";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 type Props = {
   isIndex?: boolean;
 };
 
 export default function LevelCard({ isIndex = true }: Props) {
-
   const topic = useSelector(selectCurrentTopic);
   const levelData = useSelector(selectCurrentLevel);
 
@@ -40,7 +41,6 @@ export default function LevelCard({ isIndex = true }: Props) {
 
   const description = levelData?.description ?? "";
   const image = levelData?.image;
-  const category = topic?.name ?? "";
 
   const currentLevelIndex = topicProgress?.currentLevel ?? 0;
   const level = currentLevelIndex + 1;
@@ -52,10 +52,12 @@ export default function LevelCard({ isIndex = true }: Props) {
       ? `${level}`
       : `${currentLevelIndex}/${totalLevels}`;
 
-  const cardSize = { width: width * 0.9, height: 230 }
+  const cardSize = { width: width * 0.9, height: 230 };
 
   const [showHint, setShowHint] = useState(false);
   const slideAnim = useRef(new Animated.Value(-250)).current;
+
+  const [visible, setVisible] = useState(false);
 
   const toggleHint = () => {
     if (showHint) {
@@ -77,28 +79,38 @@ export default function LevelCard({ isIndex = true }: Props) {
   return (
     <View style={styles.wrapper}>
       <View style={[styles.card, cardSize]}>
-        {image && <Image source={image} style={styles.image} />}
 
+        {/* Imagen clickeable */}
+        {image && (
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => setVisible(true)}
+            style={styles.imageContainer}
+          >
+            <Image source={image} style={styles.image} />
+          </TouchableOpacity>
+        )}
+
+        {/* Overlay sin bloquear */}
         <LinearGradient
+          pointerEvents="none"
           colors={["transparent", "rgba(0,0,0,0.6)"]}
           style={styles.gradient}
         />
 
         {/* Nivel */}
         <View style={styles.levelBadge}>
-          <FontAwesome6 name="ranking-star" size={16} color="#ffc400" />
+          <FontAwesome6 name="ranking-star" size={14} color="#ffc400" />
           <Text style={styles.levelText}>{levelText}</Text>
         </View>
 
-        {/* Botón de pista */}
+        {/* Botón pista */}
         <TouchableOpacity style={styles.hintButton} onPress={toggleHint}>
           <Ionicons name="information-circle" size={28} color="#fff" />
-          {
-            !showHint && <Text style={{color: "#fff"}}>Pista</Text>
-          }
+          {!showHint && <Text style={{ color: "#fff" }}>Pista</Text>}
         </TouchableOpacity>
 
-        {/* Panel deslizante */}
+        {/* Panel pista */}
         {showHint && (
           <Animated.View
             style={[
@@ -114,6 +126,33 @@ export default function LevelCard({ isIndex = true }: Props) {
       </View>
 
       <VipButton />
+
+      {/* 🔥 MODAL */}
+      <Modal
+        visible={visible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+          <View style={styles.modalBackground}>
+
+            {/* Botón cerrar */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setVisible(false)}
+            >
+              <Ionicons name="close" size={30} color="#fff" />
+            </TouchableOpacity>
+
+            {/* Imagen */}
+            <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+              <Image source={image} style={styles.fullImage} />
+            </TouchableWithoutFeedback>
+
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 }
@@ -129,57 +168,39 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: "#fff",
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 8,
-    elevation: 8,
     backgroundColor: "#000",
   },
 
-  image: {
+  imageContainer: {
     ...StyleSheet.absoluteFillObject,
+    zIndex: 1,
+  },
+
+  image: {
+    width: "100%",
+    height: "100%",
     resizeMode: "cover",
   },
 
   gradient: {
     ...StyleSheet.absoluteFillObject,
-  },
-
-  categoryBadge: {
-    position: "absolute",
-    top: 15,
-    left: 15,
-    backgroundColor: "#6366f1",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-
-  categoryText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 14,
+    zIndex: 2,
   },
 
   levelBadge: {
     position: "absolute",
     top: 15,
     left: 15,
-    backgroundColor: "#151518",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
+    backgroundColor: "#050c1d7a",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
     borderWidth: 2,
-    borderColor: "#ffc400"
+    borderColor: "#ffc400",
+    zIndex: 3,
   },
 
   levelText: {
@@ -197,7 +218,8 @@ const styles = StyleSheet.create({
     padding: 6,
     flexDirection: "row",
     alignItems: "center",
-    gap: 3
+    gap: 3,
+    zIndex: 3,
   },
 
   hintPanel: {
@@ -209,6 +231,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 14,
+    zIndex: 3,
   },
 
   hintText: {
@@ -216,5 +239,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     lineHeight: 20,
+  },
+
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.95)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  fullImage: {
+    width: "90%",
+    height: height,
+    resizeMode: "contain",
+  },
+
+  // 🔥 botón cerrar pro
+  closeButton: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 30,
+    padding: 6,
   },
 });

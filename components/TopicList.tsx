@@ -12,7 +12,13 @@ import {
   Animated,
 } from "react-native";
 
-import { Ionicons, MaterialCommunityIcons, Octicons, FontAwesome6 } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  Octicons,
+  FontAwesome6,
+} from "@expo/vector-icons";
+
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 
@@ -31,11 +37,10 @@ interface TopicItem {
   vip?: boolean;
 }
 
-const PLAY_COST = 2;
-
 export default function TopicList() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const {isVip} = useSelector((state:IRootState)=>state.vip)
 
   const progress = useSelector((state: IRootState) => state.topics.progress);
   const energy = useSelector((state: IRootState) => state.energy.energy);
@@ -45,21 +50,19 @@ export default function TopicList() {
   const [visible, setVisible] = useState(false);
 
   const favorites = useSelector(
-  (state: IRootState) => state.favorites.topics
-);
+    (state: IRootState) => state.favorites.topics
+  );
 
   const warningOpacity = useRef(new Animated.Value(0)).current;
 
-  const showEnergyWarning = () => {
+  const showVipWarning = () => {
     Animated.sequence([
       Animated.timing(warningOpacity, {
         toValue: 1,
         duration: 200,
         useNativeDriver: true,
       }),
-
       Animated.delay(1500),
-
       Animated.timing(warningOpacity, {
         toValue: 0,
         duration: 200,
@@ -69,8 +72,8 @@ export default function TopicList() {
   };
 
   const toggleFavorite = (id: string) => {
-  dispatch(toggleFavoriteTopic(id));
-};
+    dispatch(toggleFavoriteTopic(id));
+  };
 
   const topicsData: TopicItem[] = useMemo(() => {
     return Object.values(topics)
@@ -90,13 +93,11 @@ export default function TopicList() {
   }, [progress, favorites]);
 
   const playTopic = (topicId: string) => {
-
-    if (energy < PLAY_COST) {
-      showEnergyWarning();
+    if (!isVip) {
+      showVipWarning();
       return;
     }
 
-    dispatch(consumeEnergy(PLAY_COST));
     dispatch(selectTopic(topicId as any));
 
     setVisible(false);
@@ -118,68 +119,64 @@ export default function TopicList() {
 
     return (
       <View style={styles.card}>
-        <View style={styles.imageWrapper}>
-          <Image
-            source={{ uri: `https://picsum.photos/seed/${item.id}/100/100` }}
-            style={styles.topicImage}
-          />
-
-          {item.vip && (
-            <View style={styles.vipBadge}>
-              <MaterialCommunityIcons
-                name="crown"
-                size={12}
-                color="#FFD700"
-              />
-            </View>
-          )}
-        </View>
-
-        <View style={styles.topicInfo}>
-          <View style={styles.topicHeader}>
-            <Text style={styles.topicName}>{item.name}</Text>
-          </View>
-
-          <View style={styles.progressRow}>
-            <Text style={styles.levelText}>
-              {item.levelsCompleted}/{item.totalLevels}
-            </Text>
-
-            <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
-              <Ionicons
-                name={item.favorite ? "heart" : "heart-outline"}
-                size={18}
-                color={item.favorite ? "#EF4444" : "#94A3B8"}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${progressPercent}%` },
-              ]}
+        {/* CONTENIDO */}
+        <View style={styles.cardContent}>
+          <View style={styles.imageWrapper}>
+            <Image
+              source={{ uri: `https://picsum.photos/seed/${item.id}/100/100` }}
+              style={styles.topicImage}
             />
+
+            {item.vip && (
+              <View style={styles.vipBadge}>
+                <MaterialCommunityIcons
+                  name="crown"
+                  size={12}
+                  color="#FFD700"
+                />
+              </View>
+            )}
+          </View>
+
+          <View style={styles.topicInfo}>
+            <Text style={styles.topicName}>{item.name}</Text>
+
+            <View style={styles.progressRow}>
+              <Text style={styles.levelText}>
+                {item.levelsCompleted}/{item.totalLevels}
+              </Text>
+
+              <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+                <Ionicons
+                  name={item.favorite ? "heart" : "heart-outline"}
+                  size={18}
+                  color={item.favorite ? "#EF4444" : "#94A3B8"}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.rightSection}>
+            <Text style={styles.percentText}>{progressPercent}%</Text>
+
+            <TouchableOpacity
+              style={styles.playButton}
+              onPress={() => playTopic(item.id)}
+            >
+              <Text style={styles.playText}>Jugar</Text>
+            </TouchableOpacity>
+
           </View>
         </View>
 
-        <View style={styles.rightSection}>
-          <TouchableOpacity
-            style={styles.playButton}
-            onPress={() => playTopic(item.id)}
-          >
-            <Text style={styles.playText}>Jugar</Text>
-
-            <View style={styles.energyCost}>
-              <FontAwesome6 name="bolt-lightning" size={8} color="#fff" />
-              <Text style={styles.energyCostText}>-{PLAY_COST}</Text>
-            </View>
-          </TouchableOpacity>
-
-          <View style={styles.percentBox}>
-            <Text style={styles.percentText}>{progressPercent}%</Text>
-          </View>
+        {/* BARRA DE PROGRESO */}
+        <View style={styles.progressBar}>
+          <View
+            style={[
+              styles.progressFill,
+              { width: `${progressPercent}%` },
+            ]}
+          />
         </View>
       </View>
     );
@@ -187,32 +184,18 @@ export default function TopicList() {
 
   return (
     <View>
-
-      {/* Notificación de energía insuficiente */}
-
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.energyWarning,
-          { opacity: warningOpacity },
-        ]}
-      >
-        <FontAwesome6 name="bolt-lightning" size={14} color="#fff" />
-        <Text style={styles.energyWarningText}>
-          No tienes suficiente energía
-        </Text>
-      </Animated.View>
-
+      {/* BOTÓN */}
       <View style={styles.openButtonWrapper}>
         <TouchableOpacity
           style={styles.openButton}
           onPress={() => setVisible(true)}
         >
           <Octicons name="multi-select" size={12} color="#fff" />
-          <Text style={styles.openButtonText}>Mas Temática</Text>
+          <Text style={styles.openButtonText}>Tematicas VIP</Text>
         </TouchableOpacity>
       </View>
 
+      {/* MODAL */}
       <Modal visible={visible} transparent animationType="fade">
         <View style={styles.overlay}>
           <TouchableWithoutFeedback onPress={() => setVisible(false)}>
@@ -227,7 +210,7 @@ export default function TopicList() {
                   size={18}
                   color="#FACC15"
                 />
-                <Text style={styles.title}>Temáticas Exclusivas</Text>
+                <Text style={styles.title}>Contenido Exclusivo</Text>
               </View>
 
               <TouchableOpacity onPress={() => setVisible(false)}>
@@ -264,6 +247,17 @@ export default function TopicList() {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContent}
             />
+
+            {/* WARNING ENERGÍA */}
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.energyWarning, { opacity: warningOpacity }]}
+      >
+        <FontAwesome6 name="bolt-lightning" size={14} color="#fff" />
+        <Text style={styles.energyWarningText}>
+          Disponible solo para jugadores VIP
+        </Text>
+      </Animated.View>
           </View>
         </View>
       </Modal>
@@ -272,40 +266,24 @@ export default function TopicList() {
 }
 
 const styles = StyleSheet.create({
-
-  energyWarning:{
-    position:"absolute",
-    top:-35,
-    alignSelf:"center",
-    flexDirection:"row",
-    alignItems:"center",
-    backgroundColor:"#ef4444",
-    paddingHorizontal:12,
-    paddingVertical:6,
-    borderRadius:12,
-    gap:6,
-    zIndex:10
+  energyWarning: {
+    position: "absolute",
+    bottom: -45,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ef4444",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    gap: 6,
+    zIndex: 100,
   },
 
-  energyWarningText:{
-    color:"#fff",
-    fontWeight:"800",
-    fontSize:12
-  },
-
-  energyCost:{
-    flexDirection:"row",
-    alignItems:"center",
-    backgroundColor:"#e4a700",
-    paddingHorizontal:4,
-    borderRadius:6,
-    gap:2
-  },
-
-  energyCostText:{
-    color:"#fff",
-    fontSize:8,
-    fontWeight:"900"
+  energyWarningText: {
+    color: "#fff",
+    fontWeight: "800",
+    fontSize: 12,
   },
 
   openButton: {
@@ -317,8 +295,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignSelf: "center",
     gap: 8,
-    borderWidth: 1,
-    borderColor: "rgba(215, 232, 255, 0.03)",
     marginTop: 15,
   },
 
@@ -344,14 +320,11 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     padding: 18,
     maxHeight: "75%",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.05)",
   },
 
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 12,
   },
 
@@ -388,16 +361,19 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#243047",
     borderRadius: 16,
     padding: 10,
     marginBottom: 10,
+    paddingHorizontal: 13
+  },
+
+  cardContent: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   imageWrapper: {
-    position: "relative",
     marginRight: 10,
   },
 
@@ -418,12 +394,6 @@ const styles = StyleSheet.create({
 
   topicInfo: {
     flex: 1,
-    marginRight: 35
-  },
-
-  topicHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
   },
 
   topicName: {
@@ -435,54 +405,26 @@ const styles = StyleSheet.create({
   progressRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     marginTop: 4,
+    marginRight: 5
   },
 
   levelText: {
     color: "#94A3B8",
     fontSize: 11,
-    fontWeight: "600",
   },
 
-  percentBox: {
-    backgroundColor: "#1E3A8A",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    marginLeft: -20
-  },
-
-  percentText: {
-    color: "#93C5FD",
-    fontWeight: "800",
-    fontSize: 11,
-  },
-
-  progressBar: {
-    height: 5,
-    backgroundColor: "#0F172A",
-    borderRadius: 6,
-    marginTop: 6,
-    overflow: "hidden",
-  },
-
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#FFC400",
+  rightSection: {
+    alignItems: "center",
+    width: 50,
+    gap: 5
   },
 
   playButton: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#ffbb00",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
-    gap: 4,
-    position: "absolute",
-    right: 0,
-    bottom: -6,
   },
 
   playText: {
@@ -491,10 +433,24 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  rightSection: {
-    alignItems: "center",
-    width: 50,
-    justifyContent: "space-between",
-    height: 45,
+  percentText: {
+    color: "#ffffff",
+    fontWeight: "800",
+    fontSize: 11,
+    marginTop: 0,
+  },
+
+  progressBar: {
+    height: 5,
+    backgroundColor: "#313c50",
+    borderRadius: 6,
+    marginTop: 8,
+    overflow: "hidden",
+    width: "100%",
+  },
+
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#FFC400",
   },
 });

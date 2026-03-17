@@ -1,13 +1,13 @@
 import { store } from "@/store/store";
 import { Stack } from "expo-router";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import * as NavigationBar from "expo-navigation-bar";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform, View, StyleSheet } from "react-native";
-import TopBar from "@/components/TopBar";
 
 export default function RootLayout() {
+
   useEffect(() => {
     if (Platform.OS !== "android") return;
 

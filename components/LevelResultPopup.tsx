@@ -13,8 +13,9 @@ import {
   FontAwesome6,
 } from "@expo/vector-icons";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { consumeEnergy } from "@/store/reducers/energySlice";
+import { IRootState } from "@/store/rootState";
 
 const { width } = Dimensions.get("window");
 
@@ -46,6 +47,7 @@ export default function LevelResultPopup({
   const warningOpacity = useRef(new Animated.Value(0)).current;
 
   const [mounted, setMounted] = useState(false);
+  const {isVip} = useSelector((state:IRootState)=>state.vip)
 
   useEffect(() => {
     if (visible) {
@@ -125,12 +127,14 @@ export default function LevelResultPopup({
   };
 
   const handleRetry = () => {
-    if (energy < RETRY_COST) {
+    if (!isVip && energy < RETRY_COST) {
       showEnergyWarning();
       return;
     }
 
-    dispatch(consumeEnergy(RETRY_COST));
+    if(!isVip){
+      dispatch(consumeEnergy(RETRY_COST));
+    }
     onRetry();
   };
 

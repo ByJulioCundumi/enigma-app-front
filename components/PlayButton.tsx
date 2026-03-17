@@ -20,6 +20,7 @@ import { consumeEnergy } from "@/store/reducers/energySlice";
 export default function PlayButton() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const {isVip} = useSelector((state:IRootState)=>state.vip)
 
   const energy = useSelector(
     (state: IRootState) => state.energy.energy
@@ -97,12 +98,14 @@ export default function PlayButton() {
   };
 
   const handlePlay = () => {
-    if (energy < requiredEnergy) {
+    if ( !isVip && energy < requiredEnergy) {
       showEnergyMessage();
       return;
     }
 
-    dispatch(consumeEnergy(requiredEnergy));
+    if(!isVip){
+      dispatch(consumeEnergy(requiredEnergy));
+    }
     router.push("/GameRoom");
   };
 
