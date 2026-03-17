@@ -256,8 +256,8 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    width: Math.min(width, 520),
-    backgroundColor: "#090a0a",
+    width: "90%",
+    backgroundColor: "#030c18",
     borderRadius: 28,
     paddingVertical: 34,
     paddingHorizontal: 32,

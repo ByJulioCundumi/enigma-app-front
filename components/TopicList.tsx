@@ -169,7 +169,6 @@ export default function TopicList() {
             style={styles.playButton}
             onPress={() => playTopic(item.id)}
           >
-            <Ionicons name="play" size={9} color="white" />
             <Text style={styles.playText}>Jugar</Text>
 
             <View style={styles.energyCost}>
@@ -297,7 +296,7 @@ const styles = StyleSheet.create({
   energyCost:{
     flexDirection:"row",
     alignItems:"center",
-    backgroundColor:"#1665c0",
+    backgroundColor:"#e4a700",
     paddingHorizontal:4,
     borderRadius:6,
     gap:2
@@ -419,7 +418,7 @@ const styles = StyleSheet.create({
 
   topicInfo: {
     flex: 1,
-    marginRight: 48
+    marginRight: 35
   },
 
   topicHeader: {
@@ -451,7 +450,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    marginLeft: -30
+    marginLeft: -20
   },
 
   percentText: {
@@ -476,7 +475,7 @@ const styles = StyleSheet.create({
   playButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2563EB",
+    backgroundColor: "#ffbb00",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,

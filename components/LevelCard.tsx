@@ -52,9 +52,7 @@ export default function LevelCard({ isIndex = true }: Props) {
       ? `${level}`
       : `${currentLevelIndex}/${totalLevels}`;
 
-  const cardSize = isIndex
-    ? { width: width * 0.9, height: 230 }
-    : { width: 400, height: 230 };
+  const cardSize = { width: width * 0.9, height: 230 }
 
   const [showHint, setShowHint] = useState(false);
   const slideAnim = useRef(new Animated.Value(-250)).current;
@@ -86,15 +84,9 @@ export default function LevelCard({ isIndex = true }: Props) {
           style={styles.gradient}
         />
 
-        {/* Badge temática */}
-        <View style={styles.categoryBadge}>
-          <Octicons name="multi-select" size={12} color="#fff" />
-          <Text style={styles.categoryText}>{category}</Text>
-        </View>
-
         {/* Nivel */}
         <View style={styles.levelBadge}>
-          <FontAwesome6 name="ranking-star" size={16} color="#fff" />
+          <FontAwesome6 name="ranking-star" size={16} color="#ffc400" />
           <Text style={styles.levelText}>{levelText}</Text>
         </View>
 
@@ -177,19 +169,21 @@ const styles = StyleSheet.create({
 
   levelBadge: {
     position: "absolute",
-    top: 60,
+    top: 15,
     left: 15,
-    backgroundColor: "#f59e0b",
+    backgroundColor: "#151518",
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+    borderWidth: 2,
+    borderColor: "#ffc400"
   },
 
   levelText: {
-    color: "#fff",
+    color: "#ffc400",
     fontWeight: "800",
     fontSize: 14,
   },

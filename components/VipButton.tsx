@@ -124,7 +124,7 @@ export default function VipButton({ onWatchAd }: Props) {
         <MaterialCommunityIcons
           name="crown"
           size={20}
-          color="#FFD700"
+          color="#ffc400"
           style={{marginTop:-8}}
         />
 
@@ -300,15 +300,15 @@ const styles = StyleSheet.create({
     width:40,
     height:40,
     borderRadius:40,
-    backgroundColor:"#1F2A44",
+    backgroundColor:"#040416",
     justifyContent:"center",
     alignItems:"center",
     borderWidth:2,
-    borderColor:"#FFD700",
+    borderColor:"#ffae00",
     elevation:8,
     position:"absolute",
-    top:15,
-    right:15
+    top:68,
+    left:25
   },
 
   glow:{
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   badge:{
     position:"absolute",
     bottom:-6,
-    backgroundColor:"#FFD700",
+    backgroundColor:"#ffae00",
     paddingHorizontal:8,
     paddingVertical:2,
     borderRadius:10,
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   },
 
   timer:{
-    color:"#FFD700",
+    color:"#ffae00",
     fontSize:30,
     fontWeight:"900",
     marginTop:2,

@@ -40,10 +40,10 @@ export default function Index() {
   return (
     <LinearGradient
       colors={[
-        "#1732a7",  // azul oscuro profundo
-        "#1e3abf",  // azul intenso
-        "#2f6bff",  // azul vibrante
-        "#3195cf",  // azul claro brillante
+        "#143788",  // azul oscuro profundo
+        "#184cc4",  // azul intenso
+        "#2c68f5",  // azul vibrante
+        "#5185ff",  // azul claro brillante
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
