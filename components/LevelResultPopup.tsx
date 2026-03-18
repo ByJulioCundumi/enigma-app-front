@@ -47,7 +47,6 @@ export default function LevelResultPopup({
   const warningOpacity = useRef(new Animated.Value(0)).current;
 
   const [mounted, setMounted] = useState(false);
-  const {isVip} = useSelector((state:IRootState)=>state.vip)
 
   useEffect(() => {
     if (visible) {
@@ -127,14 +126,13 @@ export default function LevelResultPopup({
   };
 
   const handleRetry = () => {
-    if (!isVip && energy < RETRY_COST) {
+    if (energy < RETRY_COST) {
       showEnergyWarning();
       return;
     }
 
-    if(!isVip){
       dispatch(consumeEnergy(RETRY_COST));
-    }
+
     onRetry();
   };
 

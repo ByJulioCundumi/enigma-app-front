@@ -27,6 +27,7 @@ import { IRootState } from "@/store/rootState";
 import { selectTopic } from "@/store/reducers/topicsSlice";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { toggleFavoriteTopic } from "@/store/reducers/favoritesSlice";
+import { checkVip } from "@/utils/checkVip";
 
 interface TopicItem {
   id: string;
@@ -37,10 +38,13 @@ interface TopicItem {
   vip?: boolean;
 }
 
+const PLAY_COST = 2;
+
 export default function TopicList() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const {isVip} = useSelector((state:IRootState)=>state.vip)
+  const {vipExpireAt} = useSelector((state:IRootState)=>state.vip)
+  const isVip = checkVip(vipExpireAt)
 
   const progress = useSelector((state: IRootState) => state.topics.progress);
   const energy = useSelector((state: IRootState) => state.energy.energy);
@@ -98,6 +102,7 @@ export default function TopicList() {
       return;
     }
 
+    dispatch(consumeEnergy(PLAY_COST));
     dispatch(selectTopic(topicId as any));
 
     setVisible(false);
@@ -164,6 +169,10 @@ export default function TopicList() {
               onPress={() => playTopic(item.id)}
             >
               <Text style={styles.playText}>Jugar</Text>
+              <View style={styles.energyCost}>
+              <FontAwesome6 name="bolt-lightning" size={8} color="#fff" />
+              <Text style={styles.energyCostText}>-{PLAY_COST}</Text>
+            </View>
             </TouchableOpacity>
 
           </View>
@@ -286,6 +295,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 
+  energyCost:{
+    flexDirection:"row",
+    alignItems:"center",
+    backgroundColor:"#e4a700",
+    paddingHorizontal:4,
+    borderRadius:6,
+    gap:2,
+  },
+
+  energyCostText:{
+    color:"#fff",
+    fontSize:8,
+    fontWeight:"900"
+  },
+
   openButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -406,7 +430,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 4,
-    marginRight: 5
+    marginRight: 27
   },
 
   levelText: {
@@ -425,6 +449,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
+    flexDirection: "row",
+    marginRight: 20
   },
 
   playText: {

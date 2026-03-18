@@ -14,7 +14,6 @@ import { useEffect } from "react";
 import TopBar from "@/components/TopBar";
 import LevelCard from "@/components/LevelCard";
 import { useDispatch } from "react-redux";
-import { validateLocalVip } from "@/store/reducers/vipSlice";
 
 export default function Index() {
   const float = useSharedValue(0);
@@ -29,10 +28,6 @@ export default function Index() {
       -1,
       true
     );
-  }, []);
-
-  useEffect(() => {
-    dispatch(validateLocalVip())
   }, []);
 
   const logoStyle = useAnimatedStyle(() => {

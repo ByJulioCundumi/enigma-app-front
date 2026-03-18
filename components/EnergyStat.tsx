@@ -22,7 +22,6 @@ const formatNumber = (num: number) => {
 };
 
 export default function EnergyStat() {
-  const {isVip} = useSelector((state:IRootState)=>state.vip)
   const dispatch = useDispatch();
 
   const energy = useSelector(
@@ -56,7 +55,7 @@ export default function EnergyStat() {
         activeOpacity={0.85}
         style={styles.statBadge}
         onPress={() => {
-          if (!isVip) setVisible(true);
+          setVisible(true);
         }}
       >
         
@@ -65,11 +64,11 @@ export default function EnergyStat() {
         </View>
 
         <Text style={styles.statText}>
-          {!isVip ? formatNumber(energy) : <Entypo name="infinity" size={14} color="#fff" />}
+          {formatNumber(energy) }
         </Text>
 
         {
-          !isVip && <View style={styles.plusButton}>
+          <View style={styles.plusButton}>
           <Ionicons name="add" size={12} color="#fff" />
         </View>
         }

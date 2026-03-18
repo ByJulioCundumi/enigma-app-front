@@ -77,7 +77,6 @@ export default function GameRoom() {
     (state: any) => state.timer
   );
   
-  const {isVip} = useSelector((state:IRootState)=>state.vip)
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const router = useRouter();
 
@@ -168,9 +167,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
       setTimerActive(false);
       setLevelSuccess(true);
       setShowResult(true);
-      if(!isVip){
         dispatch(addEnergy(2));
-      }
     }
   };
 
@@ -235,7 +232,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
   };
 
   const useHint = () => {
-  if (!isVip && energy <= 0) return;
+  if (energy <= 0) return;
   if (remainingLetters <= 3) return;
 
   const availableIndexes = letters
@@ -266,21 +263,17 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
   }
 
   // 👉 3. Consumir energía
-  if (!isVip) {
     dispatch(consumeEnergy(1));
-  }
 
   moveCursorNext(randomIndex);
   checkWordCompletion(newLetters);
 };
 
   const addExtraTime = () => {
-    if ( !isVip && energy <= 0) return;
+    if ( energy <= 0) return;
     if (extraTimeUsed >= MAX_TIME_USES) return;
     dispatch(addExtraTimeToTimer(EXTRA_TIME));
-    if(!isVip){
       dispatch(consumeEnergy(1));
-    }
   };
 
   const remainingLetters = letters.filter(

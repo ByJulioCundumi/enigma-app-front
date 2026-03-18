@@ -1,485 +1,487 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Modal,
-  Animated,
-  Dimensions,
-  TouchableWithoutFeedback,
-  ActivityIndicator
+  Pressable
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { setVipLocal } from "@/store/reducers/vipSlice";
+import { IRootState } from "@/store/rootState";
 
-const { width } = Dimensions.get("window");
+import { activateVip, incrementAd, tickVip } from "@/store/reducers/vipSlice";
+import { addEnergy } from "@/store/reducers/energySlice";
 
-export default function VipButton({ onRestore }: any) {
+interface Props {
+  onWatchAd?: () => Promise<boolean>;
+}
+
+export default function VipButton({ onWatchAd }: Props) {
+
+  const REQUIRED_ADS = 3;
+  const VIP_DURATION = 15 * 60;
+  const ENERGY_REWARD = 25;
+
   const dispatch = useDispatch();
 
-  const { isVip, endDate } = useSelector((state: any) => state.vip);
+  const adsWatched = useSelector(
+    (state: IRootState) => state.vip.adsWatched
+  );
+
+  const vipExpireAt = useSelector(
+    (state: IRootState) => state.vip.vipExpireAt
+  );
+
+  const vipStartAt = useSelector(
+    (state: IRootState) => state.vip.vipStartAt
+  );
+
+  const vipActive = vipExpireAt !== null;
 
   const [visible, setVisible] = useState(false);
-  const [restoring, setRestoring] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(VIP_DURATION);
 
-  const scaleAnim = useRef(new Animated.Value(0.85)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
 
   useEffect(() => {
-    if (visible) {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          friction: 6,
-          useNativeDriver: true
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 250,
-          useNativeDriver: true
-        })
-      ]).start();
-    } else {
-      scaleAnim.setValue(0.85);
-      opacityAnim.setValue(0);
+
+    const interval = setInterval(() => {
+
+      dispatch(tickVip());
+
+      if (vipExpireAt) {
+
+        const remaining = Math.max(
+          0,
+          Math.floor((vipExpireAt - Date.now()) / 1000)
+        );
+
+        setTimeLeft(remaining);
+
+      } else {
+
+        setTimeLeft(VIP_DURATION);
+
+      }
+
+    }, 1000);
+
+    return () => clearInterval(interval);
+
+  }, [vipExpireAt, vipStartAt]);
+
+
+
+  const watchAd = async () => {
+
+    if (adsWatched >= REQUIRED_ADS) return;
+
+    let success = true;
+
+    if (onWatchAd) {
+      success = await onWatchAd();
     }
-  }, [visible]);
 
-  /* -------- SIMULAR COMPRA -------- */
-  const handleBuy = () => {
-    const now = Date.now();
-    const month = 1000 * 60 * 60 * 24 * 30;
+    if (!success) return;
 
-    dispatch(
-      setVipLocal({
-        startDate: now,
-        endDate: now + month
-      })
-    );
-  };
+    const newCount = adsWatched + 1;
 
-  /* -------- RESTORE -------- */
-  const handleRestore = async () => {
-    if (!onRestore) return;
+    dispatch(incrementAd());
 
-    try {
-      setRestoring(true);
-      await onRestore();
-    } catch (e) {
-      console.log("Error restaurando compra:", e);
-    } finally {
-      setRestoring(false);
+    if (newCount >= REQUIRED_ADS) {
+
+      dispatch(activateVip());
+
+      // 🎁 RECOMPENSA DE ENERGÍA
+      dispatch(addEnergy(ENERGY_REWARD));
+
+      setVisible(false);
+
     }
+
   };
 
-  /* -------- FORMATEAR FECHA -------- */
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString();
-  };
+  const progress = (adsWatched / REQUIRED_ADS) * 100;
 
   return (
     <>
-      {/* BOTÓN VIP */}
+      {/* BOTON VIP */}
+
       <TouchableOpacity
         style={styles.vipButton}
         activeOpacity={0.9}
         onPress={() => setVisible(true)}
       >
-        <View style={styles.glow} />
+
+        <View style={styles.glow}/>
 
         <MaterialCommunityIcons
-          name="gamepad-variant-outline"
+          name="crown"
           size={20}
           color="#ffc400"
-          style={{marginTop: -2}}
+          style={{marginTop:-8}}
         />
 
-        {!isVip ? 
-          <View style={styles.badge}>
+        <View style={styles.badge}>
+
+          {vipActive ? (
+
             <Text style={styles.badgeText}>
-              VIP: $1.19
+              {formatTime(timeLeft)}
             </Text>
-          </View>
-          :
-          <View style={styles.badgeVip}>
-            <Text style={styles.badgeText}>
-              <MaterialCommunityIcons name="account-check-outline" size={12} color="black" /> VIP
-            </Text>
-          </View>
-        }
-        
+
+          ) : (
+
+            <View style={{flexDirection:"row",alignItems:"center",gap:3}}>
+              <MaterialCommunityIcons name="movie-open-play" size={14} color="black"/>
+              <Text style={styles.badgeText}>
+                {adsWatched}/{REQUIRED_ADS}
+              </Text>
+            </View>
+
+          )}
+
+        </View>
+
       </TouchableOpacity>
 
-      {/* MODAL */}
-      <Modal transparent visible={visible} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
-          <View style={styles.overlay}>
 
-            <TouchableWithoutFeedback>
-              <Animated.View
-                style={[
-                  styles.modalContainer,
-                  {
-                    transform: [{ scale: scaleAnim }],
-                    opacity: opacityAnim
-                  }
-                ]}
+
+      {/* POPUP */}
+
+      <Modal visible={visible} transparent animationType="fade">
+
+        <Pressable
+          style={styles.overlay}
+          onPress={() => setVisible(false)}
+        >
+
+          <Pressable style={styles.popup}>
+
+            <View style={styles.header}>
+
+              <View style={styles.crownCircle}>
+                <MaterialCommunityIcons
+                  name="crown"
+                  size={32}
+                  color="#FFD700"
+                />
+              </View>
+
+              <Text style={styles.title}>
+                Zona VIP
+              </Text>
+
+              <Text style={styles.subtitle}>
+                Desbloquea ventajas exclusivas durante 15 minutos
+              </Text>
+
+            </View>
+
+
+            {/* TIMER */}
+
+            <View style={styles.timerCard}>
+
+              <Text style={styles.timerLabel}>
+                Tiempo VIP
+              </Text>
+
+              <Text style={styles.timer}>
+                {formatTime(vipActive ? timeLeft : VIP_DURATION)}
+              </Text>
+
+            </View>
+
+
+            {/* BENEFICIOS */}
+
+            <View style={styles.benefitsContainer}>
+
+              <View style={styles.benefitCard}>
+                <View style={[styles.iconCircle,{backgroundColor:"#1f3a2a"}]}>
+                  <Ionicons name="flash" size={18} color="#22c55e"/>
+                </View>
+                <View>
+                  <Text style={styles.benefitTitle}>+25 Energía</Text>
+                  <Text style={styles.benefitDesc}>Obtén energía extra al activar VIP</Text>
+                </View>
+              </View>
+
+              <View style={styles.benefitCard}>
+                <View style={[styles.iconCircle,{backgroundColor:"#3a2e12"}]}>
+                  <MaterialCommunityIcons name="crown" size={18} color="#FFD700"/>
+                </View>
+                <View>
+                  <Text style={styles.benefitTitle}>Temáticas exclusivas</Text>
+                  <Text style={styles.benefitDesc}>Acceso a retos VIP</Text>
+                </View>
+              </View>
+
+              <View style={styles.benefitCard}>
+                <View style={[styles.iconCircle,{backgroundColor:"#2b2f45"}]}>
+                  <Ionicons name="ban" size={18} color="#60a5fa"/>
+                </View>
+                <View>
+                  <Text style={styles.benefitTitle}>Sin anuncios</Text>
+                  <Text style={styles.benefitDesc}>Juega sin interrupciones</Text>
+                </View>
+              </View>
+
+            </View>
+
+
+            {!vipActive && (
+
+              <View style={styles.progressCard}>
+
+                <View style={styles.progressHeader}>
+
+                  <Text style={styles.progressText}>
+                    Anuncios vistos
+                  </Text>
+
+                  <Text style={styles.progressCount}>
+                    {adsWatched}/{REQUIRED_ADS}
+                  </Text>
+
+                </View>
+
+                <View style={styles.progressBar}>
+
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { width: `${progress}%` }
+                    ]}
+                  />
+
+                </View>
+
+              </View>
+
+            )}
+
+
+            {!vipActive && (
+
+              <TouchableOpacity
+                style={styles.watchButton}
+                onPress={watchAd}
               >
-                <LinearGradient
-                  colors={["#0f172a", "#0f172a", "#0f172a"]}
-                  style={styles.modal}
-                >
-                  <View style={styles.topGlow} />
 
-                  {/* HEADER */}
-                  <View style={styles.header}>
-                    <View style={styles.crownWrapper}>
-                      <MaterialCommunityIcons
-                        name="crown"
-                        size={36}
-                        color="#ffc400"
-                      />
-                    </View>
+                <Ionicons name="play-circle" size={20} color="white"/>
 
-                    <Text style={styles.title}>
-                      {isVip ? "¡ERES JUGADOR VIP!" : "VIP PLAYER"}
-                    </Text>
+                <Text style={styles.watchText}>
+                  Ver anuncio
+                </Text>
 
-                    {!isVip && (
-                      <View style={styles.bestValue}>
-                        <Text style={styles.bestValueText}>
-                          Únetenos ;)
-                        </Text>
-                      </View>
-                    )}
-                  </View>
+              </TouchableOpacity>
 
-                  {/* CONTENIDO */}
-                  {isVip ? (
-                    <>
-                      <Text style={styles.subtitle}>
-                        Disfruta de todos los beneficios
-                      </Text>
+            )}
 
-                      <View style={styles.benefitsGrid}>
-                        <BenefitCard icon="close-circle" text="Sin anuncios" />
-                        <BenefitCard icon="flash" text="Energía infinita" />
-                        <BenefitCard icon="star" text="Todo desbloqueado" />
-                      </View>
+          </Pressable>
 
-                      <Text style={styles.expireText}>
-                        Expira: {formatDate(endDate)}
-                      </Text>
-                    </>
-                  ) : (
-                    <>
-                      <Text style={styles.subtitle}>
-                        Desbloquea la mejor experiencia de juego
-                      </Text>
+        </Pressable>
 
-                      <View style={styles.benefitsGrid}>
-                        <BenefitCard icon="close-circle" text="Sin anuncios" />
-                        <BenefitCard icon="flash" text="Energía infinita" />
-                        <BenefitCard icon="star" text="Tematicas exclusivas" />
-                      </View>
-
-                      <View style={styles.priceContainer}>
-                        <Text style={styles.priceBig}>$1.19</Text>
-                        <Text style={styles.priceSmall}>/ mes</Text>
-                      </View>
-
-                      <Text style={styles.guarantee}>
-                        Cancela en cualquier momento
-                      </Text>
-
-                      {/* COMPRAR */}
-                      <TouchableOpacity
-                        activeOpacity={0.85}
-                        style={styles.buyButton}
-                        onPress={handleBuy}
-                      >
-                        <LinearGradient
-                          colors={["#FFD700", "#FFB800", "#FFA500"]}
-                          style={styles.buyGradient}
-                        >
-                          <Text style={styles.buyText}>
-                            ACTIVAR VIP
-                          </Text>
-                        </LinearGradient>
-                      </TouchableOpacity>
-
-                      {/* RESTORE */}
-                      <View style={styles.restoreContainer}>
-                        <Text style={styles.restoreText}>
-                          ¿Ya compraste VIP?
-                        </Text>
-
-                        <TouchableOpacity
-                          onPress={handleRestore}
-                          disabled={restoring}
-                          style={styles.restoreButton}
-                        >
-                          {restoring ? (
-                            <ActivityIndicator color="#ffc400" />
-                          ) : (
-                            <>
-                              <MaterialCommunityIcons
-                                name="restore"
-                                size={18}
-                                color="#ffc400"
-                              />
-                              <Text style={styles.restoreButtonText}>
-                                Restaurar compra
-                              </Text>
-                            </>
-                          )}
-                        </TouchableOpacity>
-                      </View>
-                    </>
-                  )}
-                </LinearGradient>
-              </Animated.View>
-            </TouchableWithoutFeedback>
-
-          </View>
-        </TouchableWithoutFeedback>
       </Modal>
     </>
   );
 }
 
-/* ---------- COMPONENTE BENEFICIO ---------- */
-function BenefitCard({ icon, text }: any) {
-  return (
-    <View style={styles.benefitCard}>
-      <MaterialCommunityIcons name={icon} size={18} color="#ffc400" />
-      <Text style={styles.benefitCardText}>{text}</Text>
-    </View>
-  );
-}
-
-/* ---------- ESTILOS ---------- */
 const styles = StyleSheet.create({
-  vipButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 50,
-    backgroundColor: "#050c1d",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#ffc400",
-    position: "absolute",
-    top: 70,
-    left: 25,
-    elevation: 10
+  vipButton:{
+    width:40,
+    height:40,
+    borderRadius:40,
+    backgroundColor:"#040416",
+    justifyContent:"center",
+    alignItems:"center",
+    borderWidth:2,
+    borderColor:"#ffae00",
+    elevation:8,
+    position:"absolute",
+    top:68,
+    left:25
   },
 
-  glow: {
-    position: "absolute",
-    width: 52,
-    height: 52,
-    borderRadius: 60,
-    backgroundColor: "rgba(255, 196, 0, 0.2)"
+  glow:{
+    position:"absolute",
+    width:52,
+    height:52,
+    borderRadius:46,
+    backgroundColor:"rgba(255,215,0,0.15)"
   },
 
-  badge: {
-    position: "absolute",
-    bottom: -10,
-    backgroundColor: "#ffc400",
-    paddingHorizontal: 6,
-    paddingVertical: 2.5,
-    borderRadius: 10,
-    width: 58,
+  badge:{
+    position:"absolute",
+    bottom:-6,
+    backgroundColor:"#ffae00",
+    paddingHorizontal:8,
+    paddingVertical:2,
+    borderRadius:10,
+    width: 50,
     alignItems: "center"
   },
-
-  badgeVip: {
-    position: "absolute",
-    bottom: -10,
-    backgroundColor: "#ffc400",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
-    width: 45,
-    alignItems: "center"
-  },
-
-  badgeText: {
-    fontSize: 9,
-    fontWeight: "900",
-    color: "#1e293b"
-  },
-
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.75)",
-    justifyContent: "center",
-    alignItems: "center"
-  },
-
-  modalContainer: {
-    width: "85%"
-  },
-
-  modal: {
-    borderRadius: 22,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: "#ffc400",
-    overflow: "hidden"
-  },
-
-  topGlow: {
-    position: "absolute",
-    top: -40,
-    alignSelf: "center",
-    width: 200,
-    height: 100,
-    borderRadius: 100,
-    backgroundColor: "rgba(255,215,0,0.15)"
-  },
-
-  header: {
-    alignItems: "center",
-    marginBottom: 10
-  },
-
-  crownWrapper: {
-    backgroundColor: "rgba(255,215,0,0.1)",
-    padding: 12,
-    borderRadius: 50,
-    marginBottom: 6
-  },
-
-  title: {
-    color: "#ffc400",
-    fontSize: 24,
-    fontWeight: "900",
-    letterSpacing: 1
-  },
-
-  bestValue: {
-    marginTop: 6,
-    backgroundColor: "#ffc400",
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 10
-  },
-
-  bestValueText: {
-    fontSize: 10,
-    fontWeight: "900",
-    color: "#1e293b"
-  },
-
-  subtitle: {
-    color: "#cbd5f5",
+  
+  badgeText:{
     textAlign: "center",
-    marginBottom: 18
+    fontSize:10,
+    fontWeight:"900",
+    color:"#1e293b"
   },
 
-  benefitsGrid: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20
+  overlay:{
+    flex:1,
+    backgroundColor:"rgba(0,0,0,0.70)",
+    justifyContent:"center",
+    padding:22
   },
 
-  benefitCard: {
-    flex: 1,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    padding: 10,
-    marginHorizontal: 4,
-    borderRadius: 12,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255, 196, 0, 0.2)"
+  popup:{
+    backgroundColor:"#162033",
+    borderRadius:28,
+    padding:22,
+    borderWidth:1,
+    borderColor:"#2a3955"
   },
 
-  benefitCardText: {
-    color: "#e5e7eb",
-    fontSize: 11,
-    marginTop: 5,
-    textAlign: "center"
+  header:{
+    alignItems:"center",
+    marginBottom:18
   },
 
-  priceContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "flex-end",
-    marginBottom: 10
+  crownCircle:{
+    width:70,
+    height:70,
+    borderRadius:35,
+    backgroundColor:"#22304a",
+    justifyContent:"center",
+    alignItems:"center",
+    marginBottom:12
   },
 
-  priceBig: {
-    color: "#ffc400",
-    fontSize: 36,
-    fontWeight: "900"
+  title:{
+    color:"white",
+    fontSize:22,
+    fontWeight:"900"
   },
 
-  priceSmall: {
-    color: "#94a3b8",
-    marginLeft: 4,
-    marginBottom: 6
+  subtitle:{
+    color:"#94A3B8",
+    fontSize:13,
+    textAlign:"center",
+    marginTop:4
   },
 
-  buyButton: {
-    borderRadius: 14,
-    overflow: "hidden",
-    marginTop: 5
+  timerCard:{
+    backgroundColor:"#1E2A44",
+    borderRadius:16,
+    paddingVertical:16,
+    alignItems:"center",
+    marginBottom:16,
   },
 
-  buyGradient: {
-    paddingVertical: 14,
-    alignItems: "center",
-    borderRadius: 14
+  timerLabel:{
+    color:"#94A3B8",
+    fontSize:12,
   },
 
-  buyText: {
-    color: "#1e293b",
-    fontWeight: "900",
-    fontSize: 16
+  timer:{
+    color:"#ffae00",
+    fontSize:30,
+    fontWeight:"900",
+    marginTop:2,
   },
 
-  guarantee: {
-    textAlign: "center",
-    color: "#64748b",
-    fontSize: 11,
-    marginBottom: 10
+  benefitsContainer:{
+    gap:12,
+    marginBottom:20
   },
 
-  expireText: {
-    textAlign: "center",
-    color: "#94a3b8",
-    fontSize: 13,
-    marginTop: 10
+  benefitCard:{
+    flexDirection:"row",
+    alignItems:"center",
+    gap:12,
+    backgroundColor:"#1B273E",
+    padding:14,
+    borderRadius:14
   },
 
-  restoreContainer: {
-    marginTop: 16,
-    alignItems: "center"
+  iconCircle:{
+    width:34,
+    height:34,
+    borderRadius:10,
+    justifyContent:"center",
+    alignItems:"center"
   },
 
-  restoreText: {
-    color: "#94a3b8",
-    fontSize: 12,
-    marginBottom: 6
+  benefitTitle:{
+    color:"white",
+    fontWeight:"700",
+    fontSize:14
   },
 
-  restoreButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 10
+  benefitDesc:{
+    color:"#94A3B8",
+    fontSize:11
   },
 
-  restoreButtonText: {
-    color: "#ffc400",
-    fontSize: 13,
-    fontWeight: "600"
+  progressCard:{
+    backgroundColor:"#1B273E",
+    padding:14,
+    borderRadius:14,
+    marginBottom:18
+  },
+
+  progressHeader:{
+    flexDirection:"row",
+    justifyContent:"space-between",
+    marginBottom:8
+  },
+
+  progressText:{
+    color:"#94A3B8",
+    fontSize:12
+  },
+
+  progressCount:{
+    color:"white",
+    fontWeight:"900"
+  },
+
+  progressBar:{
+    height:7,
+    backgroundColor:"#0F172A",
+    borderRadius:8,
+    overflow:"hidden"
+  },
+
+  progressFill:{
+    height:"100%",
+    backgroundColor:"#FFD700"
+  },
+
+  watchButton:{
+    flexDirection:"row",
+    backgroundColor:"#ffae00",
+    paddingVertical:14,
+    borderRadius:14,
+    justifyContent:"center",
+    alignItems:"center",
+    gap:8
+  },
+
+  watchText:{
+    color:"white",
+    fontWeight:"900",
+    fontSize:16
   }
+
 });
