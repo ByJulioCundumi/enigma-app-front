@@ -39,6 +39,12 @@ export default function LevelCard({ isIndex = true }: Props) {
     state.topics.progress[state.topics.selectedTopic]
   );
 
+  const {language} = useSelector(
+      (state: IRootState) => state.language
+    );
+  
+  const isEs = language === "es";
+
   const description = levelData?.description ?? "";
   const image = levelData?.image;
 
@@ -107,7 +113,7 @@ export default function LevelCard({ isIndex = true }: Props) {
         {/* Botón pista */}
         <TouchableOpacity style={styles.hintButton} onPress={toggleHint}>
           <Ionicons name="information-circle" size={28} color="#fff" />
-          {!showHint && <Text style={{ color: "#fff" }}>Pista</Text>}
+          {!showHint && <Text style={{ color: "#fff" }}>{isEs ? "Pista" : "Hint"}</Text>}
         </TouchableOpacity>
 
         {/* Panel pista */}

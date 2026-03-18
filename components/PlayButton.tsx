@@ -34,6 +34,12 @@ export default function PlayButton() {
   const messageOpacity = useSharedValue(0);
   const messageTranslate = useSharedValue(20);
 
+    const {language} = useSelector(
+      (state: IRootState) => state.language
+    );
+  
+    const isEs = language === "es";
+
   useEffect(() => {
     floatProgress.value = withRepeat(
       withTiming(1, {
@@ -114,7 +120,7 @@ export default function PlayButton() {
         <Animated.View style={[styles.toast, messageStyle]}>
           <FontAwesome6 name="bolt-lightning" size={12} color="#FFD54A" />
           <Text style={styles.toastText}>
-            No tienes suficiente energía
+            {isEs ? "No tienes suficiente energía" : "You don't have enough energy"}
           </Text>
         </Animated.View>
       )}
@@ -148,7 +154,7 @@ export default function PlayButton() {
             </Animated.View>
 
             <View style={styles.buttonContent}>
-              <Text style={styles.buttonText}>Jugar</Text>
+              <Text style={styles.buttonText}>{isEs ? "Jugar" : "Play"}</Text>
 
               <View style={styles.energyBadge}>
                 <FontAwesome6

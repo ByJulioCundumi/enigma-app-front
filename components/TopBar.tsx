@@ -18,11 +18,7 @@ import EnergyStat from "./EnergyStat";
 
 const { width } = Dimensions.get("window");
 
-interface Props {
-  lives?: number;
-}
-
-export default function TopBar({ lives = 253 }: Props) {
+export default function TopBar() {
   const dispatch = useDispatch();
   const router = useRouter();
 

@@ -40,6 +40,12 @@ export default function VipButton({ onWatchAd }: Props) {
 
   const vipActive = vipExpireAt !== null;
 
+  const {language} = useSelector(
+    (state: IRootState) => state.language
+  );
+
+  const isEs = language === "es";
+
   const [visible, setVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState(VIP_DURATION);
 
@@ -175,11 +181,11 @@ export default function VipButton({ onWatchAd }: Props) {
               </View>
 
               <Text style={styles.title}>
-                Zona VIP
+                {isEs ? "Zona VIP" : "VIP Area"}
               </Text>
 
               <Text style={styles.subtitle}>
-                Desbloquea ventajas exclusivas durante 15 minutos
+                {isEs ? "Desbloquea ventajas exclusivas durante 15 minutos" : "Unlock exclusive perks for 15 minutes"}
               </Text>
 
             </View>
@@ -190,7 +196,7 @@ export default function VipButton({ onWatchAd }: Props) {
             <View style={styles.timerCard}>
 
               <Text style={styles.timerLabel}>
-                Tiempo VIP
+                {isEs ? "Tiempo VIP" : "VIP Time"}
               </Text>
 
               <Text style={styles.timer}>
@@ -209,8 +215,8 @@ export default function VipButton({ onWatchAd }: Props) {
                   <Ionicons name="flash" size={18} color="#22c55e"/>
                 </View>
                 <View>
-                  <Text style={styles.benefitTitle}>+25 Energía</Text>
-                  <Text style={styles.benefitDesc}>Obtén energía extra al activar VIP</Text>
+                  <Text style={styles.benefitTitle}>+25 {isEs ? "Energía" : "Energy"}</Text>
+                  <Text style={styles.benefitDesc}>{isEs ? "Obtén energía extra al activar VIP" : "Get extra energy by activating VIP"}</Text>
                 </View>
               </View>
 
@@ -219,8 +225,8 @@ export default function VipButton({ onWatchAd }: Props) {
                   <MaterialCommunityIcons name="crown" size={18} color="#FFD700"/>
                 </View>
                 <View>
-                  <Text style={styles.benefitTitle}>Temáticas exclusivas</Text>
-                  <Text style={styles.benefitDesc}>Acceso a retos VIP</Text>
+                  <Text style={styles.benefitTitle}>{isEs ? "Temáticas exclusivas" : "Exclusive topics"}</Text>
+                  <Text style={styles.benefitDesc}>{isEs ? "Acceso a retos VIP" : "Access to VIP challenges"}</Text>
                 </View>
               </View>
 
@@ -229,8 +235,8 @@ export default function VipButton({ onWatchAd }: Props) {
                   <Ionicons name="ban" size={18} color="#60a5fa"/>
                 </View>
                 <View>
-                  <Text style={styles.benefitTitle}>Sin anuncios</Text>
-                  <Text style={styles.benefitDesc}>Juega sin interrupciones</Text>
+                  <Text style={styles.benefitTitle}>{isEs ? "Sin anuncios" : "No ads"}</Text>
+                  <Text style={styles.benefitDesc}>{isEs ? "Juega sin interrupciones" : "Play without interruptions"}</Text>
                 </View>
               </View>
 
@@ -244,7 +250,7 @@ export default function VipButton({ onWatchAd }: Props) {
                 <View style={styles.progressHeader}>
 
                   <Text style={styles.progressText}>
-                    Anuncios vistos
+                    {isEs ? "Anuncios vistos" : "Ads viewed"}
                   </Text>
 
                   <Text style={styles.progressCount}>
@@ -279,7 +285,7 @@ export default function VipButton({ onWatchAd }: Props) {
                 <Ionicons name="play-circle" size={20} color="white"/>
 
                 <Text style={styles.watchText}>
-                  Ver anuncio
+                  {isEs ? "Ver anuncio" : "View ad"}
                 </Text>
 
               </TouchableOpacity>

@@ -28,6 +28,12 @@ export default function SettingsButton() {
   const soundEnabled = useSelector((state: IRootState) => state.sound.enabled);
   const musicEnabled = useSelector((state: IRootState) => state.music.enabled);
 
+  const {language} = useSelector(
+    (state: IRootState) => state.language
+  );
+
+  const isEs = language === "es";
+
   const openModal = () => {
     setVisible(true);
 
@@ -93,7 +99,7 @@ export default function SettingsButton() {
               >
                 {/* HEADER */}
                 <View style={styles.header}>
-                  <Text style={styles.title}>Ajustes</Text>
+                  <Text style={styles.title}>{isEs ? "Ajustes" : "Settings"}</Text>
 
                   <TouchableOpacity onPress={closeModal}>
                     <Ionicons name="close" size={26} color="#cbd5f5" />
@@ -108,7 +114,7 @@ export default function SettingsButton() {
                       size={22}
                       color="#60a5fa"
                     />
-                    <Text style={styles.optionText}>Sonidos</Text>
+                    <Text style={styles.optionText}>{isEs ? "Sonidos" : "Sounds"}</Text>
                   </View>
 
                   <Switch
@@ -129,7 +135,7 @@ export default function SettingsButton() {
                       size={22}
                       color="#34d399"
                     />
-                    <Text style={styles.optionText}>Música</Text>
+                    <Text style={styles.optionText}>{isEs ? "Música" : "Music"}</Text>
                   </View>
 
                   <Switch

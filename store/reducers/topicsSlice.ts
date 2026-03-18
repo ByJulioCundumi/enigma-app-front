@@ -1,5 +1,7 @@
-import { topics } from "@/assets/data/topics/topics";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { getTopics } from "@/assets/data/topics/topics";
+
+const initialTopics = getTopics("es"); // idioma inicial
 
 export interface ITopicProgress {
   currentLevel: number;
@@ -7,13 +9,13 @@ export interface ITopicProgress {
 }
 
 export interface ITopicsState {
-  selectedTopic: keyof typeof topics;
+  selectedTopic: keyof typeof initialTopics;
   progress: Record<string, ITopicProgress>;
 }
 
 const initialProgress: Record<string, ITopicProgress> = {};
 
-Object.keys(topics).forEach((key) => {
+Object.keys(initialTopics).forEach((key) => {
   initialProgress[key] = {
     currentLevel: 0,
     completed: false,
@@ -30,8 +32,10 @@ const topicsSlice = createSlice({
   initialState,
 
   reducers: {
-
-    selectTopic: (state, action: PayloadAction<keyof typeof topics>) => {
+    selectTopic: (
+      state,
+      action: PayloadAction<keyof typeof initialTopics>
+    ) => {
       state.selectedTopic = action.payload;
     },
 
@@ -40,44 +44,34 @@ const topicsSlice = createSlice({
     },
 
     nextLevel: (state) => {
-
       const topicId = state.selectedTopic;
-      const topic = topics[topicId];
-
-      if (!topic) return;
 
       const progress = state.progress[topicId];
-      const totalLevels = topic.levels.length;
 
-      if (progress.currentLevel + 1 >= totalLevels) {
-        progress.completed = true;
-      } else {
-        progress.currentLevel += 1;
-      }
+      if (!progress) return;
 
+      // 🔥 OJO: ya no usamos topics aquí
+      progress.currentLevel += 1;
     },
 
     setLevel: (
       state,
       action: PayloadAction<{
-        topicId: keyof typeof topics;
+        topicId: keyof typeof initialTopics;
         level: number;
       }>
     ) => {
-
       const { topicId, level } = action.payload;
 
       if (!state.progress[topicId]) return;
 
       state.progress[topicId].currentLevel = level;
-
     },
 
     resetTopic: (
       state,
-      action: PayloadAction<keyof typeof topics>
+      action: PayloadAction<keyof typeof initialTopics>
     ) => {
-
       const topicId = action.payload;
 
       if (!state.progress[topicId]) return;
@@ -86,11 +80,8 @@ const topicsSlice = createSlice({
         currentLevel: 0,
         completed: false,
       };
-
     },
-
   },
-
 });
 
 export const {

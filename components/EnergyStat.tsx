@@ -28,6 +28,12 @@ export default function EnergyStat() {
     (state: IRootState) => state.energy.energy
   );
 
+  const {language} = useSelector(
+    (state: IRootState) => state.language
+  );
+
+  const isEs = language === "es";
+
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -100,11 +106,11 @@ export default function EnergyStat() {
               </View>
 
               <Text style={styles.title}>
-                Obtener Energía
+                {isEs ? "Obtener Energía" : "Get Energy"}
               </Text>
 
               <Text style={styles.subtitle}>
-                Mira un anuncio corto para continuar jugando
+                {isEs ? "Mira un anuncio corto para continuar jugando" : "Watch a short ad to keep playing"}
               </Text>
 
             </View>
@@ -115,7 +121,7 @@ export default function EnergyStat() {
             <View style={styles.rewardCard}>
 
               <Text style={styles.rewardLabel}>
-                Recompensa
+                {isEs ? "Recompensa" : "Reward"}
               </Text>
 
               <View style={styles.rewardRow}>
@@ -127,7 +133,7 @@ export default function EnergyStat() {
                 />
 
                 <Text style={styles.rewardText}>
-                  +{ENERGY_REWARD} Energía
+                  +{ENERGY_REWARD} {isEs ? "Energía" : "Energy"}
                 </Text>
 
               </View>
@@ -150,7 +156,7 @@ export default function EnergyStat() {
               />
 
               <Text style={styles.watchText}>
-                {loading ? "Cargando..." : "Ver anuncio"}
+                {loading ? isEs ? "Cargando..." : "Loading..." : isEs ? "Ver anuncio" : "Watch ad"}
               </Text>
 
             </TouchableOpacity>
@@ -164,7 +170,7 @@ export default function EnergyStat() {
             >
 
               <Text style={styles.cancelText}>
-                Ahora no
+                {isEs ? "Ahora no" : "Not now"}
               </Text>
 
             </TouchableOpacity>

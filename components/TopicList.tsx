@@ -22,12 +22,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 
-import { topics } from "@/assets/data/topics/topics";
 import { IRootState } from "@/store/rootState";
 import { selectTopic } from "@/store/reducers/topicsSlice";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { toggleFavoriteTopic } from "@/store/reducers/favoritesSlice";
 import { checkVip } from "@/utils/checkVip";
+import { getTopics } from "@/assets/data/topics/topics";
 
 interface TopicItem {
   id: string;
@@ -57,7 +57,15 @@ export default function TopicList() {
     (state: IRootState) => state.favorites.topics
   );
 
+  const {language} = useSelector(
+    (state: IRootState) => state.language
+  );
+
+  const isEs = language === "es";
+
   const warningOpacity = useRef(new Animated.Value(0)).current;
+
+  const topics = getTopics(language); 
 
   const showVipWarning = () => {
     Animated.sequence([
@@ -168,7 +176,7 @@ export default function TopicList() {
               style={styles.playButton}
               onPress={() => playTopic(item.id)}
             >
-              <Text style={styles.playText}>Jugar</Text>
+              <Text style={styles.playText}>{isEs ? "Jugar" : "Play"}</Text>
               <View style={styles.energyCost}>
               <FontAwesome6 name="bolt-lightning" size={8} color="#fff" />
               <Text style={styles.energyCostText}>-{PLAY_COST}</Text>
@@ -200,7 +208,7 @@ export default function TopicList() {
           onPress={() => setVisible(true)}
         >
           <Octicons name="multi-select" size={12} color="#fff" />
-          <Text style={styles.openButtonText}>Tematicas VIP</Text>
+          <Text style={styles.openButtonText}>{isEs ? "Temáticas" : "Topics"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -219,7 +227,7 @@ export default function TopicList() {
                   size={18}
                   color="#FACC15"
                 />
-                <Text style={styles.title}>Contenido Exclusivo</Text>
+                <Text style={styles.title}>{isEs ? "Contenido Exclusivo" : "Exclusive Content"}</Text>
               </View>
 
               <TouchableOpacity onPress={() => setVisible(false)}>
@@ -231,7 +239,7 @@ export default function TopicList() {
               <Ionicons name="search" size={18} color="#94A3B8" />
 
               <TextInput
-                placeholder="Buscar temática"
+                placeholder={isEs ? "Buscar temática" : "Search by topic"}
                 placeholderTextColor="#94A3B8"
                 style={styles.searchInput}
                 value={search}
@@ -264,7 +272,7 @@ export default function TopicList() {
       >
         <FontAwesome6 name="bolt-lightning" size={14} color="#fff" />
         <Text style={styles.energyWarningText}>
-          Disponible solo para jugadores VIP
+          {isEs ? "Disponible solo para jugadores VIP" : "Available only to VIP players"}
         </Text>
       </Animated.View>
           </View>
@@ -450,7 +458,10 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 10,
     flexDirection: "row",
-    marginRight: 20
+    marginRight: 20,
+    width: 72,
+    gap: 4,
+    justifyContent: "center"
   },
 
   playText: {

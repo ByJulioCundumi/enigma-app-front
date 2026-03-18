@@ -26,6 +26,8 @@ export default function LanguageSelector() {
   const language = useSelector(
     (state: IRootState) => state.language.language
   );
+  
+  const isEs = language === "es";
 
   const openModal = () => {
     setVisible(true);
@@ -98,7 +100,7 @@ export default function LanguageSelector() {
               >
                 {/* HEADER */}
                 <View style={styles.header}>
-                  <Text style={styles.title}>Idioma</Text>
+                  <Text style={styles.title}>{isEs ? "Idioma" : "Language"}</Text>
 
                   <TouchableOpacity onPress={closeModal}>
                     <Ionicons name="close" size={26} color="#cbd5f5" />

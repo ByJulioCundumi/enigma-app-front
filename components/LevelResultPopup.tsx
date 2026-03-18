@@ -48,6 +48,12 @@ export default function LevelResultPopup({
 
   const [mounted, setMounted] = useState(false);
 
+  const {language} = useSelector(
+      (state: IRootState) => state.language
+    );
+  
+  const isEs = language === "es";
+
   useEffect(() => {
     if (visible) {
       setMounted(true);
@@ -164,15 +170,15 @@ export default function LevelResultPopup({
         {/* TITULO */}
 
         <Text style={styles.title}>
-          {success ? "Nivel completado" : "Nivel fallado"}
+          {success ? isEs ? "Nivel completado" : "Level completed" : isEs ? "Nivel fallado" : "Level Failed"}
         </Text>
 
         {/* MENSAJE */}
 
         <Text style={styles.subtitle}>
           {success
-            ? "Excelente trabajo. Continúa al siguiente desafío."
-            : "Puedes volver a intentarlo usando energía."}
+            ? isEs ? "Excelente trabajo. Continúa al siguiente desafío." : "Great job. Move on to the next challenge."
+            : isEs ? "Puedes volver a intentarlo usando energía." : "You can try again by using energy."}
         </Text>
 
         {/* BOTONES */}
@@ -184,7 +190,7 @@ export default function LevelResultPopup({
             onPress={onHome}
           >
             <Ionicons name="home" size={18} color="#fff" />
-            <Text style={styles.buttonText}>Inicio</Text>
+            <Text style={styles.buttonText}>{isEs ? "Inicio" : "Home"}</Text>
           </TouchableOpacity>
 
           {success ? (
@@ -194,7 +200,7 @@ export default function LevelResultPopup({
               onPress={onContinue}
             >
               <Ionicons name="play" size={18} color="#fff" />
-              <Text style={styles.buttonText}>Continuar</Text>
+              <Text style={styles.buttonText}>{isEs ? "Continuar" : "Continue"}</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -204,7 +210,7 @@ export default function LevelResultPopup({
             >
               <Ionicons name="refresh" size={18} color="#fff" />
 
-              <Text style={styles.buttonText}>Reintentar</Text>
+              <Text style={styles.buttonText}>{isEs ? "Reintentar" : "Try again"}</Text>
 
               <View style={styles.energyBadge}>
                 <FontAwesome6 name="bolt-lightning" size={10} color="#fff" />
@@ -239,7 +245,7 @@ export default function LevelResultPopup({
           />
 
           <Text style={styles.energyWarningText}>
-            No tienes suficiente energía
+            {isEs ? "No tienes suficiente energía" : "You don't have enough energy"}
           </Text>
         </Animated.View>
       </Animated.View>
