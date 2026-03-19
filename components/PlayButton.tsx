@@ -16,6 +16,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { consumeEnergy } from "@/store/reducers/energySlice";
+import { playSound } from "@/hooks/playSound";
 
 export default function PlayButton() {
   const router = useRouter();
@@ -104,10 +105,12 @@ export default function PlayButton() {
 
   const handlePlay = () => {
     if ( energy < requiredEnergy) {
+      playSound(require("@/assets/sounds/soundError2.mp3"));
       showEnergyMessage();
       return;
     }
 
+      playSound(require("@/assets/sounds/soundWind.mp3"));
       dispatch(consumeEnergy(requiredEnergy));
 
     router.push("/GameRoom");

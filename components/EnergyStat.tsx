@@ -12,6 +12,7 @@ import { Entypo, FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/ve
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { addEnergy } from "@/store/reducers/energySlice";
+import { playSound } from "@/hooks/playSound";
 
 const ENERGY_REWARD = 3;
 
@@ -50,7 +51,7 @@ export default function EnergyStat() {
 
     setLoading(false);
     setVisible(false);
-
+    playSound(require("@/assets/sounds/soundWind.mp3"));
   };
 
   return (
@@ -62,6 +63,7 @@ export default function EnergyStat() {
         style={styles.statBadge}
         onPress={() => {
           setVisible(true);
+          playSound(require("@/assets/sounds/soundWind.mp3"));
         }}
       >
         
@@ -88,7 +90,10 @@ export default function EnergyStat() {
 
         <Pressable
           style={styles.overlay}
-          onPress={() => setVisible(false)}
+          onPress={() => {
+            setVisible(false)
+            playSound(require("@/assets/sounds/soundWind.mp3"));
+          }}
         >
 
           <Pressable style={styles.popup}>
@@ -166,7 +171,10 @@ export default function EnergyStat() {
 
             <TouchableOpacity
               style={styles.cancelButton}
-              onPress={() => setVisible(false)}
+              onPress={() => {
+                setVisible(false)
+                playSound(require("@/assets/sounds/soundWind.mp3"));
+              }}
             >
 
               <Text style={styles.cancelText}>

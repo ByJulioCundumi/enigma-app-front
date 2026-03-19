@@ -5,9 +5,9 @@ import * as NavigationBar from "expo-navigation-bar";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform, View, StyleSheet } from "react-native";
+import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 
 export default function RootLayout() {
-
   useEffect(() => {
     if (Platform.OS !== "android") return;
 

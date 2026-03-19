@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { setLanguage } from "@/store/reducers/languageSlice";
+import { playSound } from "@/hooks/playSound";
 
 export default function LanguageSelector() {
   const [visible, setVisible] = useState(false);
@@ -31,6 +32,7 @@ export default function LanguageSelector() {
 
   const openModal = () => {
     setVisible(true);
+    playSound(require("@/assets/sounds/soundWind.mp3"));
 
     Animated.parallel([
       Animated.spring(scaleAnim, {
@@ -60,7 +62,10 @@ export default function LanguageSelector() {
         duration: 150,
         useNativeDriver: true,
       }),
-    ]).start(() => setVisible(false));
+    ]).start(() => {
+      setVisible(false)
+      playSound(require("@/assets/sounds/soundWind.mp3"));
+    });
   };
 
   const selectLanguage = (lang: "es" | "en") => {

@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { toggleSound } from "@/store/reducers/soundSlice";
 import { toggleMusic } from "@/store/reducers/musicSlice";
+import { playSound } from "@/hooks/playSound";
 
 export default function SettingsButton() {
   const [visible, setVisible] = useState(false);
@@ -36,6 +37,7 @@ export default function SettingsButton() {
 
   const openModal = () => {
     setVisible(true);
+    playSound(require("@/assets/sounds/soundWind.mp3"));
 
     Animated.parallel([
       Animated.spring(scaleAnim, {
@@ -65,7 +67,10 @@ export default function SettingsButton() {
         duration: 150,
         useNativeDriver: true,
       }),
-    ]).start(() => setVisible(false));
+    ]).start(() => {
+      setVisible(false)
+      playSound(require("@/assets/sounds/soundWind.mp3"));
+    });
   };
 
   return (

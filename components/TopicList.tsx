@@ -28,6 +28,7 @@ import { consumeEnergy } from "@/store/reducers/energySlice";
 import { toggleFavoriteTopic } from "@/store/reducers/favoritesSlice";
 import { checkVip } from "@/utils/checkVip";
 import { getTopics } from "@/assets/data/topics/topics";
+import { playSound } from "@/hooks/playSound";
 
 interface TopicItem {
   id: string;
@@ -106,6 +107,7 @@ export default function TopicList() {
 
   const playTopic = (topicId: string) => {
     if (!isVip) {
+      playSound(require("@/assets/sounds/soundError2.mp3"));
       showVipWarning();
       return;
     }
@@ -114,6 +116,7 @@ export default function TopicList() {
     dispatch(selectTopic(topicId as any));
 
     setVisible(false);
+    playSound(require("@/assets/sounds/soundWind.mp3"));
     router.push("/GameRoom");
   };
 
@@ -205,7 +208,10 @@ export default function TopicList() {
       <View style={styles.openButtonWrapper}>
         <TouchableOpacity
           style={styles.openButton}
-          onPress={() => setVisible(true)}
+          onPress={() => {
+            setVisible(true)
+            playSound(require("@/assets/sounds/soundWind.mp3"));
+          }}
         >
           <Octicons name="multi-select" size={12} color="#fff" />
           <Text style={styles.openButtonText}>{isEs ? "Temáticas" : "Topics"}</Text>
@@ -215,7 +221,10 @@ export default function TopicList() {
       {/* MODAL */}
       <Modal visible={visible} transparent animationType="fade">
         <View style={styles.overlay}>
-          <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+          <TouchableWithoutFeedback onPress={() => {
+            setVisible(false)
+            playSound(require("@/assets/sounds/soundWind.mp3"));
+          }}>
             <View style={StyleSheet.absoluteFillObject} />
           </TouchableWithoutFeedback>
 
@@ -230,7 +239,10 @@ export default function TopicList() {
                 <Text style={styles.title}>{isEs ? "Contenido Exclusivo" : "Exclusive Content"}</Text>
               </View>
 
-              <TouchableOpacity onPress={() => setVisible(false)}>
+              <TouchableOpacity onPress={() => {
+                setVisible(false)
+                playSound(require("@/assets/sounds/soundWind.mp3"));
+              }}>
                 <Ionicons name="close" size={22} color="#E2E8F0" />
               </TouchableOpacity>
             </View>

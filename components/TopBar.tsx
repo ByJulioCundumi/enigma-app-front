@@ -15,6 +15,8 @@ import { useRouter } from "expo-router";
 import SettingsButton from "./SettingsButton";
 import LanguageSelector from "./LanguageSelector";
 import EnergyStat from "./EnergyStat";
+import { stopTimeSound } from "@/hooks/playTimeSound";
+import { playSound } from "@/hooks/playSound";
 
 const { width } = Dimensions.get("window");
 
@@ -27,6 +29,7 @@ export default function TopBar() {
   );
 
   const goToIndex = () => {
+    playSound(require("@/assets/sounds/soundWind.mp3"));
     router.push("/");
     dispatch(setCurrentPage("index"));
   };

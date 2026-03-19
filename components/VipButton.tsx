@@ -13,6 +13,7 @@ import { IRootState } from "@/store/rootState";
 
 import { activateVip, incrementAd, tickVip } from "@/store/reducers/vipSlice";
 import { addEnergy } from "@/store/reducers/energySlice";
+import { playSound } from "@/hooks/playSound";
 
 interface Props {
   onWatchAd?: () => Promise<boolean>;
@@ -108,7 +109,7 @@ export default function VipButton({ onWatchAd }: Props) {
       dispatch(addEnergy(ENERGY_REWARD));
 
       setVisible(false);
-
+      playSound(require("@/assets/sounds/soundWind.mp3"));
     }
 
   };
@@ -122,7 +123,10 @@ export default function VipButton({ onWatchAd }: Props) {
       <TouchableOpacity
         style={styles.vipButton}
         activeOpacity={0.9}
-        onPress={() => setVisible(true)}
+        onPress={() => {
+          setVisible(true)
+          playSound(require("@/assets/sounds/soundWind.mp3"));
+        }}
       >
 
         <View style={styles.glow}/>
@@ -165,7 +169,10 @@ export default function VipButton({ onWatchAd }: Props) {
 
         <Pressable
           style={styles.overlay}
-          onPress={() => setVisible(false)}
+          onPress={() => {
+            setVisible(false)
+            playSound(require("@/assets/sounds/soundWind.mp3"));
+          }}
         >
 
           <Pressable style={styles.popup}>

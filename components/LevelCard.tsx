@@ -20,6 +20,7 @@ import {
   selectCurrentLevel,
   selectCurrentTopic,
 } from "@/store/selectors/topicSelectors";
+import { playSound } from "@/hooks/playSound";
 
 const { width, height } = Dimensions.get("window");
 
@@ -66,6 +67,7 @@ export default function LevelCard({ isIndex = true }: Props) {
   const [visible, setVisible] = useState(false);
 
   const toggleHint = () => {
+    playSound(require("@/assets/sounds/soundWind.mp3"));
     if (showHint) {
       Animated.timing(slideAnim, {
         toValue: -250,
@@ -90,7 +92,10 @@ export default function LevelCard({ isIndex = true }: Props) {
         {image && (
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => setVisible(true)}
+            onPress={() => {
+              setVisible(true)
+              playSound(require("@/assets/sounds/soundWind.mp3"));
+            }}
             style={styles.imageContainer}
           >
             <Image source={image} style={styles.image} />
@@ -138,21 +143,33 @@ export default function LevelCard({ isIndex = true }: Props) {
         visible={visible}
         transparent
         animationType="fade"
-        onRequestClose={() => setVisible(false)}
+        onRequestClose={() => {
+          setVisible(false)
+          playSound(require("@/assets/sounds/soundWind.mp3"));
+        }}
       >
-        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => {
+          setVisible(false)
+          playSound(require("@/assets/sounds/soundWind.mp3"));
+        }}>
           <View style={styles.modalBackground}>
 
             {/* Botón cerrar */}
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => setVisible(false)}
+              onPress={() => {
+                setVisible(false)
+                playSound(require("@/assets/sounds/soundWind.mp3"));
+              }}
             >
               <Ionicons name="close" size={30} color="#fff" />
             </TouchableOpacity>
 
             {/* Imagen */}
-            <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+            <TouchableWithoutFeedback onPress={() => {
+              setVisible(false)
+              playSound(require("@/assets/sounds/soundWind.mp3"));
+            }}>
               <Image source={image} style={styles.fullImage} />
             </TouchableWithoutFeedback>
 

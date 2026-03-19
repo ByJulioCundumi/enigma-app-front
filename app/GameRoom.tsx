@@ -13,6 +13,9 @@ import { addEnergy, consumeEnergy } from "@/store/reducers/energySlice";
 import { addExtraTimeToTimer, resetTimer, startLevelTimer } from "@/store/reducers/timerSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import { IRootState } from "@/store/rootState";
+import { playSound } from "@/hooks/playSound";
+import { setCurrentPage } from "@/store/reducers/currentPageSlice";
+import { playTimeSound, stopTimeSound } from "@/hooks/playTimeSound";
 
 const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
 
@@ -88,10 +91,12 @@ const lettersPerRow = Math.floor((screenWidth - 40) / KEY_SIZE);
 const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
 
   useEffect(() => {
-    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    dispatch(setCurrentPage("gameMode"))
+    
     return () => {
-      // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
       dispatch(resetTimer());
+      dispatch(resetSelectedTopic());
+      stopTimeSound();
     };
   }, []);
 
@@ -105,37 +110,38 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
       const remaining = Math.ceil((endTimestamp - now) / 1000);
 
       if (elapsed > MAX_TIME) {
+        playSound(require("@/assets/sounds/soundFail4.mp3"));
         clearInterval(interval);
         setTimerActive(false);
         setLevelSuccess(false);
         setShowResult(true);
+        stopTimeSound();
         return;
       }
 
       if (remaining <= 0) {
+        playSound(require("@/assets/sounds/soundFail4.mp3"));
         clearInterval(interval);
         setTimerActive(false);
         setLevelSuccess(false);
         setShowResult(true);
         setTimeLeft(0);
+        stopTimeSound();
         return;
       }
 
       setTimeLeft(remaining);
     }, 250);
 
-    return () => clearInterval(interval);
-  }, [timerActive, startTimestamp, endTimestamp]);
-
-  useEffect(() => {
     return () => {
-      dispatch(resetSelectedTopic());
+      clearInterval(interval)
     };
-  }, []);
+  }, [timerActive, startTimestamp, endTimestamp]);
 
   useEffect(() => {
     if (!word) return;
     dispatch(startLevelTimer(TOTAL_TIME));
+    playTimeSound(require("@/assets/sounds/soundTime.mp3"));
     setLetters(word.split("").map((l) => (l === " " ? " " : "")));
     setSelectedIndex(0);
     setKeyboardLetters(generateKeyboardLetters(word));
@@ -166,8 +172,12 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
     if (formedWord === word) {
       setTimerActive(false);
       setLevelSuccess(true);
+      stopTimeSound();
       setShowResult(true);
-        dispatch(addEnergy(2));
+      dispatch(addEnergy(2));
+      playSound(require("@/assets/sounds/soundLevelUp.mp3"));
+    } else {
+      playSound(require("@/assets/sounds/soundError2.mp3"));
     }
   };
 
@@ -176,16 +186,20 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
     dispatch(startLevelTimer(TOTAL_TIME));
     setShowResult(false);
     setTimerActive(true);
+    playSound(require("@/assets/sounds/soundWind.mp3"));
   };
 
   const handleRetry = () => {
-    clearLetters();
+    clearLetters(false);
     dispatch(startLevelTimer(TOTAL_TIME));
     setShowResult(false);
     setTimerActive(true);
+    playSound(require("@/assets/sounds/soundWind.mp3"));
+    playTimeSound(require("@/assets/sounds/soundTime.mp3"));
   };
 
   const handleHome = () => {
+    playSound(require("@/assets/sounds/soundWind.mp3"));
     dispatch(resetTimer());
     router.replace("/");
   };
@@ -204,6 +218,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
 
     moveCursorNext(selectedIndex);
     checkWordCompletion(newLetters);
+    playSound(require("@/assets/sounds/soundClick2.mp3"));
   };
 
   const removeLetter = (index: number) => {
@@ -213,7 +228,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
       newLetters[index] = "";
       setLetters(newLetters);
       setSelectedIndex(index);
-
+      playSound(require("@/assets/sounds/soundClick3.mp3"));
       const keyboardIndex = keyboardLetters.findIndex(
         (k) => k.letter === removedLetter && k.used
       );
@@ -225,10 +240,13 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
     }
   };
 
-  const clearLetters = () => {
+  const clearLetters = (sound:boolean) => {
     setLetters(word.split("").map((l) => (l === " " ? " " : "")));
     setSelectedIndex(0);
     setKeyboardLetters((prev) => prev.map((k) => ({ ...k, used: false })));
+    if(sound){
+      playSound(require("@/assets/sounds/soundClick3.mp3"));
+    }
   };
 
   const useHint = () => {
@@ -267,13 +285,16 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
 
   moveCursorNext(randomIndex);
   checkWordCompletion(newLetters);
+
+  playSound(require("@/assets/sounds/soundDistorted.mp3"));
 };
 
   const addExtraTime = () => {
     if ( energy <= 0) return;
     if (extraTimeUsed >= MAX_TIME_USES) return;
     dispatch(addExtraTimeToTimer(EXTRA_TIME));
-      dispatch(consumeEnergy(1));
+    dispatch(consumeEnergy(1));
+    playSound(require("@/assets/sounds/soundDistorted.mp3"));
   };
 
   const remainingLetters = letters.filter(
@@ -370,7 +391,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
 
           {/* 4. Botones de acción */}
           <View style={styles.footerActions}>
-            <TouchableOpacity style={styles.clearButton} onPress={clearLetters}>
+            <TouchableOpacity style={styles.clearButton} onPress={()=> clearLetters(true)}>
               <MaterialCommunityIcons name="delete-sweep" size={24} color="#fff" />
             </TouchableOpacity>
 

@@ -14,11 +14,14 @@ import { useEffect } from "react";
 import TopBar from "@/components/TopBar";
 import LevelCard from "@/components/LevelCard";
 import { useDispatch } from "react-redux";
+import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
+import { setCurrentPage } from "@/store/reducers/currentPageSlice";
+import { stopTimeSound } from "@/hooks/playTimeSound";
 
 export default function Index() {
   const float = useSharedValue(0);
   const dispatch = useDispatch()
-
+  
   useEffect(() => {
     float.value = withRepeat(
       withTiming(1, {
@@ -29,6 +32,13 @@ export default function Index() {
       true
     );
   }, []);
+  
+  useEffect(() => {
+    dispatch(setCurrentPage("index"))
+    stopTimeSound();
+  }, []);
+  
+  useBackgroundMusic(require("@/assets/sounds/music2.mp3"));
 
   const logoStyle = useAnimatedStyle(() => {
     const translateY = interpolate(float.value, [0, 1], [0, -12]);
