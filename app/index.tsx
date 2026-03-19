@@ -1,5 +1,4 @@
 import PlayButton from "@/components/PlayButton";
-import TopicList from "@/components/TopicList";
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, View } from "react-native";
 import Animated, {
@@ -13,14 +12,17 @@ import Animated, {
 import { useEffect } from "react";
 import TopBar from "@/components/TopBar";
 import LevelCard from "@/components/LevelCard";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { stopTimeSound } from "@/hooks/playTimeSound";
+import CtaButton from "@/components/CtaButton";
+import { IRootState } from "@/store/rootState";
 
 export default function Index() {
   const float = useSharedValue(0);
   const dispatch = useDispatch()
+  const {currentPage} = useSelector((state:IRootState)=> state.currentPage)
   
   useEffect(() => {
     float.value = withRepeat(
@@ -35,8 +37,13 @@ export default function Index() {
   
   useEffect(() => {
     dispatch(setCurrentPage("index"))
-    stopTimeSound();
   }, []);
+
+  useEffect(() => {
+      if(currentPage === "index"){
+        stopTimeSound();
+      }
+    }, [currentPage]);
   
   useBackgroundMusic(require("@/assets/sounds/music2.mp3"));
 
@@ -74,7 +81,7 @@ export default function Index() {
         <LevelCard isIndex={true} />
       </View>
 
-      <TopicList />
+      <CtaButton />
       <PlayButton />
     </LinearGradient>
   );
@@ -84,12 +91,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 120,
+    paddingTop: 140,
   },
 
   gameSection: {
     gap: 15,
-    marginTop: -20,
+    marginTop: -25,
   },
 
   logo: {

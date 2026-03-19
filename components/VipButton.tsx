@@ -23,7 +23,7 @@ export default function VipButton({ onWatchAd }: Props) {
 
   const REQUIRED_ADS = 3;
   const VIP_DURATION = 15 * 60;
-  const ENERGY_REWARD = 25;
+  const ENERGY_REWARD = 15;
 
   const dispatch = useDispatch();
 
@@ -57,24 +57,18 @@ export default function VipButton({ onWatchAd }: Props) {
   };
 
   useEffect(() => {
-
     const interval = setInterval(() => {
 
       dispatch(tickVip());
 
       if (vipExpireAt) {
-
         const remaining = Math.max(
           0,
           Math.floor((vipExpireAt - Date.now()) / 1000)
         );
-
         setTimeLeft(remaining);
-
       } else {
-
         setTimeLeft(VIP_DURATION);
-
       }
 
     }, 1000);
@@ -105,7 +99,6 @@ export default function VipButton({ onWatchAd }: Props) {
 
       dispatch(activateVip());
 
-      // 🎁 RECOMPENSA DE ENERGÍA
       dispatch(addEnergy(ENERGY_REWARD));
 
       setVisible(false);
@@ -119,7 +112,6 @@ export default function VipButton({ onWatchAd }: Props) {
   return (
     <>
       {/* BOTON VIP */}
-
       <TouchableOpacity
         style={styles.vipButton}
         activeOpacity={0.9}
@@ -128,45 +120,33 @@ export default function VipButton({ onWatchAd }: Props) {
           playSound(require("@/assets/sounds/soundWind.mp3"));
         }}
       >
-
         <View style={styles.glow}/>
 
         <MaterialCommunityIcons
           name="crown"
           size={20}
-          color="#ffc400"
-          style={{marginTop:-8}}
+          color="#FFD700"
         />
 
         <View style={styles.badge}>
-
           {vipActive ? (
-
             <Text style={styles.badgeText}>
               {formatTime(timeLeft)}
             </Text>
-
           ) : (
-
             <View style={{flexDirection:"row",alignItems:"center",gap:3}}>
-              <MaterialCommunityIcons name="movie-open-play" size={14} color="black"/>
+              <MaterialCommunityIcons name="movie-open-play" size={14} color="#1a1a1a"/>
               <Text style={styles.badgeText}>
                 {adsWatched}/{REQUIRED_ADS}
               </Text>
             </View>
-
           )}
-
         </View>
-
       </TouchableOpacity>
 
 
-
       {/* POPUP */}
-
       <Modal visible={visible} transparent animationType="fade">
-
         <Pressable
           style={styles.overlay}
           onPress={() => {
@@ -174,15 +154,15 @@ export default function VipButton({ onWatchAd }: Props) {
             playSound(require("@/assets/sounds/soundWind.mp3"));
           }}
         >
-
           <Pressable style={styles.popup}>
 
+            {/* HEADER */}
             <View style={styles.header}>
 
               <View style={styles.crownCircle}>
                 <MaterialCommunityIcons
                   name="crown"
-                  size={32}
+                  size={34}
                   color="#FFD700"
                 />
               </View>
@@ -192,16 +172,16 @@ export default function VipButton({ onWatchAd }: Props) {
               </Text>
 
               <Text style={styles.subtitle}>
-                {isEs ? "Desbloquea ventajas exclusivas durante 15 minutos" : "Unlock exclusive perks for 15 minutes"}
+                {isEs
+                  ? "Activa beneficios premium por tiempo limitado"
+                  : "Activate premium perks for a limited time"}
               </Text>
 
             </View>
 
 
             {/* TIMER */}
-
             <View style={styles.timerCard}>
-
               <Text style={styles.timerLabel}>
                 {isEs ? "Tiempo VIP" : "VIP Time"}
               </Text>
@@ -209,41 +189,60 @@ export default function VipButton({ onWatchAd }: Props) {
               <Text style={styles.timer}>
                 {formatTime(vipActive ? timeLeft : VIP_DURATION)}
               </Text>
-
             </View>
 
 
             {/* BENEFICIOS */}
-
             <View style={styles.benefitsContainer}>
 
+              {/* ENERGIA EXTRA */}
               <View style={styles.benefitCard}>
                 <View style={[styles.iconCircle,{backgroundColor:"#1f3a2a"}]}>
                   <Ionicons name="flash" size={18} color="#22c55e"/>
                 </View>
                 <View>
-                  <Text style={styles.benefitTitle}>+25 {isEs ? "Energía" : "Energy"}</Text>
-                  <Text style={styles.benefitDesc}>{isEs ? "Obtén energía extra al activar VIP" : "Get extra energy by activating VIP"}</Text>
+                  <Text style={styles.benefitTitle}>
+                    +{ENERGY_REWARD} {isEs ? "Energía" : "Energy"}
+                  </Text>
+                  <Text style={styles.benefitDesc}>
+                    {isEs
+                      ? "Recompensa instantánea al activar VIP"
+                      : "Instant reward when activating VIP"}
+                  </Text>
                 </View>
               </View>
 
-              <View style={styles.benefitCard}>
-                <View style={[styles.iconCircle,{backgroundColor:"#3a2e12"}]}>
-                  <MaterialCommunityIcons name="crown" size={18} color="#FFD700"/>
+              {/* ENERGIA x2 */}
+              <View style={[styles.benefitCard, styles.goldHighlight]}>
+                <View style={[styles.iconCircle,{backgroundColor:"#3b2f0f"}]}>
+                  <Ionicons name="flash-outline" size={18} color="#FFD700"/>
                 </View>
                 <View>
-                  <Text style={styles.benefitTitle}>{isEs ? "Temáticas exclusivas" : "Exclusive topics"}</Text>
-                  <Text style={styles.benefitDesc}>{isEs ? "Acceso a retos VIP" : "Access to VIP challenges"}</Text>
+                  <Text style={[styles.benefitTitle,{color:"#FFD700"}]}>
+                    {isEs ? "Energía x2" : "Energy x2"}
+                  </Text>
+                  <Text style={styles.benefitDesc}>
+                    {isEs
+                      ? "Gana el doble de energía en cada acción"
+                      : "Earn double energy from every action"}
+                  </Text>
                 </View>
               </View>
 
+              {/* SIN ANUNCIOS */}
               <View style={styles.benefitCard}>
                 <View style={[styles.iconCircle,{backgroundColor:"#2b2f45"}]}>
                   <Ionicons name="ban" size={18} color="#60a5fa"/>
                 </View>
                 <View>
-                  <Text style={styles.benefitTitle}>{isEs ? "Sin anuncios" : "No ads"}</Text>
-                  <Text style={styles.benefitDesc}>{isEs ? "Juega sin interrupciones" : "Play without interruptions"}</Text>
+                  <Text style={styles.benefitTitle}>
+                    {isEs ? "Sin anuncios" : "No ads"}
+                  </Text>
+                  <Text style={styles.benefitDesc}>
+                    {isEs
+                      ? "Juega sin interrupciones"
+                      : "Play without interruptions"}
+                  </Text>
                 </View>
               </View>
 
@@ -251,11 +250,9 @@ export default function VipButton({ onWatchAd }: Props) {
 
 
             {!vipActive && (
-
               <View style={styles.progressCard}>
 
                 <View style={styles.progressHeader}>
-
                   <Text style={styles.progressText}>
                     {isEs ? "Anuncios vistos" : "Ads viewed"}
                   </Text>
@@ -263,154 +260,149 @@ export default function VipButton({ onWatchAd }: Props) {
                   <Text style={styles.progressCount}>
                     {adsWatched}/{REQUIRED_ADS}
                   </Text>
-
                 </View>
 
                 <View style={styles.progressBar}>
-
                   <View
                     style={[
                       styles.progressFill,
                       { width: `${progress}%` }
                     ]}
                   />
-
                 </View>
 
               </View>
-
             )}
 
 
             {!vipActive && (
-
               <TouchableOpacity
                 style={styles.watchButton}
                 onPress={watchAd}
               >
-
-                <Ionicons name="play-circle" size={20} color="white"/>
+                <Ionicons name="play-circle" size={20} color="#1a1a1a"/>
 
                 <Text style={styles.watchText}>
                   {isEs ? "Ver anuncio" : "View ad"}
                 </Text>
-
               </TouchableOpacity>
-
             )}
 
           </Pressable>
-
         </Pressable>
-
       </Modal>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+
   vipButton:{
-    width:40,
-    height:40,
-    borderRadius:40,
-    backgroundColor:"#040416",
+    width:42,
+    height:42,
+    borderRadius:50,
+    backgroundColor:"#0b0b1a",
     justifyContent:"center",
     alignItems:"center",
     borderWidth:2,
-    borderColor:"#ffae00",
-    elevation:8,
-    position:"absolute",
-    top:68,
-    left:25
+    borderColor:"#FFD700",
+    elevation:10,
   },
 
   glow:{
     position:"absolute",
-    width:52,
-    height:52,
-    borderRadius:46,
-    backgroundColor:"rgba(255,215,0,0.15)"
+    width:60,
+    height:60,
+    borderRadius:60,
+    backgroundColor:"rgba(255,215,0,0.18)"
   },
 
   badge:{
     position:"absolute",
-    bottom:-6,
-    backgroundColor:"#ffae00",
+    bottom:-7,
+    backgroundColor:"#FFD700",
     paddingHorizontal:8,
     paddingVertical:2,
     borderRadius:10,
-    width: 50,
-    alignItems: "center"
+    minWidth:50,
+    alignItems:"center"
   },
-  
+
   badgeText:{
-    textAlign: "center",
     fontSize:10,
     fontWeight:"900",
-    color:"#1e293b"
+    color:"#1a1a1a"
   },
 
   overlay:{
     flex:1,
-    backgroundColor:"rgba(0,0,0,0.70)",
+    backgroundColor:"rgba(0,0,0,0.85)",
     justifyContent:"center",
     padding:22
   },
 
   popup:{
-    backgroundColor:"#162033",
+    backgroundColor:"#0f172a",
     borderRadius:28,
-    padding:22,
-    borderWidth:1,
-    borderColor:"#2a3955"
+    padding:24,
+    borderWidth:1.5,
+    borderColor:"#FFD700",
+    shadowColor:"#FFD700",
+    shadowOpacity:0.3,
+    shadowRadius:20,
+    elevation:10
   },
 
   header:{
     alignItems:"center",
-    marginBottom:18
+    marginBottom:20
   },
 
   crownCircle:{
-    width:70,
-    height:70,
-    borderRadius:35,
-    backgroundColor:"#22304a",
+    width:75,
+    height:75,
+    borderRadius:40,
+    backgroundColor:"#1f2937",
     justifyContent:"center",
     alignItems:"center",
-    marginBottom:12
+    marginBottom:12,
+    borderWidth:2,
+    borderColor:"#FFD700"
   },
 
   title:{
-    color:"white",
-    fontSize:22,
+    color:"#FFD700",
+    fontSize:24,
     fontWeight:"900"
   },
 
   subtitle:{
-    color:"#94A3B8",
+    color:"#cbd5e1",
     fontSize:13,
     textAlign:"center",
-    marginTop:4
+    marginTop:6
   },
 
   timerCard:{
-    backgroundColor:"#1E2A44",
+    backgroundColor:"#1a2233",
     borderRadius:16,
-    paddingVertical:16,
+    paddingVertical:18,
     alignItems:"center",
-    marginBottom:16,
+    marginBottom:18,
+    borderWidth:1,
+    borderColor:"#FFD70033"
   },
 
   timerLabel:{
-    color:"#94A3B8",
-    fontSize:12,
+    color:"#9ca3af",
+    fontSize:12
   },
 
   timer:{
-    color:"#ffae00",
-    fontSize:30,
+    color:"#FFD700",
+    fontSize:32,
     fontWeight:"900",
-    marginTop:2,
+    marginTop:4
   },
 
   benefitsContainer:{
@@ -427,17 +419,23 @@ const styles = StyleSheet.create({
     borderRadius:14
   },
 
+  goldHighlight:{
+    borderWidth:1,
+    borderColor:"#FFD70055",
+    backgroundColor:"#2a2110"
+  },
+
   iconCircle:{
-    width:34,
-    height:34,
-    borderRadius:10,
+    width:36,
+    height:36,
+    borderRadius:12,
     justifyContent:"center",
     alignItems:"center"
   },
 
   benefitTitle:{
     color:"white",
-    fontWeight:"700",
+    fontWeight:"800",
     fontSize:14
   },
 
@@ -483,16 +481,20 @@ const styles = StyleSheet.create({
 
   watchButton:{
     flexDirection:"row",
-    backgroundColor:"#ffae00",
-    paddingVertical:14,
-    borderRadius:14,
+    backgroundColor:"#FFD700",
+    paddingVertical:15,
+    borderRadius:16,
     justifyContent:"center",
     alignItems:"center",
-    gap:8
+    gap:8,
+    shadowColor:"#FFD700",
+    shadowOpacity:0.4,
+    shadowRadius:10,
+    elevation:6
   },
 
   watchText:{
-    color:"white",
+    color:"#1a1a1a",
     fontWeight:"900",
     fontSize:16
   }

@@ -16,6 +16,8 @@ import { IRootState } from "@/store/rootState";
 import { playSound } from "@/hooks/playSound";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { playTimeSound, stopTimeSound } from "@/hooks/playTimeSound";
+import VipButton from "@/components/VipButton";
+import { checkVip } from "@/utils/checkVip";
 
 const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
 
@@ -77,8 +79,15 @@ export default function GameRoom() {
   >([]);
   
   const { startTimestamp, endTimestamp, extraTimeUsed } = useSelector(
-    (state: any) => state.timer
+    (state: IRootState) => state.timer
   );
+
+  const { vipExpireAt } = useSelector(
+    (state: IRootState) => state.vip
+  );
+
+  const isVip = checkVip(vipExpireAt)
+
   
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const router = useRouter();
@@ -172,9 +181,8 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
     if (formedWord === word) {
       setTimerActive(false);
       setLevelSuccess(true);
-      stopTimeSound();
       setShowResult(true);
-      dispatch(addEnergy(2));
+      isVip ? dispatch(addEnergy(2)) : dispatch(addEnergy(1));
       playSound(require("@/assets/sounds/soundLevelUp.mp3"));
     } else {
       playSound(require("@/assets/sounds/soundError2.mp3"));
@@ -205,21 +213,40 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
   };
 
   const addLetter = (letter: string, keyboardIndex: number) => {
-    if (!timerActive) return;
-    const newLetters = [...letters];
-    if (newLetters[selectedIndex] === " ") return;
+  if (!timerActive) return;
 
-    newLetters[selectedIndex] = letter;
-    setLetters(newLetters);
+  const newLetters = [...letters];
 
-    const newKeyboard = [...keyboardLetters];
-    newKeyboard[keyboardIndex].used = true;
-    setKeyboardLetters(newKeyboard);
+  if (newLetters[selectedIndex] === " ") return;
 
-    moveCursorNext(selectedIndex);
-    checkWordCompletion(newLetters);
-    playSound(require("@/assets/sounds/soundClick2.mp3"));
-  };
+  const previousLetter = newLetters[selectedIndex];
+
+  // 🔥 1. LIBERAR letra anterior si existe
+  if (previousLetter && previousLetter !== "") {
+    const prevKeyboardIndex = keyboardLetters.findIndex(
+      (k) => k.letter === previousLetter && k.used
+    );
+
+    if (prevKeyboardIndex !== -1) {
+      const newKeyboard = [...keyboardLetters];
+      newKeyboard[prevKeyboardIndex].used = false;
+      setKeyboardLetters(newKeyboard);
+    }
+  }
+
+  // 🔥 2. COLOCAR nueva letra
+  newLetters[selectedIndex] = letter;
+  setLetters(newLetters);
+
+  // 🔥 3. MARCAR nueva como usada
+  const newKeyboard = [...keyboardLetters];
+  newKeyboard[keyboardIndex].used = true;
+  setKeyboardLetters(newKeyboard);
+
+  moveCursorNext(selectedIndex);
+  checkWordCompletion(newLetters);
+  playSound(require("@/assets/sounds/soundClick2.mp3"));
+};
 
   const removeLetter = (index: number) => {
     const removedLetter = letters[index];
@@ -327,7 +354,11 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
           >
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <EnergyStat />
+          
+          <View style={{flexDirection: "row", alignItems: "center", gap: 15}}>
+            <VipButton/>
+            <EnergyStat />
+          </View>
         </View>
 
         {/* Contenido principal */}
@@ -343,7 +374,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
           {/* 2. Barra de tiempo */}
           <View style={styles.timeBarContainer}>
             <FontAwesome6 name="bolt-lightning" size={12} color="#fff" />
-            <Text style={styles.x2Text}>x2</Text>
+            <Text style={styles.x2Text}>{isVip ? "x2" : "x1"}</Text>
             <View style={styles.timeBarBackground}>
               <View
                 style={[

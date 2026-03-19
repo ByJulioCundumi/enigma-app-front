@@ -16,6 +16,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { IRootState } from "@/store/rootState";
+import { stopTimeSound } from "@/hooks/playTimeSound";
 
 const { width } = Dimensions.get("window");
 
@@ -48,15 +49,24 @@ export default function LevelResultPopup({
 
   const [mounted, setMounted] = useState(false);
 
-  const {language} = useSelector(
-      (state: IRootState) => state.language
-    );
-  
+  // 🔥 BLOQUEO REAL (anti multi-click)
+  const isProcessingRef = useRef(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const { language } = useSelector(
+    (state: IRootState) => state.language
+  );
+
   const isEs = language === "es";
 
   useEffect(() => {
     if (visible) {
       setMounted(true);
+      stopTimeSound();
+
+      // reset bloqueo cuando se abre
+      isProcessingRef.current = false;
+      setIsDisabled(false);
 
       Animated.parallel([
         Animated.timing(overlayOpacity, {
@@ -109,7 +119,9 @@ export default function LevelResultPopup({
           duration: 180,
           useNativeDriver: true,
         }),
-      ]).start(() => setMounted(false));
+      ]).start(() => {
+        setMounted(false);
+      });
     }
   }, [visible]);
 
@@ -132,13 +144,22 @@ export default function LevelResultPopup({
   };
 
   const handleRetry = () => {
+    // 🔥 BLOQUEO INSTANTÁNEO (clave)
+    if (isProcessingRef.current) return;
+
     if (energy < RETRY_COST) {
       showEnergyWarning();
       return;
     }
 
-      dispatch(consumeEnergy(RETRY_COST));
+    // 🔥 activar bloqueo
+    isProcessingRef.current = true;
+    setIsDisabled(true);
 
+    // 🔥 cobrar UNA SOLA VEZ
+    dispatch(consumeEnergy(RETRY_COST));
+
+    // 🔥 cerrar inmediatamente (evita spam visual)
     onRetry();
   };
 
@@ -155,8 +176,6 @@ export default function LevelResultPopup({
           },
         ]}
       >
-        {/* ICONO */}
-
         <View style={[styles.iconWrapper, { borderColor: accentColor }]}>
           <View style={styles.iconCircle}>
             <Ionicons
@@ -167,21 +186,25 @@ export default function LevelResultPopup({
           </View>
         </View>
 
-        {/* TITULO */}
-
         <Text style={styles.title}>
-          {success ? isEs ? "Nivel completado" : "Level completed" : isEs ? "Nivel fallado" : "Level Failed"}
+          {success
+            ? isEs
+              ? "Nivel completado"
+              : "Level completed"
+            : isEs
+            ? "Nivel fallado"
+            : "Level Failed"}
         </Text>
-
-        {/* MENSAJE */}
 
         <Text style={styles.subtitle}>
           {success
-            ? isEs ? "Excelente trabajo. Continúa al siguiente desafío." : "Great job. Move on to the next challenge."
-            : isEs ? "Puedes volver a intentarlo usando energía." : "You can try again by using energy."}
+            ? isEs
+              ? "Excelente trabajo."
+              : "Great job."
+            : isEs
+            ? "Puedes volver a intentarlo."
+            : "You can try again."}
         </Text>
-
-        {/* BOTONES */}
 
         <View style={styles.buttons}>
           <TouchableOpacity
@@ -190,7 +213,9 @@ export default function LevelResultPopup({
             onPress={onHome}
           >
             <Ionicons name="home" size={18} color="#fff" />
-            <Text style={styles.buttonText}>{isEs ? "Inicio" : "Home"}</Text>
+            <Text style={styles.buttonText}>
+              {isEs ? "Inicio" : "Home"}
+            </Text>
           </TouchableOpacity>
 
           {success ? (
@@ -200,27 +225,39 @@ export default function LevelResultPopup({
               onPress={onContinue}
             >
               <Ionicons name="play" size={18} color="#fff" />
-              <Text style={styles.buttonText}>{isEs ? "Continuar" : "Continue"}</Text>
+              <Text style={styles.buttonText}>
+                {isEs ? "Continuar" : "Continue"}
+              </Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               activeOpacity={0.9}
-              style={styles.retryButton}
+              style={[
+                styles.retryButton,
+                isDisabled && { opacity: 0.6 },
+              ]}
               onPress={handleRetry}
+              disabled={isDisabled}
             >
               <Ionicons name="refresh" size={18} color="#fff" />
 
-              <Text style={styles.buttonText}>{isEs ? "Reintentar" : "Try again"}</Text>
+              <Text style={styles.buttonText}>
+                {isEs ? "Reintentar" : "Try again"}
+              </Text>
 
               <View style={styles.energyBadge}>
-                <FontAwesome6 name="bolt-lightning" size={10} color="#fff" />
-                <Text style={styles.energyBadgeText}>-{RETRY_COST}</Text>
+                <FontAwesome6
+                  name="bolt-lightning"
+                  size={10}
+                  color="#fff"
+                />
+                <Text style={styles.energyBadgeText}>
+                  -{RETRY_COST}
+                </Text>
               </View>
             </TouchableOpacity>
           )}
         </View>
-
-        {/* TOAST ENERGIA */}
 
         <Animated.View
           style={[
@@ -245,7 +282,9 @@ export default function LevelResultPopup({
           />
 
           <Text style={styles.energyWarningText}>
-            {isEs ? "No tienes suficiente energía" : "You don't have enough energy"}
+            {isEs
+              ? "No tienes suficiente energía"
+              : "You don't have enough energy"}
           </Text>
         </Animated.View>
       </Animated.View>
@@ -267,7 +306,7 @@ const styles = StyleSheet.create({
     width: "90%",
     backgroundColor: "#030c18",
     borderRadius: 28,
-    paddingVertical: 34,
+    paddingVertical: 20,
     paddingHorizontal: 32,
     alignItems: "center",
     borderWidth: 1,
@@ -305,14 +344,13 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     fontSize: 15,
     textAlign: "center",
-    marginTop: 10,
     maxWidth: 360,
     lineHeight: 20,
   },
 
   buttons: {
     flexDirection: "row",
-    marginTop: 28,
+    marginTop: 18,
     gap: 14,
   },
 

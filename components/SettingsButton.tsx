@@ -110,7 +110,7 @@ export default function SettingsButton() {
                 </View>
 
                 {/* MUSICA */}
-                <View style={styles.card}>
+                <View style={styles.cardLeft}>
                   <View style={styles.optionLeft}>
                     <Ionicons
                       name="musical-notes"
@@ -188,6 +188,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#1e293b",
     borderRadius: 16,
     paddingVertical: 16,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+
+  cardLeft: {
+    backgroundColor: "#1e293b",
+    borderRadius: 16,
+    paddingVertical: 5,
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",

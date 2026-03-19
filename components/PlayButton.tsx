@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   Easing,
@@ -29,17 +29,21 @@ export default function PlayButton() {
   const requiredEnergy = 2;
 
   const [showMessage, setShowMessage] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+
+  // 🔒 LOCK REAL (anti doble click instantáneo)
+  const isProcessingRef = useRef(false);
 
   const floatProgress = useSharedValue(0);
   const shineProgress = useSharedValue(0);
   const messageOpacity = useSharedValue(0);
   const messageTranslate = useSharedValue(20);
 
-    const {language} = useSelector(
-      (state: IRootState) => state.language
-    );
-  
-    const isEs = language === "es";
+  const {language} = useSelector(
+    (state: IRootState) => state.language
+  );
+
+  const isEs = language === "es";
 
   useEffect(() => {
     floatProgress.value = withRepeat(
@@ -104,16 +108,30 @@ export default function PlayButton() {
   };
 
   const handlePlay = () => {
-    if ( energy < requiredEnergy) {
+    // 🔒 bloqueo inmediato ultra seguro
+    if (isProcessingRef.current) return;
+
+    isProcessingRef.current = true;
+    setIsLocked(true);
+
+    if (energy < requiredEnergy) {
       playSound(require("@/assets/sounds/soundError2.mp3"));
       showEnergyMessage();
+
+      // 🔓 liberar lock
+      isProcessingRef.current = false;
+      setIsLocked(false);
       return;
     }
 
-      playSound(require("@/assets/sounds/soundWind.mp3"));
-      dispatch(consumeEnergy(requiredEnergy));
+    playSound(require("@/assets/sounds/soundWind.mp3"));
 
-    router.push("/GameRoom");
+    dispatch(consumeEnergy(requiredEnergy));
+
+    // ⏱ pequeña protección extra (por navegación)
+    setTimeout(() => {
+      router.push("/GameRoom");
+    }, 100);
   };
 
   return (
@@ -123,7 +141,9 @@ export default function PlayButton() {
         <Animated.View style={[styles.toast, messageStyle]}>
           <FontAwesome6 name="bolt-lightning" size={12} color="#FFD54A" />
           <Text style={styles.toastText}>
-            {isEs ? "No tienes suficiente energía" : "You don't have enough energy"}
+            {isEs
+              ? "No tienes suficiente energía"
+              : "You don't have enough energy"}
           </Text>
         </Animated.View>
       )}
@@ -131,8 +151,12 @@ export default function PlayButton() {
       <Animated.View style={floatStyle}>
         <TouchableOpacity
           activeOpacity={0.9}
-          style={styles.buttonOuter}
+          style={[
+            styles.buttonOuter,
+            isLocked && { opacity: 0.6 }
+          ]}
           onPress={handlePlay}
+          disabled={isLocked} // 🔥 bloqueo visual
         >
           <View style={styles.buttonInner}>
             <Animated.View
@@ -157,7 +181,9 @@ export default function PlayButton() {
             </Animated.View>
 
             <View style={styles.buttonContent}>
-              <Text style={styles.buttonText}>{isEs ? "Jugar" : "Play"}</Text>
+              <Text style={styles.buttonText}>
+                {isEs ? "Jugar" : "Play"}
+              </Text>
 
               <View style={styles.energyBadge}>
                 <FontAwesome6
@@ -182,7 +208,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: 90,
+    bottom: 80,
   },
 
   toast: {

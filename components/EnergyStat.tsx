@@ -7,7 +7,7 @@ import {
   Modal,
   Pressable
 } from "react-native";
-import { Entypo, FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
@@ -39,12 +39,10 @@ export default function EnergyStat() {
   const [loading, setLoading] = useState(false);
 
   const watchAd = async () => {
-
     if (loading) return;
 
     setLoading(true);
 
-    // simulación anuncio
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     dispatch(addEnergy(ENERGY_REWARD));
@@ -57,7 +55,6 @@ export default function EnergyStat() {
   return (
     <>
       {/* BOTON ENERGIA */}
-
       <TouchableOpacity
         activeOpacity={0.85}
         style={styles.statBadge}
@@ -66,47 +63,38 @@ export default function EnergyStat() {
           playSound(require("@/assets/sounds/soundWind.mp3"));
         }}
       >
-        
         <View style={styles.energyIcon}>
           <FontAwesome6 name="bolt-lightning" size={9} color="#fff" />
         </View>
 
         <Text style={styles.statText}>
-          {formatNumber(energy) }
+          {formatNumber(energy)}
         </Text>
 
-        {
-          <View style={styles.plusButton}>
+        <View style={styles.plusButton}>
           <Ionicons name="add" size={12} color="#fff" />
         </View>
-        }
-
       </TouchableOpacity>
 
-
       {/* POPUP */}
-
       <Modal visible={visible} transparent animationType="fade">
-
         <Pressable
           style={styles.overlay}
           onPress={() => {
-            setVisible(false)
+            setVisible(false);
             playSound(require("@/assets/sounds/soundWind.mp3"));
           }}
         >
-
           <Pressable style={styles.popup}>
 
             {/* HEADER */}
-
             <View style={styles.header}>
 
               <View style={styles.energyCircle}>
                 <FontAwesome6
                   name="bolt-lightning"
-                  size={28}
-                  color="#FFD54A"
+                  size={30}
+                  color="#ffc400"
                 />
               </View>
 
@@ -115,80 +103,67 @@ export default function EnergyStat() {
               </Text>
 
               <Text style={styles.subtitle}>
-                {isEs ? "Mira un anuncio corto para continuar jugando" : "Watch a short ad to keep playing"}
+                {isEs
+                  ? "Mira un anuncio corto para continuar jugando"
+                  : "Watch a short ad to keep playing"}
               </Text>
-
             </View>
 
-
             {/* RECOMPENSA */}
-
             <View style={styles.rewardCard}>
-
               <Text style={styles.rewardLabel}>
                 {isEs ? "Recompensa" : "Reward"}
               </Text>
 
               <View style={styles.rewardRow}>
-
                 <FontAwesome6
                   name="bolt-lightning"
-                  size={18}
-                  color="#FFD54A"
+                  size={20}
+                  color="#FFD700"
                 />
 
                 <Text style={styles.rewardText}>
                   +{ENERGY_REWARD} {isEs ? "Energía" : "Energy"}
                 </Text>
-
               </View>
-
             </View>
 
-
             {/* BOTON */}
-
             <TouchableOpacity
               style={styles.watchButton}
               onPress={watchAd}
               disabled={loading}
+              activeOpacity={0.85}
             >
-
               <MaterialCommunityIcons
                 name="play-circle"
-                size={20}
-                color="white"
+                size={22}
+                color="#1a1a1a"
               />
 
               <Text style={styles.watchText}>
-                {loading ? isEs ? "Cargando..." : "Loading..." : isEs ? "Ver anuncio" : "Watch ad"}
+                {loading
+                  ? isEs ? "Cargando..." : "Loading..."
+                  : isEs ? "Ver anuncio" : "Watch ad"}
               </Text>
-
             </TouchableOpacity>
 
-
             {/* CANCELAR */}
-
             <TouchableOpacity
               style={styles.cancelButton}
               onPress={() => {
-                setVisible(false)
+                setVisible(false);
                 playSound(require("@/assets/sounds/soundWind.mp3"));
               }}
             >
-
               <Text style={styles.cancelText}>
                 {isEs ? "Ahora no" : "Not now"}
               </Text>
-
             </TouchableOpacity>
 
           </Pressable>
-
         </Pressable>
-
       </Modal>
-
     </>
   );
 }
@@ -235,57 +210,65 @@ const styles = StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
+    backgroundColor: "rgba(0,0,0,0.8)",
     justifyContent: "center",
     padding: 24,
   },
 
   popup: {
-    backgroundColor: "#162033",
-    borderRadius: 26,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: "#2a3955",
+    backgroundColor: "#111827",
+    borderRadius: 28,
+    padding: 24,
+    borderWidth: 1.5,
+    borderColor: "#ffc400",
+    shadowColor: "#ffc400",
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
   },
 
   header: {
     alignItems: "center",
-    marginBottom: 18,
+    marginBottom: 22,
   },
 
   energyCircle: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: "#22304a",
+    width: 75,
+    height: 75,
+    borderRadius: 40,
+    backgroundColor: "#1f2937",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 14,
+    borderWidth: 2,
+    borderColor: "#ffc400",
   },
 
   title: {
-    color: "white",
-    fontSize: 20,
+    color: "#ffc400",
+    fontSize: 22,
     fontWeight: "900",
   },
 
   subtitle: {
-    color: "#94A3B8",
+    color: "#cbd5e1",
     fontSize: 13,
     textAlign: "center",
-    marginTop: 4,
+    marginTop: 6,
   },
 
   rewardCard: {
-    backgroundColor: "#1E2A44",
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: "#1a2233",
+    borderRadius: 18,
+    padding: 18,
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 22,
+    borderWidth: 1,
+    borderColor: "#FFD70033",
   },
 
   rewardLabel: {
-    color: "#94A3B8",
+    color: "#9ca3af",
     fontSize: 12,
     marginBottom: 6,
   },
@@ -293,38 +276,42 @@ const styles = StyleSheet.create({
   rewardRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
 
   rewardText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "900",
-    color: "#FFD54A",
+    color: "#FFD700",
   },
 
   watchButton: {
     flexDirection: "row",
-    backgroundColor: "#2563EB",
-    paddingVertical: 14,
-    borderRadius: 14,
+    backgroundColor: "#FFD700",
+    paddingVertical: 15,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
     gap: 8,
+    shadowColor: "#FFD700",
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
   },
 
   watchText: {
-    color: "white",
+    color: "#1a1a1a",
     fontWeight: "900",
     fontSize: 16,
   },
 
   cancelButton: {
-    marginTop: 12,
+    marginTop: 14,
     alignItems: "center",
   },
 
   cancelText: {
-    color: "#94A3B8",
+    color: "#9ca3af",
     fontSize: 13,
   },
 

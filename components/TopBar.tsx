@@ -17,6 +17,7 @@ import LanguageSelector from "./LanguageSelector";
 import EnergyStat from "./EnergyStat";
 import { stopTimeSound } from "@/hooks/playTimeSound";
 import { playSound } from "@/hooks/playSound";
+import VipButton from "./VipButton";
 
 const { width } = Dimensions.get("window");
 
@@ -29,9 +30,8 @@ export default function TopBar() {
   );
 
   const goToIndex = () => {
-    playSound(require("@/assets/sounds/soundWind.mp3"));
     router.push("/");
-    dispatch(setCurrentPage("index"));
+    playSound(require("@/assets/sounds/soundWind.mp3"));
   };
 
   return (
@@ -41,7 +41,7 @@ export default function TopBar() {
         {/* IZQUIERDA */}
         <View style={styles.leftGroup}>
           {currentPage === "index" ? (
-            <View style={{flexDirection: "row", alignItems: "center", gap: 5}}>
+            <View style={{ gap: 10, marginBottom: -55}}>
               <SettingsButton />
               <LanguageSelector/>
             </View>
@@ -56,8 +56,12 @@ export default function TopBar() {
           )}
         </View>
 
-        {/* DERECHA */}
-        <EnergyStat />
+          <View style={{flexDirection: "row", alignItems: "center", gap: 15}}>
+           <VipButton/>
+            
+            {/* DERECHA */}
+            <EnergyStat />
+          </View>
 
       </View>
     </View>

@@ -118,7 +118,7 @@ export default function LevelCard({ isIndex = true }: Props) {
         {/* Botón pista */}
         <TouchableOpacity style={styles.hintButton} onPress={toggleHint}>
           <Ionicons name="information-circle" size={28} color="#fff" />
-          {!showHint && <Text style={{ color: "#fff" }}>{isEs ? "Pista" : "Hint"}</Text>}
+          {!showHint && <Text style={{ color: "#fff", fontSize: 14, paddingRight: 5 }}>{isEs ? "Pista" : "Hint"}</Text>}
         </TouchableOpacity>
 
         {/* Panel pista */}
@@ -135,8 +135,6 @@ export default function LevelCard({ isIndex = true }: Props) {
           </Animated.View>
         )}
       </View>
-
-      <VipButton />
 
       {/* 🔥 MODAL */}
       <Modal
@@ -212,8 +210,8 @@ const styles = StyleSheet.create({
 
   levelBadge: {
     position: "absolute",
-    top: 15,
-    left: 15,
+    top: 25,
+    left: 16,
     backgroundColor: "#050c1d7a",
     paddingHorizontal: 10,
     paddingVertical: 4,
