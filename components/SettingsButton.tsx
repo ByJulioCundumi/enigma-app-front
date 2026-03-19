@@ -10,11 +10,10 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
-import { toggleSound } from "@/store/reducers/soundSlice";
 import { toggleMusic } from "@/store/reducers/musicSlice";
 import { playSound } from "@/hooks/playSound";
 
@@ -26,7 +25,6 @@ export default function SettingsButton() {
 
   const dispatch = useDispatch();
 
-  const soundEnabled = useSelector((state: IRootState) => state.sound.enabled);
   const musicEnabled = useSelector((state: IRootState) => state.music.enabled);
 
   const {language} = useSelector(
@@ -109,27 +107,6 @@ export default function SettingsButton() {
                   <TouchableOpacity onPress={closeModal}>
                     <Ionicons name="close" size={26} color="#cbd5f5" />
                   </TouchableOpacity>
-                </View>
-
-                {/* SONIDOS */}
-                <View style={styles.card}>
-                  <View style={styles.optionLeft}>
-                    <MaterialCommunityIcons
-                      name="volume-high"
-                      size={22}
-                      color="#60a5fa"
-                    />
-                    <Text style={styles.optionText}>{isEs ? "Sonidos" : "Sounds"}</Text>
-                  </View>
-
-                  <Switch
-                    value={soundEnabled}
-                    onValueChange={(value) => {
-                      dispatch(toggleSound());
-                    }}
-                    trackColor={{ false: "#334155", true: "#3b82f6" }}
-                    thumbColor="#ffffff"
-                  />
                 </View>
 
                 {/* MUSICA */}
