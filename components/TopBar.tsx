@@ -30,7 +30,7 @@ export default function TopBar() {
   );
 
   const goToIndex = () => {
-    router.push("/");
+    router.replace("/");
     playSound(require("@/assets/sounds/soundWind.mp3"));
   };
 

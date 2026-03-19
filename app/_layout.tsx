@@ -1,13 +1,10 @@
 import { store } from "@/store/store";
 import { Stack } from "expo-router";
-import { Provider, useDispatch, useSelector } from "react-redux";
+import { Provider} from "react-redux";
 import * as NavigationBar from "expo-navigation-bar";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform, View, StyleSheet } from "react-native";
-import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
-import { IRootState } from "@/store/rootState";
-import { stopTimeSound } from "@/hooks/playTimeSound";
 
 export default function RootLayout() {
 

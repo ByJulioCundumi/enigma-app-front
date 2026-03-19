@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
+import { stopBackgroundMusic } from "@/hooks/useBackgroundMusic";
 
 export default function PlayButton() {
   const router = useRouter();
@@ -130,7 +131,8 @@ export default function PlayButton() {
 
     // ⏱ pequeña protección extra (por navegación)
     setTimeout(() => {
-      router.push("/GameRoom");
+      router.replace("/GameRoom");
+      stopBackgroundMusic()
     }, 100);
   };
 

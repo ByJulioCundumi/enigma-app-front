@@ -126,6 +126,7 @@ export default function VipButton({ onWatchAd }: Props) {
           name="crown"
           size={20}
           color="#FFD700"
+          style={{marginTop: -3}}
         />
 
         <View style={styles.badge}>
@@ -135,7 +136,7 @@ export default function VipButton({ onWatchAd }: Props) {
             </Text>
           ) : (
             <View style={{flexDirection:"row",alignItems:"center",gap:3}}>
-              <MaterialCommunityIcons name="movie-open-play" size={14} color="#1a1a1a"/>
+              <MaterialCommunityIcons name="movie-open-play" size={14} color="#1a1a1a" />
               <Text style={styles.badgeText}>
                 {adsWatched}/{REQUIRED_ADS}
               </Text>
@@ -159,22 +160,25 @@ export default function VipButton({ onWatchAd }: Props) {
             {/* HEADER */}
             <View style={styles.header}>
 
-              <View style={styles.crownCircle}>
+
+              <View style={{flexDirection: "row", alignItems: "center", gap:10}}>
+                <View style={styles.crownCircle}>
                 <MaterialCommunityIcons
                   name="crown"
-                  size={34}
+                  size={27}
                   color="#FFD700"
                 />
               </View>
 
-              <Text style={styles.title}>
-                {isEs ? "Zona VIP" : "VIP Area"}
-              </Text>
+                <Text style={styles.title}>
+                  {isEs ? "Jugador VIP" : "VIP Player"}
+                </Text>
+              </View>
 
               <Text style={styles.subtitle}>
                 {isEs
-                  ? "Activa beneficios premium por tiempo limitado"
-                  : "Activate premium perks for a limited time"}
+                  ? "Activa beneficios premium por 15 minutos"
+                  : "Activate premium perks for 15 minutes"}
               </Text>
 
             </View>
@@ -311,21 +315,21 @@ const styles = StyleSheet.create({
 
   glow:{
     position:"absolute",
-    width:60,
-    height:60,
+    width:55,
+    height:55,
     borderRadius:60,
     backgroundColor:"rgba(255,215,0,0.18)"
   },
 
   badge:{
     position:"absolute",
-    bottom:-7,
+    bottom:-8,
     backgroundColor:"#FFD700",
     paddingHorizontal:8,
     paddingVertical:2,
     borderRadius:10,
     minWidth:50,
-    alignItems:"center"
+    alignItems:"center",
   },
 
   badgeText:{
@@ -359,18 +363,20 @@ const styles = StyleSheet.create({
   },
 
   crownCircle:{
-    width:75,
-    height:75,
+    width:45,
+    height:45,
     borderRadius:40,
     backgroundColor:"#1f2937",
     justifyContent:"center",
     alignItems:"center",
-    marginBottom:12,
     borderWidth:2,
     borderColor:"#FFD700"
   },
 
   title:{
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
     color:"#FFD700",
     fontSize:24,
     fontWeight:"900"
@@ -386,7 +392,10 @@ const styles = StyleSheet.create({
   timerCard:{
     backgroundColor:"#1a2233",
     borderRadius:16,
-    paddingVertical:18,
+    padding:10,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems:"center",
     marginBottom:18,
     borderWidth:1,

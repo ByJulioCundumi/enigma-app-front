@@ -9,6 +9,66 @@ let backgroundSound: Audio.Sound | null = null;
 // 🔒 lock para evitar doble creación
 let isLoading = false;
 
+/* ======================================================
+   🔥 FUNCIONES GLOBALES (CONTROL EXTERNO)
+====================================================== */
+
+// ✅ Detener y liberar completamente
+export const stopBackgroundMusic = async () => {
+  if (backgroundSound) {
+    try {
+      await backgroundSound.stopAsync();
+      await backgroundSound.unloadAsync();
+    } catch (e) {
+      console.log("Error stopping sound:", e);
+    } finally {
+      backgroundSound = null;
+    }
+  }
+};
+
+// ✅ Iniciar manualmente desde 0
+export const startBackgroundMusic = async (
+  source: any,
+  options?: {
+    volume?: number;
+    isLooping?: boolean;
+  }
+) => {
+  if (backgroundSound || isLoading) return;
+
+  isLoading = true;
+
+  try {
+    const { sound } = await Audio.Sound.createAsync(source, {
+      shouldPlay: true,
+      isLooping: options?.isLooping ?? true,
+      volume: options?.volume ?? 0.1,
+    });
+
+    backgroundSound = sound;
+  } catch (e) {
+    console.log("Error starting sound:", e);
+  } finally {
+    isLoading = false;
+  }
+};
+
+// ✅ Pausar sin destruir (opcional)
+export const pauseBackgroundMusic = async () => {
+  if (backgroundSound) {
+    try {
+      await backgroundSound.pauseAsync();
+    } catch (e) {
+      console.log("Error pausing sound:", e);
+    }
+  }
+};
+
+/* ======================================================
+   🎵 HOOK PRINCIPAL (CONTROL AUTOMÁTICO)
+====================================================== */
+
 export const useBackgroundMusic = (
   source: any,
   options?: {
@@ -41,7 +101,6 @@ export const useBackgroundMusic = (
     };
 
     const startMusic = async () => {
-      // evitar duplicados
       if (backgroundSound || isLoading) return;
 
       isLoading = true;
@@ -66,15 +125,14 @@ export const useBackgroundMusic = (
     };
 
     const handleMusic = async () => {
-      // 🔴 PRIORIDAD TOTAL: enabled
+      // 🔴 prioridad: configuración global
       if (!enabled) {
         await stopAndUnload();
         return;
       }
 
-      // 🎯 solo suena en index
+      // 🎯 solo en página index
       if (currentPage === "index") {
-        // 🔁 siempre que vuelva a true se crea desde 0
         if (!backgroundSound) {
           await startMusic();
         }

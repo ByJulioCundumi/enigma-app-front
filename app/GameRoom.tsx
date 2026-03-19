@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import * as ScreenOrientation from "expo-screen-orientation";
 import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Dimensions } from "react-native";
 import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import LevelCard from "@/components/LevelCard";
