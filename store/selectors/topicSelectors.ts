@@ -19,7 +19,7 @@ export const selectCurrentLevel = (state: IRootState) => {
 
   if (!topic) return null;
 
-  const levelIndex = state.topics.progress[topicId].currentLevel;
+  const levelIndex = state.topics.progress[topicId]?.currentLevel ?? 0;
 
-  return topic.levels[levelIndex] ?? null;
+  return topic.levels?.[levelIndex] ?? null;
 };

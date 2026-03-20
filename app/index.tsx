@@ -18,6 +18,7 @@ import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { stopTimeSound } from "@/hooks/playTimeSound";
 import CtaButton from "@/components/CtaButton";
 import { IRootState } from "@/store/rootState";
+import TopicList from "@/components/TopicList";
 
 export default function Index() {
   const float = useSharedValue(0);
@@ -77,6 +78,8 @@ export default function Index() {
         resizeMode="contain"
       />
 
+      <TopicList />
+
       <View style={styles.gameSection}>
         <LevelCard isIndex={true} />
       </View>
@@ -91,7 +94,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 140,
+    paddingTop: 130,
   },
 
   gameSection: {

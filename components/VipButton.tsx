@@ -195,6 +195,22 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
               </View>
             )}
 
+            {/* TIMER */}
+
+            {
+              !isPremiumMode && <View style={styles.timerCard}>
+
+              <Text style={styles.timerLabel}>
+                {isEs ? "Tiempo VIP" : "VIP Time"}
+              </Text>
+
+              <Text style={styles.timer}>
+                {formatTime(vipActive ? timeLeft : VIP_DURATION)}
+              </Text>
+
+            </View>
+            }
+
             {/* BENEFICIOS */}
             <View style={styles.benefitsContainer}>
 

@@ -66,15 +66,6 @@ export default function PlayButton() {
     );
   }, []);
 
-  const floatStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(floatProgress.value, [0, 1], [0, -8]);
-    const scale = interpolate(floatProgress.value, [0, 1], [1, 1.02]);
-
-    return {
-      transform: [{ translateY }, { scale }],
-    };
-  });
-
   const shineStyle = useAnimatedStyle(() => {
     const translateX = interpolate(shineProgress.value, [0, 1], [-260, 260]);
 
@@ -150,7 +141,6 @@ export default function PlayButton() {
         </Animated.View>
       )}
 
-      <Animated.View style={floatStyle}>
         <TouchableOpacity
           activeOpacity={0.9}
           style={[
@@ -200,7 +190,6 @@ export default function PlayButton() {
             </View>
           </View>
         </TouchableOpacity>
-      </Animated.View>
     </View>
   );
 }
@@ -210,7 +199,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: 60,
+    bottom: 50,
   },
 
   toast: {

@@ -407,7 +407,12 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
               <TouchableOpacity
                 style={[styles.timeButton, false && styles.disabledButton, styles.timeBox]}
               >
-                <MaterialCommunityIcons name="timer-plus" size={24} color="#fff" />
+                {timeLeft % 2 === 0 ? (
+                  <MaterialCommunityIcons name="timer-sand-complete" size={24} color="#fff" />
+                ) : (
+                  <MaterialCommunityIcons name="timer-sand" size={24} color="#fff" />
+                )}
+                
                 <Text style={{fontSize: 14.5, color: "#fff", fontWeight: 600}}>{timeLeft}s</Text>
               </TouchableOpacity>
             </View>
@@ -538,7 +543,7 @@ const styles = StyleSheet.create({
   timeBox:{
     flexDirection: "row",
     gap: 3,
-    backgroundColor: "#008cffce",
+    backgroundColor: "#ff006ace",
     width: 74
   },
   wordContainer: {
