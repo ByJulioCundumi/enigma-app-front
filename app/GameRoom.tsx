@@ -370,24 +370,6 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
             <LevelCard isIndex={false} />
           </View>
 
-          {/* 2. Barra de tiempo */}
-          <View style={styles.timeBarContainer}>
-            <FontAwesome6 name="bolt-lightning" size={12} color="#fff" />
-            <Text style={styles.x2Text}>{isVip ? "x2" : "x1"}</Text>
-            <View style={styles.timeBarBackground}>
-              <View
-                style={[
-                  styles.timeBarFill,
-                  {
-                    width: `${progress * 100}%`,
-                    backgroundColor: getBarColor(),
-                  },
-                ]}
-              />
-            </View>
-            <Text style={styles.timeText}>{timeLeft}s</Text>
-          </View>
-
           {/* 3. Palabra a completar */}
           <View style={styles.wordContainer}>
             {words.map((singleWord, wordIndex) => {
@@ -421,6 +403,15 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
 
           {/* 4. Botones de acción */}
           <View style={styles.footerActions}>
+            <View style={styles.actionWrapper}>
+              <TouchableOpacity
+                style={[styles.timeButton, false && styles.disabledButton, styles.timeBox]}
+              >
+                <MaterialCommunityIcons name="timer-plus" size={24} color="#fff" />
+                <Text style={{fontSize: 14.5, color: "#fff", fontWeight: 600}}>{timeLeft}s</Text>
+              </TouchableOpacity>
+            </View>
+
             <TouchableOpacity style={styles.clearButton} onPress={()=> clearLetters(true)}>
               <MaterialCommunityIcons name="delete-sweep" size={24} color="#fff" />
             </TouchableOpacity>
@@ -543,6 +534,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     minWidth: 40,
     textAlign: "right",
+  },
+  timeBox:{
+    flexDirection: "row",
+    gap: 3,
+    backgroundColor: "#008cffce",
+    width: 74
   },
   wordContainer: {
     marginBottom: 24,

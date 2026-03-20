@@ -5,7 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
-  Pressable
+  Pressable,
+  Switch
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,12 +15,14 @@ import { IRootState } from "@/store/rootState";
 import { activateVip, incrementAd, tickVip } from "@/store/reducers/vipSlice";
 import { addEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
+import { restorePurchase, setPurchased } from "@/store/reducers/purchaseSlice";
 
 interface Props {
   onWatchAd?: () => Promise<boolean>;
+  onBuyGame?: () => void;
 }
 
-export default function VipButton({ onWatchAd }: Props) {
+export default function VipButton({ onWatchAd, onBuyGame }: Props) {
 
   const REQUIRED_ADS = 3;
   const VIP_DURATION = 15 * 60;
@@ -39,9 +42,13 @@ export default function VipButton({ onWatchAd }: Props) {
     (state: IRootState) => state.vip.vipStartAt
   );
 
-  const vipActive = vipExpireAt !== null;
+  const hasPurchased = useSelector(
+    (state: IRootState) => state.purchase.hasPurchased
+  );
 
-  const {language} = useSelector(
+  const vipActive = vipExpireAt !== null || hasPurchased;
+
+  const { language } = useSelector(
     (state: IRootState) => state.language
   );
 
@@ -49,6 +56,8 @@ export default function VipButton({ onWatchAd }: Props) {
 
   const [visible, setVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState(VIP_DURATION);
+
+  const [isPremiumMode, setIsPremiumMode] = useState(false);
 
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60);
@@ -77,8 +86,6 @@ export default function VipButton({ onWatchAd }: Props) {
 
   }, [vipExpireAt, vipStartAt]);
 
-
-
   const watchAd = async () => {
 
     if (adsWatched >= REQUIRED_ADS) return;
@@ -96,18 +103,24 @@ export default function VipButton({ onWatchAd }: Props) {
     dispatch(incrementAd());
 
     if (newCount >= REQUIRED_ADS) {
-
       dispatch(activateVip());
-
       dispatch(addEnergy(ENERGY_REWARD));
 
       setVisible(false);
       playSound(require("@/assets/sounds/soundWind.mp3"));
     }
-
   };
 
-  const progress = (adsWatched / REQUIRED_ADS) * 100;
+  const handleBuy = () => {
+    playSound(require("@/assets/sounds/soundWind.mp3"));
+    dispatch(setPurchased()); // 🔥 simulado
+    onBuyGame?.();
+  };
+
+  const handleRestore = () => {
+    playSound(require("@/assets/sounds/soundWind.mp3"));
+    dispatch(restorePurchase()); // 🔄 simulado
+  };
 
   return (
     <>
@@ -120,177 +133,186 @@ export default function VipButton({ onWatchAd }: Props) {
           playSound(require("@/assets/sounds/soundWind.mp3"));
         }}
       >
-        <View style={styles.glow}/>
+        <View style={styles.glow} />
 
         <MaterialCommunityIcons
           name="crown"
           size={20}
           color="#FFD700"
-          style={{marginTop: -3}}
         />
 
         <View style={styles.badge}>
-          {vipActive ? (
+          {hasPurchased ? (
+            <Text style={styles.badgeText}>VIP</Text>
+          ) : vipActive ? (
             <Text style={styles.badgeText}>
               {formatTime(timeLeft)}
             </Text>
           ) : (
-            <View style={{flexDirection:"row",alignItems:"center",gap:3}}>
-              <MaterialCommunityIcons name="movie-open-play" size={14} color="#1a1a1a" />
-              <Text style={styles.badgeText}>
-                {adsWatched}/{REQUIRED_ADS}
-              </Text>
-            </View>
+            <Text style={styles.badgeText}>
+              {adsWatched}/{REQUIRED_ADS}
+            </Text>
           )}
         </View>
       </TouchableOpacity>
-
 
       {/* POPUP */}
       <Modal visible={visible} transparent animationType="fade">
         <Pressable
           style={styles.overlay}
-          onPress={() => {
-            setVisible(false)
-            playSound(require("@/assets/sounds/soundWind.mp3"));
-          }}
+          onPress={() => setVisible(false)}
         >
           <Pressable style={styles.popup}>
 
             {/* HEADER */}
             <View style={styles.header}>
-
-
-              <View style={{flexDirection: "row", alignItems: "center", gap:10}}>
-                <View style={styles.crownCircle}>
-                <MaterialCommunityIcons
-                  name="crown"
-                  size={27}
-                  color="#FFD700"
-                />
-              </View>
-
-                <Text style={styles.title}>
-                  {isEs ? "Jugador VIP" : "VIP Player"}
-                </Text>
-              </View>
+              <Text style={styles.title}>
+                {isEs ? "Jugador VIP" : "VIP Player"}
+              </Text>
 
               <Text style={styles.subtitle}>
-                {isEs
-                  ? "Activa beneficios premium por 15 minutos"
-                  : "Activate premium perks for 15 minutes"}
-              </Text>
-
-            </View>
-
-
-            {/* TIMER */}
-            <View style={styles.timerCard}>
-              <Text style={styles.timerLabel}>
-                {isEs ? "Tiempo VIP" : "VIP Time"}
-              </Text>
-
-              <Text style={styles.timer}>
-                {formatTime(vipActive ? timeLeft : VIP_DURATION)}
+                {hasPurchased
+                  ? (isEs ? "Gracias por apoyar el juego ❤️" : "Thanks for supporting the game ❤️")
+                  : (isEs ? "Elige cómo activar los beneficios" : "Choose how to activate perks")}
               </Text>
             </View>
 
+            {/* 🔥 SOLO SI NO HA COMPRADO */}
+            {!hasPurchased && (
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>
+                  {isPremiumMode
+                    ? (isEs ? "VIP Por Siempre" : "VIP Forever")
+                    : (isEs ? "Modo gratis (15m)" : "Free mode (15m)")}
+                </Text>
+
+                <Switch
+                  value={isPremiumMode}
+                  onValueChange={setIsPremiumMode}
+                  trackColor={{ false: "#555", true: "#555" }}
+                  thumbColor={isPremiumMode ? "#ffffff" : "#fff"}
+                />
+              </View>
+            )}
 
             {/* BENEFICIOS */}
             <View style={styles.benefitsContainer}>
 
-              {/* ENERGIA EXTRA */}
-              <View style={styles.benefitCard}>
-                <View style={[styles.iconCircle,{backgroundColor:"#1f3a2a"}]}>
-                  <Ionicons name="flash" size={18} color="#22c55e"/>
-                </View>
-                <View>
-                  <Text style={styles.benefitTitle}>
-                    +{ENERGY_REWARD} {isEs ? "Energía" : "Energy"}
-                  </Text>
-                  <Text style={styles.benefitDesc}>
-                    {isEs
-                      ? "Recompensa instantánea al activar VIP"
-                      : "Instant reward when activating VIP"}
-                  </Text>
-                </View>
-              </View>
+              {!hasPurchased && !isPremiumMode ? (
+                <>
+                  <View style={styles.benefitCard}>
+                    <Ionicons name="flash" size={18} color="#22c55e" />
+                    <Text style={styles.benefitTitle}>
+                      +{ENERGY_REWARD} {isEs ? "Energía" : "Energy"}
+                    </Text>
+                  </View>
 
-              {/* ENERGIA x2 */}
-              <View style={[styles.benefitCard, styles.goldHighlight]}>
-                <View style={[styles.iconCircle,{backgroundColor:"#3b2f0f"}]}>
-                  <Ionicons name="flash-outline" size={18} color="#FFD700"/>
-                </View>
-                <View>
-                  <Text style={[styles.benefitTitle,{color:"#FFD700"}]}>
-                    {isEs ? "Energía x2" : "Energy x2"}
-                  </Text>
-                  <Text style={styles.benefitDesc}>
-                    {isEs
-                      ? "Gana el doble de energía en cada acción"
-                      : "Earn double energy from every action"}
-                  </Text>
-                </View>
-              </View>
+                  <View style={styles.benefitCard}>
+                    <Ionicons name="flash-outline" size={18} color="#FFD700" />
+                    <Text style={styles.benefitTitle}>
+                      {isEs ? "Energía x2" : "Energy x2"}
+                    </Text>
+                  </View>
 
-              {/* SIN ANUNCIOS */}
-              <View style={styles.benefitCard}>
-                <View style={[styles.iconCircle,{backgroundColor:"#2b2f45"}]}>
-                  <Ionicons name="ban" size={18} color="#60a5fa"/>
-                </View>
-                <View>
-                  <Text style={styles.benefitTitle}>
-                    {isEs ? "Sin anuncios" : "No ads"}
-                  </Text>
-                  <Text style={styles.benefitDesc}>
-                    {isEs
-                      ? "Juega sin interrupciones"
-                      : "Play without interruptions"}
-                  </Text>
-                </View>
-              </View>
+                  <View style={styles.benefitCard}>
+                    <MaterialCommunityIcons name="palette" size={18} color="#5cacf6" />
+                    <Text style={styles.benefitTitle}>
+                      {isEs ? "Temáticas exclusivas" : "Exclusive themes"}
+                    </Text>
+                  </View>
 
+                  <View style={styles.benefitCard}>
+                    <Ionicons name="ban" size={18} color="#60a5fa" />
+                    <Text style={styles.benefitTitle}>
+                      {isEs ? "Sin anuncios (15 Minutos)" : "No ads (15 Minutes)"}
+                    </Text>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={styles.benefitCard}>
+                    <Ionicons name="infinite" size={18} color="#22c55e" />
+                    <Text style={styles.benefitTitle}>
+                      {isEs ? "Energía ilimitada" : "Unlimited energy"}
+                    </Text>
+                  </View>
+
+                  <View style={styles.benefitCard}>
+                    <Ionicons name="ban" size={18} color="#FFD700" />
+                    <Text style={styles.benefitTitle}>
+                      {isEs ? "Sin anuncios" : "No ads"}
+                    </Text>
+                  </View>
+
+                  <View style={styles.benefitCard}>
+                    <MaterialCommunityIcons name="palette" size={18} color="#5cacf6" />
+                    <Text style={styles.benefitTitle}>
+                      {isEs ? "Temáticas exclusivas" : "Exclusive themes"}
+                    </Text>
+                  </View>
+
+                  <View style={styles.benefitCard}>
+                    <MaterialCommunityIcons name="crown" size={18} color="#FFD700" />
+                    <Text style={[styles.benefitTitle, { color: "#FFD700" }]}>
+                      {isEs ? "VIP para siempre" : "VIP forever"}
+                    </Text>
+                  </View>
+
+                  {/* 🎉 MENSAJE EXPERIENCIA */}
+                  {
+                    hasPurchased && <View style={styles.vipMessageContainer}>
+                    <Text style={styles.vipMessage}>
+                      {isEs
+                        ? "Disfruta la mejor experiencia de juego 🚀"
+                        : "Enjoy the best gaming experience 🚀"}
+                    </Text>
+                  </View>
+                  }
+                </>
+              )}
             </View>
 
+            {/* BOTONES */}
+            {/* BOTONES */}
+{!hasPurchased && (
+  <>
+    {/* 🎥 VER ANUNCIO */}
+    {!vipActive && !isPremiumMode && (
+      <TouchableOpacity
+        style={styles.watchButton}
+        onPress={watchAd}
+      >
+        <Text style={styles.watchText}>
+          {isEs ? "Ver anuncio" : "Watch ad"} {adsWatched}/{REQUIRED_ADS}
+        </Text>
+      </TouchableOpacity>
+    )}
 
-            {!vipActive && (
-              <View style={styles.progressCard}>
+    {/* 💰 COMPRAR SOLO SI SWITCH ACTIVO */}
+    {isPremiumMode && (
+      <>
+        <TouchableOpacity
+          style={styles.buyButton}
+          onPress={handleBuy}
+        >
+          <Text style={styles.buyText}>
+            {isEs ? "Comprar por $11.99" : "Buy for $11.99"}
+          </Text>
+        </TouchableOpacity>
 
-                <View style={styles.progressHeader}>
-                  <Text style={styles.progressText}>
-                    {isEs ? "Anuncios vistos" : "Ads viewed"}
-                  </Text>
-
-                  <Text style={styles.progressCount}>
-                    {adsWatched}/{REQUIRED_ADS}
-                  </Text>
-                </View>
-
-                <View style={styles.progressBar}>
-                  <View
-                    style={[
-                      styles.progressFill,
-                      { width: `${progress}%` }
-                    ]}
-                  />
-                </View>
-
-              </View>
-            )}
-
-
-            {!vipActive && (
-              <TouchableOpacity
-                style={styles.watchButton}
-                onPress={watchAd}
-              >
-                <Ionicons name="play-circle" size={20} color="#1a1a1a"/>
-
-                <Text style={styles.watchText}>
-                  {isEs ? "Ver anuncio" : "View ad"}
-                </Text>
-              </TouchableOpacity>
-            )}
+        {/* 🔄 RESTORE */}
+        <TouchableOpacity
+          style={styles.restoreButton}
+          onPress={handleRestore}
+        >
+          <Text style={styles.restoreText}>
+            {isEs ? "Restaurar compra" : "Restore purchase"}
+          </Text>
+        </TouchableOpacity>
+      </>
+    )}
+  </>
+)}
 
           </Pressable>
         </Pressable>
@@ -310,7 +332,6 @@ const styles = StyleSheet.create({
     alignItems:"center",
     borderWidth:2,
     borderColor:"#FFD700",
-    elevation:10,
   },
 
   glow:{
@@ -351,32 +372,14 @@ const styles = StyleSheet.create({
     padding:24,
     borderWidth:1.5,
     borderColor:"#FFD700",
-    shadowColor:"#FFD700",
-    shadowOpacity:0.3,
-    shadowRadius:20,
-    elevation:10
   },
 
   header:{
     alignItems:"center",
-    marginBottom:20
-  },
-
-  crownCircle:{
-    width:45,
-    height:45,
-    borderRadius:40,
-    backgroundColor:"#1f2937",
-    justifyContent:"center",
-    alignItems:"center",
-    borderWidth:2,
-    borderColor:"#FFD700"
+    marginBottom:10
   },
 
   title:{
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
     color:"#FFD700",
     fontSize:24,
     fontWeight:"900"
@@ -386,38 +389,30 @@ const styles = StyleSheet.create({
     color:"#cbd5e1",
     fontSize:13,
     textAlign:"center",
-    marginTop:6
   },
 
   timerCard:{
     backgroundColor:"#1a2233",
     borderRadius:16,
-    padding:10,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    padding:5,
+    paddingHorizontal:20,
+    flexDirection:"row",
+    justifyContent:"space-between",
     alignItems:"center",
-    marginBottom:18,
+    marginBottom:10,
     borderWidth:1,
     borderColor:"#FFD70033"
   },
 
-  timerLabel:{
-    color:"#9ca3af",
-    fontSize:12
-  },
+  timerLabel:{ color:"#9ca3af", fontSize:12 },
 
   timer:{
     color:"#FFD700",
     fontSize:32,
-    fontWeight:"900",
-    marginTop:4
+    fontWeight:"900"
   },
 
-  benefitsContainer:{
-    gap:12,
-    marginBottom:20
-  },
+  benefitsContainer:{ gap:12, marginBottom:20 },
 
   benefitCard:{
     flexDirection:"row",
@@ -428,84 +423,69 @@ const styles = StyleSheet.create({
     borderRadius:14
   },
 
-  goldHighlight:{
-    borderWidth:1,
-    borderColor:"#FFD70055",
-    backgroundColor:"#2a2110"
-  },
-
-  iconCircle:{
-    width:36,
-    height:36,
-    borderRadius:12,
-    justifyContent:"center",
-    alignItems:"center"
-  },
-
   benefitTitle:{
     color:"white",
     fontWeight:"800",
     fontSize:14
   },
 
-  benefitDesc:{
-    color:"#94A3B8",
-    fontSize:11
-  },
-
-  progressCard:{
-    backgroundColor:"#1B273E",
-    padding:14,
-    borderRadius:14,
-    marginBottom:18
-  },
-
-  progressHeader:{
-    flexDirection:"row",
-    justifyContent:"space-between",
-    marginBottom:8
-  },
-
-  progressText:{
-    color:"#94A3B8",
-    fontSize:12
-  },
-
-  progressCount:{
-    color:"white",
-    fontWeight:"900"
-  },
-
-  progressBar:{
-    height:7,
-    backgroundColor:"#0F172A",
-    borderRadius:8,
-    overflow:"hidden"
-  },
-
-  progressFill:{
-    height:"100%",
-    backgroundColor:"#FFD700"
-  },
-
   watchButton:{
-    flexDirection:"row",
     backgroundColor:"#FFD700",
-    paddingVertical:15,
+    padding:15,
     borderRadius:16,
-    justifyContent:"center",
-    alignItems:"center",
-    gap:8,
-    shadowColor:"#FFD700",
-    shadowOpacity:0.4,
-    shadowRadius:10,
-    elevation:6
+    alignItems:"center"
   },
 
   watchText:{
     color:"#1a1a1a",
-    fontWeight:"900",
-    fontSize:16
-  }
+    fontWeight:"900"
+  },
+
+  switchRow:{
+    flexDirection:"row",
+    justifyContent:"space-between",
+    alignItems:"center",
+    marginBottom:20
+  },
+
+  switchLabel:{
+    color:"white",
+    fontWeight:"700"
+  },
+
+  buyButton:{
+    backgroundColor:"#ffc400",
+    padding:14,
+    borderRadius:14,
+    alignItems:"center",
+    marginBottom:10
+  },
+
+  buyText:{
+    color:"#161616",
+    fontWeight:"900"
+  },
+
+  restoreButton:{
+    alignItems:"center",
+    padding:10
+  },
+
+  restoreText:{
+    color:"#60a5fa",
+    fontWeight:"700"
+  },
+
+  vipMessageContainer:{
+  marginTop:10,
+  alignItems:"center"
+},
+
+vipMessage:{
+  color:"#FFD700",
+  fontWeight:"800",
+  textAlign:"center",
+  fontSize:13
+}
 
 });

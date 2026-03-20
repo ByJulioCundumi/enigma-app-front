@@ -62,7 +62,7 @@ export default function Index() {
         "#143788",  // azul oscuro profundo
         "#184cc4",  // azul intenso
         "#2c68f5",  // azul vibrante
-        "#5185ff",  // azul claro brillante
+        "#2c68f5",  // azul claro brillante
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
