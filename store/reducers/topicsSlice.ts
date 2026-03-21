@@ -42,17 +42,33 @@ const topicsSlice = createSlice({
     resetSelectedTopic: (state) => {
       state.selectedTopic = "random";
     },
+    markTopicCompleted: (
+  state,
+  action: PayloadAction<keyof typeof initialTopics>
+) => {
+  const topicId = action.payload;
+
+  if (!state.progress[topicId]) return;
+
+  state.progress[topicId].completed = true;
+},
 
     nextLevel: (state) => {
-      const topicId = state.selectedTopic;
+  const topicId = state.selectedTopic;
+  const progress = state.progress[topicId];
 
-      const progress = state.progress[topicId];
+  if (!progress) return;
 
-      if (!progress) return;
+  const topics = getTopics("es"); // ⚠️ o usa idioma dinámico si quieres hacerlo pro
+  const totalLevels = topics[topicId]?.levels.length ?? 0;
 
-      // 🔥 OJO: ya no usamos topics aquí
-      progress.currentLevel += 1;
-    },
+  progress.currentLevel += 1;
+
+  // ✅ marcar como completado
+  if (progress.currentLevel >= totalLevels) {
+    progress.completed = true;
+  }
+},
 
     setLevel: (
       state,
@@ -90,6 +106,7 @@ export const {
   nextLevel,
   setLevel,
   resetTopic,
+  markTopicCompleted,
 } = topicsSlice.actions;
 
 export default topicsSlice.reducer;

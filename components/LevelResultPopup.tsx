@@ -14,9 +14,11 @@ import {
 } from "@expo/vector-icons";
 
 import { useDispatch, useSelector } from "react-redux";
-import { consumeEnergy } from "@/store/reducers/energySlice";
+import { addEnergy, consumeEnergy } from "@/store/reducers/energySlice";
 import { IRootState } from "@/store/rootState";
 import { stopTimeSound } from "@/hooks/playTimeSound";
+import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
+import { markTopicCompleted } from "@/store/reducers/topicsSlice";
 
 const { width } = Dimensions.get("window");
 
@@ -29,6 +31,7 @@ type Props = {
   onContinue: () => void;
   onRetry: () => void;
   onHome: () => void;
+  isTopicCompleted?: boolean; // 👈 NUEVO
 };
 
 export default function LevelResultPopup({
@@ -46,6 +49,7 @@ export default function LevelResultPopup({
   const translateY = useRef(new Animated.Value(40)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const warningOpacity = useRef(new Animated.Value(0)).current;
+  const rewardGivenRef = useRef(false);
 
   const [mounted, setMounted] = useState(false);
 
@@ -56,6 +60,21 @@ export default function LevelResultPopup({
   const { language } = useSelector(
     (state: IRootState) => state.language
   );
+
+  const { selectedTopic, progress } = useSelector(
+  (state: IRootState) => state.topics
+);
+
+const topic = useSelector(selectCurrentTopic);
+
+const currentLevel = progress[selectedTopic]?.currentLevel ?? 0;
+const totalLevels = topic?.levels.length ?? 0;
+
+// 🔥 ESTE ES EL MOMENTO REAL
+const isLastLevel = currentLevel + 1 === totalLevels;
+
+const isTopicCompleted =
+  progress[selectedTopic]?.completed ?? false;
 
   const isEs = language === "es";
 
@@ -125,6 +144,35 @@ export default function LevelResultPopup({
     }
   }, [visible]);
 
+  useEffect(() => {
+  if (
+  visible &&
+  success &&
+  isLastLevel &&
+  !isTopicCompleted && // 🔥 CLAVE
+  !rewardGivenRef.current
+) {
+    // 🎯 marcar temática completada
+    dispatch(markTopicCompleted(selectedTopic));
+
+    // 🎁 recompensa
+    dispatch(addEnergy(15));
+
+    rewardGivenRef.current = true;
+  }
+
+  if (!visible) {
+    rewardGivenRef.current = false;
+  }
+}, [
+  visible,
+  success,
+  isLastLevel,
+  isTopicCompleted,
+  selectedTopic,
+  dispatch,
+]);
+
   if (!mounted) return null;
 
   const showEnergyWarning = () => {
@@ -163,7 +211,11 @@ export default function LevelResultPopup({
     onRetry();
   };
 
-  const accentColor = success ? "#22c55e" : "#ef4444";
+  const accentColor = isTopicCompleted
+  ? "#ffc400" // dorado épico
+  : success
+  ? "#22c55e"
+  : "#ef4444";
 
   return (
     <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
@@ -187,77 +239,79 @@ export default function LevelResultPopup({
         </View>
 
         <Text style={styles.title}>
-          {success
-            ? isEs
-              ? "Nivel completado"
-              : "Level completed"
-            : isEs
-            ? "Nivel fallado"
-            : "Level Failed"}
+          {isTopicCompleted
+            ? (isEs ? "¡Temática Completada!" : "Topic Completed!")
+            : success
+            ? (isEs ? "Nivel Completado" : "Level Completed")
+            : (isEs ? "Nivel fallado" : "Level Failed")}
         </Text>
 
         <Text style={styles.subtitle}>
-          {success
-            ? isEs
-              ? "Excelente trabajo."
-              : "Great job."
-            : isEs
-            ? "Puedes volver a intentarlo."
-            : "You can try again."}
+          {isTopicCompleted
+            ? (isEs
+                ? "Has completado todos los niveles"
+                : "You completed all levels")
+            : success
+            ? (isEs ? "Excelente trabajo." : "Great job.")
+            : (isEs ? "Puedes volver a intentarlo." : "You can try again.")}
         </Text>
 
         <View style={styles.buttons}>
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={styles.homeButton}
-            onPress={onHome}
-          >
-            <Ionicons name="home" size={18} color="#fff" />
-            <Text style={styles.buttonText}>
-              {isEs ? "Inicio" : "Home"}
-            </Text>
-          </TouchableOpacity>
+  {/* 🏠 SIEMPRE HOME */}
+  <TouchableOpacity
+    activeOpacity={0.85}
+    style={styles.homeButton}
+    onPress={onHome}
+  >
+    <Ionicons name="home" size={18} color="#fff" />
+    <Text style={styles.buttonText}>
+      {isEs ? "Inicio" : "Home"}
+    </Text>
+  </TouchableOpacity>
 
-          {success ? (
-            <TouchableOpacity
-              activeOpacity={0.9}
-              style={styles.continueButton}
-              onPress={onContinue}
-            >
-              <Ionicons name="play" size={18} color="#fff" />
-              <Text style={styles.buttonText}>
-                {isEs ? "Continuar" : "Continue"}
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              activeOpacity={0.9}
-              style={[
-                styles.retryButton,
-                isDisabled && { opacity: 0.6 },
-              ]}
-              onPress={handleRetry}
-              disabled={isDisabled}
-            >
-              <Ionicons name="refresh" size={18} color="#fff" />
+  {/* 🚫 SI TERMINÓ LA TEMÁTICA → NO MOSTRAR NADA MÁS */}
+  {!isTopicCompleted && (
+    success ? (
+      <TouchableOpacity
+        activeOpacity={0.9}
+        style={styles.continueButton}
+        onPress={onContinue}
+      >
+        <Ionicons name="play" size={18} color="#fff" />
+        <Text style={styles.buttonText}>
+          {isEs ? "Continuar" : "Continue"}
+        </Text>
+      </TouchableOpacity>
+    ) : (
+      <TouchableOpacity
+        activeOpacity={0.9}
+        style={[
+          styles.retryButton,
+          isDisabled && { opacity: 0.6 },
+        ]}
+        onPress={handleRetry}
+        disabled={isDisabled}
+      >
+        <Ionicons name="refresh" size={18} color="#fff" />
 
-              <Text style={styles.buttonText}>
-                {isEs ? "Reintentar" : "Try again"}
-              </Text>
+        <Text style={styles.buttonText}>
+          {isEs ? "Reintentar" : "Try again"}
+        </Text>
 
-              <View style={styles.energyBadge}>
-                <FontAwesome6
-                  name="bolt-lightning"
-                  size={10}
-                  color="#fff"
-                />
-                <Text style={styles.energyBadgeText}>
-                  -{RETRY_COST}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
+        <View style={styles.energyBadge}>
+          <FontAwesome6
+            name="bolt-lightning"
+            size={10}
+            color="#fff"
+          />
+          <Text style={styles.energyBadgeText}>
+            -{RETRY_COST}
+          </Text>
         </View>
+      </TouchableOpacity>
+    )
+  )}
+</View>
 
         <Animated.View
           style={[

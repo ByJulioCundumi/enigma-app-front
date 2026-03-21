@@ -18,6 +18,7 @@ import { IRootState } from "@/store/rootState";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
 import { stopBackgroundMusic } from "@/hooks/useBackgroundMusic";
+import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
 
 export default function PlayButton() {
   const router = useRouter();
@@ -100,32 +101,64 @@ export default function PlayButton() {
   };
 
   const handlePlay = () => {
-    // 🔒 bloqueo inmediato ultra seguro
-    if (isProcessingRef.current) return;
+  if (isProcessingRef.current) return;
 
-    isProcessingRef.current = true;
-    setIsLocked(true);
+  isProcessingRef.current = true;
+  setIsLocked(true);
 
-    if (energy < requiredEnergy) {
-      playSound(require("@/assets/sounds/soundError2.mp3"));
-      showEnergyMessage();
+  // 🚫 BLOQUEO POR TEMÁTICA COMPLETADA
+  if (isTopicCompleted) {
+    playSound(require("@/assets/sounds/soundError2.mp3"));
+    showCompletedMessage();
 
-      // 🔓 liberar lock
-      isProcessingRef.current = false;
-      setIsLocked(false);
-      return;
-    }
+    isProcessingRef.current = false;
+    setIsLocked(false);
+    return;
+  }
 
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+  // ⚡ ENERGÍA
+  if (energy < requiredEnergy) {
+    playSound(require("@/assets/sounds/soundError2.mp3"));
+    showEnergyMessage();
 
-    dispatch(consumeEnergy(requiredEnergy));
+    isProcessingRef.current = false;
+    setIsLocked(false);
+    return;
+  }
 
-    // ⏱ pequeña protección extra (por navegación)
-    setTimeout(() => {
-      router.replace("/GameRoom");
-      stopBackgroundMusic()
-    }, 100);
-  };
+  playSound(require("@/assets/sounds/soundWind.mp3"));
+
+  dispatch(consumeEnergy(requiredEnergy));
+
+  setTimeout(() => {
+    router.replace("/GameRoom");
+    stopBackgroundMusic();
+  }, 100);
+};
+
+  const { selectedTopic, progress } = useSelector(
+  (state: IRootState) => state.topics
+);
+
+const showCompletedMessage = () => {
+  setShowMessage(true);
+
+  messageOpacity.value = withSequence(
+    withTiming(1, { duration: 200 }),
+    withTiming(1, { duration: 1500 }),
+    withTiming(0, { duration: 300 })
+  );
+
+  messageTranslate.value = withSequence(
+    withTiming(0, { duration: 200 }),
+    withTiming(0, { duration: 1500 }),
+    withTiming(20, { duration: 300 })
+  );
+
+  setTimeout(() => setShowMessage(false), 2000);
+};
+
+const isTopicCompleted = progress[selectedTopic]?.completed ?? false;
 
   return (
     <View style={styles.card}>
@@ -134,9 +167,13 @@ export default function PlayButton() {
         <Animated.View style={[styles.toast, messageStyle]}>
           <FontAwesome6 name="bolt-lightning" size={12} color="#FFD54A" />
           <Text style={styles.toastText}>
-            {isEs
-              ? "No tienes suficiente energía"
-              : "You don't have enough energy"}
+            {isTopicCompleted
+              ? (isEs
+                  ? "Esta temática ya fue completada"
+                  : "This topic is already completed")
+              : (isEs
+                  ? "No tienes suficiente energía"
+                  : "You don't have enough energy")}
           </Text>
         </Animated.View>
       )}

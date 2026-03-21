@@ -28,3 +28,8 @@ export const selectCurrentLevel = (state: IRootState) => {
 
   return topic.levels[levelIndex] ?? null;
 };
+
+export const selectIsTopicCompleted = (state: IRootState) => {
+  const topicId = state.topics.selectedTopic;
+  return state.topics.progress[topicId]?.completed ?? false;
+};

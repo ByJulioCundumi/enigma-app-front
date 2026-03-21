@@ -14,6 +14,7 @@ import {
   selectCurrentTopic,
 } from "@/store/selectors/topicSelectors";
 import { LinearGradient } from "expo-linear-gradient";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
@@ -81,6 +82,8 @@ export default function LevelCard() {
   const animatedPositions = useRef(
     positions.map((pos) => new Animated.ValueXY(pos))
   ).current;
+
+const isCompleted = topicProgress?.completed ?? false;
 
   useEffect(() => {
     floatAnims.forEach((anim, i) => {
@@ -217,7 +220,13 @@ export default function LevelCard() {
             >
               <View style={styles.topGlow} />
               <View style={styles.sideGlow} />
-              <Text style={styles.badgeText}>{level}</Text>
+              {isCompleted ? (
+                <FontAwesome6 name="flag-checkered" size={26} color="#5a3b00" />
+              ) : (
+                <Text style={styles.badgeText}>
+                  {levelText}
+                </Text>
+              )}
             </LinearGradient>
           </View>
         </View>

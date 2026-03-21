@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import EnergyStat from "@/components/EnergyStat";
 import { nextLevel, resetSelectedTopic } from "@/store/reducers/topicsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCurrentLevel } from "@/store/selectors/topicSelectors";
+import { selectCurrentLevel, selectCurrentTopic, selectIsTopicCompleted } from "@/store/selectors/topicSelectors";
 import LevelResultPopup from "@/components/LevelResultPopup";
 import { addEnergy, consumeEnergy } from "@/store/reducers/energySlice";
 import { addExtraTimeToTimer, resetTimer, startLevelTimer } from "@/store/reducers/timerSlice";
@@ -74,6 +74,7 @@ export default function GameRoom() {
 const shouldShowArrows = cleanWordLength > 7;
 const [validationState, setValidationState] = useState<"idle" | "correct" | "incorrect">("idle");
 const shakeAnim = useRef(new Animated.Value(0)).current;
+const isTopicCompleted = useSelector(selectIsTopicCompleted);
   
   const [letters, setLetters] = useState<string[]>(
     word.split("").map((l) => (l === " " ? " " : ""))
@@ -117,6 +118,7 @@ const triggerShake = () => {
 
   useEffect(() => {
     dispatch(setCurrentPage("gameMode"))
+    playTimeSound(require("@/assets/sounds/soundTime.mp3"));
     
     return () => {
       dispatch(resetTimer());
@@ -166,18 +168,18 @@ const triggerShake = () => {
   useEffect(() => {
     if (!word) return;
     dispatch(startLevelTimer(TOTAL_TIME));
-    playTimeSound(require("@/assets/sounds/soundTime.mp3"));
+    
     setLetters(word.split("").map((l) => (l === " " ? " " : "")));
     setSelectedIndex(0);
     setKeyboardLetters(generateKeyboardLetters(word));
     setValidationState("idle");
   }, [word]);
 
-  const progress = timeLeft / TOTAL_TIME;
+  const timeProgress = timeLeft / TOTAL_TIME;
 
   const getBarColor = () => {
-    if (progress > 0.5) return "#22c55e";
-    if (progress > 0.25) return "#f59e0b";
+    if (timeProgress > 0.5) return "#22c55e";
+    if (timeProgress > 0.25) return "#f59e0b";
     return "#ef4444";
   };
 
@@ -215,10 +217,12 @@ const triggerShake = () => {
 };
 
   const handleContinue = () => {
+    if (isTopicCompleted) return; // 🔒 bloqueo real
     dispatch(nextLevel());
     dispatch(startLevelTimer(TOTAL_TIME));
     setShowResult(false);
     setTimerActive(true);
+    playTimeSound(require("@/assets/sounds/soundTime.mp3"));
     playSound(require("@/assets/sounds/soundWind.mp3"));
   };
 
@@ -232,10 +236,15 @@ const triggerShake = () => {
   };
 
   const handleHome = () => {
-    playSound(require("@/assets/sounds/soundWind.mp3"));
-    dispatch(resetTimer());
-    router.replace("/");
-  };
+  // 👇 SOLO si ganó el nivel
+  if (levelSuccess && !isTopicCompleted) {
+    dispatch(nextLevel());
+  }
+
+  playSound(require("@/assets/sounds/soundWind.mp3"));
+  dispatch(resetTimer());
+  router.replace("/");
+};
 
   const scrollLeft = () => {
   scrollRef.current?.scrollTo({ x: 0, animated: true });
@@ -366,6 +375,15 @@ const scrollRight = () => {
   const hintDisabled = remainingLetters <= 3 || energy <= 0;
   const timeDisabled = extraTimeUsed >= MAX_TIME_USES || energy <= 0;
 
+  const { selectedTopic, progress } = useSelector((state: IRootState) => state.topics);
+const topic = useSelector(selectCurrentTopic);
+
+const currentLevel = progress[selectedTopic]?.currentLevel ?? 0;
+const totalLevels = topic?.levels.length ?? 0;
+
+// 🔥 CLAVE: último nivel ANTES de avanzar
+const isLastLevel = currentLevel === totalLevels - 1;
+
   return (
     <LinearGradient
           colors={[
@@ -415,7 +433,7 @@ const scrollRight = () => {
                 style={[
                   styles.timeBarFill,
                   {
-                    width: `${progress * 100}%`,
+                    width: `${timeProgress * 100}%`,
                     backgroundColor: getBarColor(),
                   },
                 ]}

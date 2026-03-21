@@ -35,6 +35,7 @@ interface TopicItem {
   name: string;
   levelsCompleted: number;
   totalLevels: number;
+  completed: boolean; // 🔥 NUEVO
   favorite?: boolean;
   vip?: boolean;
 }
@@ -92,17 +93,18 @@ export default function TopicList() {
     return Object.values(topics)
       .filter((topic) => topic.id !== "random")
       .map((topic) => {
-        const topicProgress = progress[topic.id];
+  const topicProgress = progress[topic.id];
 
-        return {
-          id: topic.id,
-          name: topic.name,
-          levelsCompleted: topicProgress?.currentLevel ?? 0,
-          totalLevels: topic.levels.length,
-          vip: true,
-          favorite: favorites[topic.id] ?? false,
-        };
-      });
+  return {
+    id: topic.id,
+    name: topic.name,
+    levelsCompleted: topicProgress?.currentLevel ?? 0,
+    totalLevels: topic.levels.length,
+    completed: topicProgress?.completed ?? false, // 🔥 CLAVE
+    vip: true,
+    favorite: favorites[topic.id] ?? false,
+  };
+});
   }, [progress, favorites]);
 
   const playTopic = (topicId: string) => {
@@ -129,9 +131,16 @@ export default function TopicList() {
   }, [topicsData, search, showFavorites]);
 
   const renderTopic = ({ item }: { item: TopicItem }) => {
-    const progressPercent = Math.floor(
-      (item.levelsCompleted / item.totalLevels) * 100
-    );
+    const isCompleted = item.completed;
+
+    // 👇 FORZAR VALORES CUANDO ESTÁ COMPLETADO
+    const realCompletedLevels = isCompleted
+  ? item.totalLevels
+  : Math.max(0, item.levelsCompleted); // evita negativos
+
+    const progressPercent = isCompleted
+  ? 100
+  : Math.floor((realCompletedLevels / item.totalLevels) * 100);
 
     return (
       <View style={styles.card}>
@@ -159,7 +168,7 @@ export default function TopicList() {
 
             <View style={styles.progressRow}>
               <Text style={styles.levelText}>
-                {isEs ? "Niveles:" : "Levels:"} {item.levelsCompleted}/{item.totalLevels}
+                {isEs ? "Niveles:" : "Levels:"} {realCompletedLevels}/{item.totalLevels}
               </Text>
 
               <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
@@ -176,14 +185,30 @@ export default function TopicList() {
             <Text style={styles.percentText}>{progressPercent}%</Text>
 
             <TouchableOpacity
-              style={styles.playButton}
-              onPress={() => playTopic(item.id)}
+              style={[
+                styles.playButton,
+                isCompleted && { opacity: 0.5, backgroundColor: "#475569" } // 🔥 visual bloqueado
+              ]}
+              onPress={() => {
+                if (isCompleted) {
+                  playSound(require("@/assets/sounds/soundError2.mp3"));
+                  return;
+                }
+                playTopic(item.id);
+              }}
+              disabled={isCompleted}
             >
-              <Text style={styles.playText}>{isEs ? "Jugar" : "Play"}</Text>
-              <View style={styles.energyCost}>
-              <FontAwesome6 name="bolt-lightning" size={8} color="#fff" />
-              <Text style={styles.energyCostText}>-{PLAY_COST}</Text>
-            </View>
+              <Text style={styles.playText}>
+                {isCompleted
+                  ? (isEs ? "Completado" : "Completed")
+                  : (isEs ? "Jugar" : "Play")}
+              </Text>
+              {!isCompleted && (
+                <View style={styles.energyCost}>
+                  <FontAwesome6 name="bolt-lightning" size={8} color="#fff" />
+                  <Text style={styles.energyCostText}>-{PLAY_COST}</Text>
+                </View>
+              )}
             </TouchableOpacity>
 
           </View>
@@ -454,7 +479,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 4,
-    marginRight: 27
+    marginRight: 35
   },
 
   levelText: {
@@ -474,8 +499,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 10,
     flexDirection: "row",
-    marginRight: 20,
-    width: 72,
+    marginRight: 28,
+    width: 78,
     gap: 4,
     justifyContent: "center"
   },
