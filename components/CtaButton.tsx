@@ -1,4 +1,5 @@
 import { IRootState } from "@/store/rootState";
+import { Octicons } from "@expo/vector-icons";
 import React from "react";
 import {
   View,
@@ -17,7 +18,8 @@ export default function CtaButton() {
         <TouchableOpacity
           style={styles.openButton}
         >
-          <Text style={styles.openButtonText}>{isEs ? "¿Qué palabra es?" : "What word is it?"}</Text>
+          <Octicons name="multi-select" size={12} color="#fff" />
+          <Text style={styles.openButtonText}>{isEs ? "Tema: Aleatorio" : "Topic: Random"}</Text>
         </TouchableOpacity>
       </View>
   );
@@ -27,13 +29,14 @@ const styles = StyleSheet.create({
   openButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2262c2ce",
+    backgroundColor: "#ffffff15",
     paddingHorizontal: 15,
     paddingVertical: 6,
     borderRadius: 16,
     alignSelf: "center",
     gap: 8,
-    marginTop: 15,
+    marginBottom: 40,
+    marginTop: -40
   },
 
   openButtonText: {

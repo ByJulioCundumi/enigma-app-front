@@ -1,52 +1,47 @@
 export const animalsLevelsEs = [
   {
-  id: 1,
-  word: "PEZ",
-  clues: [
-    { text: "Branquias", image: require("../../../icons/gills.png") },
-    { text: "Aletas", image: require("../../../icons/fins.png") },
-    { text: "Nadar", image: require("../../../icons/swim.png") },
-    { text: "Escamas", image: require("../../../icons/flakes.png") },
-  ],
-},
+    id: 1,
+    word: "PEZ",
+    images: [
+      require("../../../icons/gills.png"),
+      require("../../../icons/fins.png"),
+    ],
+    words: ["Nadar", "Escamas"],
+  },
   {
     id: 2,
     word: "PERRO",
-    clues: [
-      { text: "Ladrar", image: require("../../../icons/sound.png") },
-      { text: "Leal", image: require("../../../icons/loyal.png") },
-      { text: "Cola", image: require("../../../icons/tail.png") },
-      { text: "Canino", image: require("../../../icons/canine.png") },
+    images: [
+      require("../../../icons/sound.png"),
+      require("../../../icons/tail.png"),
     ],
+    words: ["Leal", "Canino"],
   },
   {
     id: 3,
     word: "LEON",
-    clues: [
-      { text: "Melena", image: require("../../../icons/mane.png") },
-      { text: "Rugir", image: require("../../../icons/sound.png") },
-      { text: "Sabana", image: require("../../../icons/savanna.png") },
-      { text: "Rey", image: require("../../../icons/king.png") },
+    images: [
+      require("../../../icons/mane.png"),
+      require("../../../icons/savanna.png"),
     ],
+    words: ["Rugir", "Rey"],
   },
   {
     id: 4,
     word: "ELEFANTE",
-    clues: [
-      { text: "Trompa", image: require("../../../icons/trunk.png") },
-      { text: "Colmillos", image: require("../../../icons/tusks.png") },
-      { text: "Gigante", image: require("../../../icons/giant.png") },
-      { text: "Memoria", image: require("../../../icons/memory.png") },
+    images: [
+      require("../../../icons/trunk.png"),
+      require("../../../icons/tusks.png"),
     ],
+    words: ["Gigante", "Memoria"],
   },
   {
     id: 5,
     word: "TIBURON",
-    clues: [
-      { text: "Aletas", image: require("../../../icons/fins.png") },
-      { text: "Dientes", image: require("../../../icons/teeth.png") },
-      { text: "Oceano", image: require("../../../icons/ocean.png") },
-      { text: "Depredador", image: require("../../../icons/predator.png") },
+    images: [
+      require("../../../icons/fins.png"),
+      require("../../../icons/ocean.png"),
     ],
+    words: ["Dientes", "Depredador"],
   },
 ];

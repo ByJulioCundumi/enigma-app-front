@@ -367,7 +367,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
         >
           {/* 1. Imagen */}
           <View style={styles.imageWrapper}>
-            <LevelCard isIndex={false} />
+            <LevelCard isAnimated={true} />
           </View>
 
           {/* 3. Palabra a completar */}

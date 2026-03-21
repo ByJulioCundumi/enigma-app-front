@@ -78,13 +78,13 @@ export default function Index() {
         resizeMode="contain"
       />
 
-      <TopicList />
+      <CtaButton />
 
       <View style={styles.gameSection}>
-        <LevelCard isIndex={true} />
+        <LevelCard isAnimated={false} />
       </View>
 
-      <CtaButton />
+      <TopicList />
       <PlayButton />
     </LinearGradient>
   );

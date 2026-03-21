@@ -1,52 +1,47 @@
 export const animalsLevelsEn = [
-{
-  id: 1,
-  word: "FISH",
-  clues: [
-    { text: "Gills", image: require("../../../icons/gills.png") },
-    { text: "Fins", image: require("../../../icons/fins.png") },
-    { text: "Swim", image: require("../../../icons/swim.png") },
-    { text: "flakes", image: require("../../../icons/flakes.png") },
-  ],
-},
+  {
+    id: 1,
+    word: "FISH",
+    images: [
+      require("../../../icons/gills.png"),
+      require("../../../icons/fins.png"),
+    ],
+    words: ["Swim", "Scales"],
+  },
   {
     id: 2,
     word: "DOG",
-    clues: [
-      { text: "Bark", image: require("../../../icons/sound.png") },
-      { text: "Loyal", image: require("../../../icons/loyal.png") },
-      { text: "Tail", image: require("../../../icons/tail.png") },
-      { text: "Canine", image: require("../../../icons/canine.png") },
+    images: [
+      require("../../../icons/sound.png"),
+      require("../../../icons/tail.png"),
     ],
+    words: ["Loyal", "Canine"],
   },
   {
     id: 3,
     word: "LION",
-    clues: [
-      { text: "Mane", image: require("../../../icons/mane.png") },
-      { text: "Roar", image: require("../../../icons/sound.png") },
-      { text: "Savanna", image: require("../../../icons/savanna.png") },
-      { text: "King", image: require("../../../icons/king.png") },
+    images: [
+      require("../../../icons/mane.png"),
+      require("../../../icons/savanna.png"),
     ],
+    words: ["Roar", "King"],
   },
   {
     id: 4,
     word: "ELEPHANT",
-    clues: [
-      { text: "Trunk", image: require("../../../icons/trunk.png") },
-      { text: "Tusks", image: require("../../../icons/tusks.png") },
-      { text: "Giant", image: require("../../../icons/giant.png") },
-      { text: "Memory", image: require("../../../icons/memory.png") },
+    images: [
+      require("../../../icons/trunk.png"),
+      require("../../../icons/tusks.png"),
     ],
+    words: ["Giant", "Memory"],
   },
   {
     id: 5,
     word: "SHARK",
-    clues: [
-      { text: "Fins", image: require("../../../icons/fins.png") },
-      { text: "Teeth", image: require("../../../icons/teeth.png") },
-      { text: "Ocean", image: require("../../../icons/ocean.png") },
-      { text: "Predator", image: require("../../../icons/predator.png") },
+    images: [
+      require("../../../icons/fins.png"),
+      require("../../../icons/ocean.png"),
     ],
+    words: ["Teeth", "Predator"],
   },
 ];

@@ -139,6 +139,7 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
           name="crown"
           size={20}
           color="#FFD700"
+          style={{marginTop: -5}}
         />
 
         <View style={styles.badge}>
@@ -150,6 +151,7 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
             </Text>
           ) : (
             <Text style={styles.badgeText}>
+              <MaterialCommunityIcons name="movie-open-play" size={12} color="black" />
               {adsWatched}/{REQUIRED_ADS}
             </Text>
           )}
@@ -370,9 +372,11 @@ const styles = StyleSheet.create({
   },
 
   badgeText:{
+    display: "flex",
     fontSize:10,
     fontWeight:"900",
-    color:"#1a1a1a"
+    color:"#1a1a1a",
+    gap: 3
   },
 
   overlay:{

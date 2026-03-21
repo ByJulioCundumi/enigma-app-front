@@ -21,5 +21,10 @@ export const selectCurrentLevel = (state: IRootState) => {
 
   const levelIndex = state.topics.progress[topicId]?.currentLevel ?? 0;
 
-  return topic.levels?.[levelIndex] ?? null;
+  // 🔥 PROTECCIÓN contra overflow
+  if (levelIndex >= topic.levels.length) {
+    return topic.levels[topic.levels.length - 1] ?? null;
+  }
+
+  return topic.levels[levelIndex] ?? null;
 };

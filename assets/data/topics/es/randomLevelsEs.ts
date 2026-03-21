@@ -2,51 +2,46 @@ export const randomLevelsEs = [
   {
     id: 1,
     word: "GATO",
-    clues: [
-      { text: "Bigotes", image: require("../../../icons/whiskers.png") },
-      { text: "Ronroneo", image: require("../../../icons/sound.png") },
-      { text: "Garras", image: require("../../../icons/claws.png") },
-      { text: "Felino", image: require("../../../icons/feline.png") },
+    images: [
+      require("@/assets/images/random/3.jpg"),
+      require("@/assets/images/random/5.jpg"),
     ],
+    words: ["Ronroneo", "Garras"],
   },
   {
     id: 2,
     word: "PIZZA",
-    clues: [
-      { text: "Queso", image: require("../../../icons/cheese.png") },
-      { text: "Porción", image: require("../../../icons/slice.png") },
-      { text: "Horno", image: require("../../../icons/oven.png") },
-      { text: "Italia", image: require("../../../icons/italy.png") },
+    images: [
+      require("../../../icons/cheese.png"),
+      require("../../../icons/italy.png"),
     ],
+    words: ["Porción", "Horno"],
   },
   {
     id: 3,
     word: "AVION",
-    clues: [
-      { text: "Alas", image: require("../../../icons/wings.png") },
-      { text: "Cielo", image: require("../../../icons/sky.png") },
-      { text: "Aeropuerto", image: require("../../../icons/airport.png") },
-      { text: "Viaje", image: require("../../../icons/travel.png") },
+    images: [
+      require("../../../icons/wings.png"),
+      require("../../../icons/airport.png"),
     ],
+    words: ["Cielo", "Viaje"],
   },
   {
     id: 4,
     word: "FUEGO",
-    clues: [
-      { text: "Calor", image: require("../../../icons/heat.png") },
-      { text: "Llama", image: require("../../../icons/flame.png") },
-      { text: "Quemar", image: require("../../../icons/burn.png") },
-      { text: "Humo", image: require("../../../icons/smoke.png") },
+    images: [
+      require("../../../icons/flame.png"),
+      require("../../../icons/smoke.png"),
     ],
+    words: ["Calor", "Quemar"],
   },
   {
     id: 5,
     word: "TIBURON",
-    clues: [
-      { text: "Aletas", image: require("../../../icons/fins.png") },
-      { text: "Dientes", image: require("../../../icons/teeth.png") },
-      { text: "Oceano", image: require("../../../icons/ocean.png") },
-      { text: "Depredador", image: require("../../../icons/predator.png") },
+    images: [
+      require("../../../icons/fins.png"),
+      require("../../../icons/ocean.png"),
     ],
+    words: ["Dientes", "Depredador"],
   },
 ];

@@ -159,7 +159,7 @@ export default function TopicList() {
 
             <View style={styles.progressRow}>
               <Text style={styles.levelText}>
-                {item.levelsCompleted}/{item.totalLevels}
+                {isEs ? "Niveles:" : "Levels:"} {item.levelsCompleted}/{item.totalLevels}
               </Text>
 
               <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
@@ -190,7 +190,8 @@ export default function TopicList() {
         </View>
 
         {/* BARRA DE PROGRESO */}
-        <View style={styles.progressBar}>
+        {
+          progressPercent > 0 && <View style={styles.progressBar}>
           <View
             style={[
               styles.progressFill,
@@ -198,6 +199,8 @@ export default function TopicList() {
             ]}
           />
         </View>
+        }
+        
       </View>
     );
   };
@@ -236,7 +239,7 @@ export default function TopicList() {
                   size={18}
                   color="#FACC15"
                 />
-                <Text style={styles.title}>{isEs ? "Contenido Exclusivo" : "Exclusive Content"}</Text>
+                <Text style={styles.title}>{isEs ? "Tematicas" : "Topics"}</Text>
               </View>
 
               <TouchableOpacity onPress={() => {
@@ -340,8 +343,7 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 40,
-    marginTop: -40
+    marginTop: 15
   },
 
   openButtonText: {
