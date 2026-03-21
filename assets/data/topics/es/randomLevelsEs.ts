@@ -2,46 +2,26 @@ export const randomLevelsEs = [
   {
     id: 1,
     word: "GATO",
-    images: [
-      require("@/assets/images/random/3.jpg"),
-      require("@/assets/images/random/5.jpg"),
-    ],
-    words: ["Ronroneo", "Garras"],
+    words: ["Ronroneo", "Garras", "Miau", "Mascota"],
   },
   {
     id: 2,
     word: "PIZZA",
-    images: [
-      require("../../../icons/cheese.png"),
-      require("../../../icons/italy.png"),
-    ],
-    words: ["Porción", "Horno"],
+    words: ["Rebanada", "Horno", "Queso", "Italiano"],
   },
   {
     id: 3,
     word: "AVION",
-    images: [
-      require("../../../icons/wings.png"),
-      require("../../../icons/airport.png"),
-    ],
-    words: ["Cielo", "Viaje"],
+    words: ["Cielo", "Viajar", "Volar", "Aeropuerto"],
   },
   {
     id: 4,
     word: "FUEGO",
-    images: [
-      require("../../../icons/flame.png"),
-      require("../../../icons/smoke.png"),
-    ],
-    words: ["Calor", "Quemar"],
+    words: ["Calor", "Quemar", "Llama", "Humo"],
   },
   {
     id: 5,
     word: "TIBURON",
-    images: [
-      require("../../../icons/fins.png"),
-      require("../../../icons/ocean.png"),
-    ],
-    words: ["Dientes", "Depredador"],
+    words: ["Dientes", "Depredador", "Océano", "Peligro"],
   },
 ];

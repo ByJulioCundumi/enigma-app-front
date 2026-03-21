@@ -15,6 +15,7 @@ import { addEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
 
 const ENERGY_REWARD = 3;
+const VIP_REWARD = 100;
 
 const formatNumber = (num: number) => {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
@@ -29,8 +30,12 @@ export default function EnergyStat() {
     (state: IRootState) => state.energy.energy
   );
 
-  const {language} = useSelector(
+  const { language } = useSelector(
     (state: IRootState) => state.language
+  );
+
+  const { hasPurchased } = useSelector(
+    (state: IRootState) => state.purchase
   );
 
   const isEs = language === "es";
@@ -38,6 +43,7 @@ export default function EnergyStat() {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // 👉 ANUNCIO (usuario normal)
   const watchAd = async () => {
     if (loading) return;
 
@@ -48,6 +54,13 @@ export default function EnergyStat() {
     dispatch(addEnergy(ENERGY_REWARD));
 
     setLoading(false);
+    setVisible(false);
+    playSound(require("@/assets/sounds/soundWind.mp3"));
+  };
+
+  // 👉 VIP (sin anuncio)
+  const getVipEnergy = () => {
+    dispatch(addEnergy(VIP_REWARD));
     setVisible(false);
     playSound(require("@/assets/sounds/soundWind.mp3"));
   };
@@ -103,9 +116,13 @@ export default function EnergyStat() {
               </Text>
 
               <Text style={styles.subtitle}>
-                {isEs
-                  ? "Mira un anuncio corto para continuar jugando"
-                  : "Watch a short ad to keep playing"}
+                {hasPurchased
+                  ? (isEs
+                      ? "Beneficio VIP: obtén energía ilimitada"
+                      : "VIP benefit: get unlimited energy")
+                  : (isEs
+                      ? "Mira un anuncio corto para continuar jugando"
+                      : "Watch a short ad to keep playing")}
               </Text>
             </View>
 
@@ -119,45 +136,38 @@ export default function EnergyStat() {
                 <FontAwesome6
                   name="bolt-lightning"
                   size={20}
-                  color="#FFD700"
+                  color="#ffd000"
                 />
 
                 <Text style={styles.rewardText}>
-                  +{ENERGY_REWARD} {isEs ? "Energía" : "Energy"}
+                  +{hasPurchased ? VIP_REWARD : ENERGY_REWARD}{" "}
+                  {isEs ? "Energía" : "Energy"}
                 </Text>
               </View>
             </View>
 
-            {/* BOTON */}
+            {/* BOTON DINAMICO */}
             <TouchableOpacity
-              style={styles.watchButton}
-              onPress={watchAd}
-              disabled={loading}
+              style={[
+                styles.watchButton,
+                hasPurchased && styles.vipButton
+              ]}
+              onPress={hasPurchased ? getVipEnergy : watchAd}
+              disabled={loading && !hasPurchased}
               activeOpacity={0.85}
             >
               <MaterialCommunityIcons
-                name="play-circle"
+                name={hasPurchased ? "crown" : "play-circle"}
                 size={22}
                 color="#1a1a1a"
               />
 
               <Text style={styles.watchText}>
-                {loading
-                  ? isEs ? "Cargando..." : "Loading..."
-                  : isEs ? "Ver anuncio" : "Watch ad"}
-              </Text>
-            </TouchableOpacity>
-
-            {/* CANCELAR */}
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => {
-                setVisible(false);
-                playSound(require("@/assets/sounds/soundWind.mp3"));
-              }}
-            >
-              <Text style={styles.cancelText}>
-                {isEs ? "Ahora no" : "Not now"}
+                {hasPurchased
+                  ? (isEs ? "Obtener Energía" : "Get Energy")
+                  : (loading
+                      ? (isEs ? "Cargando..." : "Loading...")
+                      : (isEs ? "Ver anuncio" : "Watch ad"))}
               </Text>
             </TouchableOpacity>
 
@@ -245,7 +255,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: "#ffc400",
+    color: "#ffd000",
     fontSize: 22,
     fontWeight: "900",
   },
@@ -285,9 +295,20 @@ const styles = StyleSheet.create({
     color: "#FFD700",
   },
 
+  vipBadge: {
+    marginTop: 8,
+    fontSize: 12,
+    fontWeight: "900",
+    color: "#FFD700",
+    backgroundColor: "#ffd000",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+
   watchButton: {
     flexDirection: "row",
-    backgroundColor: "#FFD700",
+    backgroundColor: "#ffd000",
     paddingVertical: 15,
     borderRadius: 16,
     justifyContent: "center",
@@ -299,20 +320,14 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 
+  vipButton: {
+    backgroundColor: "#ffd000",
+  },
+
   watchText: {
     color: "#1a1a1a",
     fontWeight: "900",
     fontSize: 16,
-  },
-
-  cancelButton: {
-    marginTop: 14,
-    alignItems: "center",
-  },
-
-  cancelText: {
-    color: "#9ca3af",
-    fontSize: 13,
   },
 
 });

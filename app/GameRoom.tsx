@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Dimensions } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Dimensions, Animated, Vibration } from "react-native";
 import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import LevelCard from "@/components/LevelCard";
 import { useRouter } from "expo-router";
@@ -69,6 +69,11 @@ export default function GameRoom() {
   const energy = useSelector((state: any) => state.energy.energy);
   const word = levelData?.word ?? "";
   const words = word.split(" ");
+  const scrollRef = useRef<ScrollView>(null);
+  const cleanWordLength = word.replace(/ /g, "").length;
+const shouldShowArrows = cleanWordLength > 7;
+const [validationState, setValidationState] = useState<"idle" | "correct" | "incorrect">("idle");
+const shakeAnim = useRef(new Animated.Value(0)).current;
   
   const [letters, setLetters] = useState<string[]>(
     word.split("").map((l) => (l === " " ? " " : ""))
@@ -97,6 +102,18 @@ const KEY_SIZE = 46;
 const lettersPerRow = Math.floor((screenWidth - 40) / KEY_SIZE);
 
 const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
+
+const triggerShake = () => {
+  shakeAnim.setValue(0);
+
+  Animated.timing(shakeAnim, {
+    toValue: 1,
+    duration: 400,
+    useNativeDriver: true,
+  }).start(() => {
+    shakeAnim.setValue(0); // reset limpio
+  });
+};
 
   useEffect(() => {
     dispatch(setCurrentPage("gameMode"))
@@ -153,6 +170,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
     setLetters(word.split("").map((l) => (l === " " ? " " : "")));
     setSelectedIndex(0);
     setKeyboardLetters(generateKeyboardLetters(word));
+    setValidationState("idle");
   }, [word]);
 
   const progress = timeLeft / TOTAL_TIME;
@@ -173,20 +191,28 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
   };
 
   const checkWordCompletion = (currentLetters: string[]) => {
-    const allFilled = currentLetters.every((l, i) => l === " " || l !== "");
-    if (!allFilled) return;
+  const allFilled = currentLetters.every((l, i) => l === " " || l !== "");
+  if (!allFilled) {
+    setValidationState("idle"); // 👈 si ya no está completa, quitamos color
+    return;
+  }
 
-    const formedWord = currentLetters.join("");
-    if (formedWord === word) {
-      setTimerActive(false);
-      setLevelSuccess(true);
-      setShowResult(true);
-      isVip ? dispatch(addEnergy(2)) : dispatch(addEnergy(1));
-      playSound(require("@/assets/sounds/soundLevelUp.mp3"));
-    } else {
-      playSound(require("@/assets/sounds/soundError2.mp3"));
-    }
-  };
+  const formedWord = currentLetters.join("");
+
+  if (formedWord === word) {
+    setValidationState("correct"); // ✅ verde
+    setTimerActive(false);
+    setLevelSuccess(true);
+    setShowResult(true);
+    isVip ? dispatch(addEnergy(2)) : dispatch(addEnergy(1));
+    playSound(require("@/assets/sounds/soundLevelUp.mp3"));
+  } else {
+    setValidationState("incorrect"); // ❌ rojo
+    triggerShake(); // 🔥 AQUÍ
+    playSound(require("@/assets/sounds/soundError2.mp3"));
+    Vibration.vibrate(100);
+  }
+};
 
   const handleContinue = () => {
     dispatch(nextLevel());
@@ -210,6 +236,14 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
     dispatch(resetTimer());
     router.replace("/");
   };
+
+  const scrollLeft = () => {
+  scrollRef.current?.scrollTo({ x: 0, animated: true });
+};
+
+const scrollRight = () => {
+  scrollRef.current?.scrollToEnd({ animated: true });
+};
 
   const addLetter = (letter: string, keyboardIndex: number) => {
   if (!timerActive) return;
@@ -254,6 +288,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
       newLetters[index] = "";
       setLetters(newLetters);
       setSelectedIndex(index);
+      setValidationState("idle");
       playSound(require("@/assets/sounds/soundClick3.mp3"));
       const keyboardIndex = keyboardLetters.findIndex(
         (k) => k.letter === removedLetter && k.used
@@ -270,6 +305,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
     setLetters(word.split("").map((l) => (l === " " ? " " : "")));
     setSelectedIndex(0);
     setKeyboardLetters((prev) => prev.map((k) => ({ ...k, used: false })));
+    setValidationState("idle");
     if(sound){
       playSound(require("@/assets/sounds/soundClick3.mp3"));
     }
@@ -367,56 +403,101 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
         >
           {/* 1. Imagen */}
           <View style={styles.imageWrapper}>
-            <LevelCard isAnimated={true} />
+            <LevelCard/>
+          </View>
+
+          {/* 2. Barra de tiempo */}
+          <View style={styles.timeBarContainer}>
+            <FontAwesome6 name="bolt-lightning" size={12} color="#fff" />
+            <Text style={styles.x2Text}>x2</Text>
+            <View style={styles.timeBarBackground}>
+              <View
+                style={[
+                  styles.timeBarFill,
+                  {
+                    width: `${progress * 100}%`,
+                    backgroundColor: getBarColor(),
+                  },
+                ]}
+              />
+            </View>
+            <Text style={styles.timeText}>{timeLeft}s</Text>
           </View>
 
           {/* 3. Palabra a completar */}
-          <View style={styles.wordContainer}>
-            {words.map((singleWord, wordIndex) => {
-              const startIndex =
-                words.slice(0, wordIndex).join("").length + wordIndex;
-              return (
-                <View key={wordIndex} style={styles.wordRow}>
-                  {singleWord.split("").map((_, i) => {
-                    const letterIndex = startIndex + i;
-                    const l = letters[letterIndex];
-                    return (
-                      <TouchableOpacity
-                        key={letterIndex}
-                        onPress={() => {
-                          setSelectedIndex(letterIndex);
-                          removeLetter(letterIndex);
-                        }}
-                        style={[
-                          styles.letterBox,
-                          selectedIndex === letterIndex && styles.selectedLetterBox,
-                        ]}
-                      >
-                        <Text style={styles.letterText}>{l}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              );
-            })}
-          </View>
+          <Animated.View
+  style={[
+    styles.wordContainer,
+    {
+      transform: [
+  {
+    translateX: shakeAnim.interpolate({
+      inputRange: [0, 0.25, 0.5, 0.75, 1],
+      outputRange: [0, -12, 12, -8, 0],
+    }),
+  },
+]
+    },
+    !shouldShowArrows && { alignSelf: "center", width: "auto" }
+  ]}
+>
+  {/* Flecha izquierda */}
+  {shouldShowArrows && (
+  <TouchableOpacity onPress={scrollLeft} style={styles.arrowButton}>
+    <Ionicons name="chevron-back" size={22} color="#fff" />
+  </TouchableOpacity>
+)}
+
+  {/* Scroll horizontal */}
+  <ScrollView
+  ref={scrollRef}
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  style={!shouldShowArrows && { flexGrow: 0 }}
+  contentContainerStyle={[
+    styles.wordScrollContent,
+    !shouldShowArrows && {
+      justifyContent: "center",
+      flexGrow: 0
+    }
+  ]}
+>
+    {letters.map((l, index) => {
+      if (word[index] === " ") {
+        return <View key={index} style={{ width: 12 }} />;
+      }
+
+      return (
+        <TouchableOpacity
+          key={index}
+          onPress={() => {
+            setSelectedIndex(index);
+            removeLetter(index);
+          }}
+          style={[
+  styles.letterBox,
+  selectedIndex === index && styles.selectedLetterBox,
+
+  validationState === "correct" && styles.correctBox,
+  validationState === "incorrect" && styles.incorrectBox,
+]}
+        >
+          <Text style={styles.letterText}>{l}</Text>
+        </TouchableOpacity>
+      );
+    })}
+  </ScrollView>
+
+  {/* Flecha derecha */}
+  {shouldShowArrows && (
+  <TouchableOpacity onPress={scrollRight} style={styles.arrowButton}>
+    <Ionicons name="chevron-forward" size={22} color="#fff" />
+  </TouchableOpacity>
+)}
+</Animated.View>
 
           {/* 4. Botones de acción */}
           <View style={styles.footerActions}>
-            <View style={styles.actionWrapper}>
-              <TouchableOpacity
-                style={[styles.timeButton, false && styles.disabledButton, styles.timeBox]}
-              >
-                {timeLeft % 2 === 0 ? (
-                  <MaterialCommunityIcons name="timer-sand-complete" size={24} color="#fff" />
-                ) : (
-                  <MaterialCommunityIcons name="timer-sand" size={24} color="#fff" />
-                )}
-                
-                <Text style={{fontSize: 14.5, color: "#fff", fontWeight: 600}}>{timeLeft}s</Text>
-              </TouchableOpacity>
-            </View>
-
             <TouchableOpacity style={styles.clearButton} onPress={()=> clearLetters(true)}>
               <MaterialCommunityIcons name="delete-sweep" size={24} color="#fff" />
             </TouchableOpacity>
@@ -444,7 +525,7 @@ const rows = word.length <= lettersPerRow * 2 ? 2 : 3;
                 <MaterialCommunityIcons name="timer-plus" size={24} color="#fff" />
               </TouchableOpacity>
               <View style={styles.timeBadge}>
-                <MaterialCommunityIcons name="lightning-bolt" size={12} color="#fff" />
+                <MaterialCommunityIcons name="lightning-bolt" size={12} color="#ffffff" />
                 <Text style={styles.hintCostText}>1</Text>
               </View>
             </View>
@@ -507,6 +588,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
   },
+
+arrowButton: {
+  width: 34,
+  height: 34,
+  borderRadius: 10,
+  backgroundColor: "#1e293b",
+  justifyContent: "center",
+  alignItems: "center",
+  marginHorizontal: 6,
+},
   timeBarContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -533,6 +624,15 @@ const styles = StyleSheet.create({
   timeBarFill: {
     height: "100%",
   },
+  correctBox: {
+  borderColor: "#22c55e94",
+  backgroundColor: "#22c55e22",
+},
+
+incorrectBox: {
+  borderColor: "#ef444477",
+  backgroundColor: "#ef444422",
+},
   timeText: {
     color: "#fff",
     fontWeight: "700",
@@ -546,30 +646,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#ff006ace",
     width: 74
   },
-  wordContainer: {
-    marginBottom: 24,
-    alignItems: "center",
-    backgroundColor: "#ffffff11",
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    width: "100%",
-  },
   wordRow: {
     flexDirection: "row",
     justifyContent: "center",
     marginVertical: 6,
-  },
-  letterBox: {
-    width: 30,
-    height: 30,
-    marginHorizontal: 4,
-    borderRadius: 10,
-    backgroundColor: "#1e293b",
-    borderWidth: 2,
-    borderColor: "#334155",
-    justifyContent: "center",
-    alignItems: "center",
   },
   selectedLetterBox: {
     borderColor: "#f59e0b",
@@ -625,7 +705,7 @@ const styles = StyleSheet.create({
     right: -8,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f97316",
+    backgroundColor: "#fac000",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 8,
@@ -679,4 +759,35 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
   },
+
+  wordContainer: {
+  flexDirection: "row", // 🔥 CLAVE: todo en línea
+  alignItems: "center",
+  justifyContent: "center",
+  marginBottom: 24,
+  backgroundColor: "#ffffff11",
+  borderRadius: 12,
+  paddingVertical: 10,
+  paddingHorizontal: 8,
+  width: "100%", // 🔥 evita que se encoja
+},
+
+wordScrollContent: {
+  flexDirection: "row",
+  alignItems: "center",
+  flexGrow: 1, // 🔥 importante para centrar cuando es corto
+  justifyContent: "center",
+},
+
+letterBox: {
+  width: 34,
+  height: 34,
+  marginHorizontal: 4,
+  borderRadius: 10,
+  backgroundColor: "#1e293b",
+  borderWidth: 2,
+  borderColor: "#334155",
+  justifyContent: "center",
+  alignItems: "center",
+},
 });

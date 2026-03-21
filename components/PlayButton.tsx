@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#ffffff6e",
-    backgroundColor: "#ffa600",
+    backgroundColor: "#ffc400",
   },
 
   buttonInner: {

@@ -81,7 +81,7 @@ export default function Index() {
       <CtaButton />
 
       <View style={styles.gameSection}>
-        <LevelCard isAnimated={false} />
+        <LevelCard />
       </View>
 
       <TopicList />

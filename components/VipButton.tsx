@@ -8,7 +8,7 @@ import {
   Pressable,
   Switch
 } from "react-native";
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 
@@ -150,10 +150,12 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
               {formatTime(timeLeft)}
             </Text>
           ) : (
-            <Text style={styles.badgeText}>
+            <View style={{flexDirection: "row", alignItems: "center", gap: 3}}>
               <MaterialCommunityIcons name="movie-open-play" size={12} color="black" />
+              <Text style={styles.badgeText}>
               {adsWatched}/{REQUIRED_ADS}
             </Text>
+            </View>
           )}
         </View>
       </TouchableOpacity>
@@ -275,22 +277,10 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
                       {isEs ? "VIP para siempre" : "VIP forever"}
                     </Text>
                   </View>
-
-                  {/* 🎉 MENSAJE EXPERIENCIA */}
-                  {
-                    hasPurchased && <View style={styles.vipMessageContainer}>
-                    <Text style={styles.vipMessage}>
-                      {isEs
-                        ? "Disfruta la mejor experiencia de juego 🚀"
-                        : "Enjoy the best gaming experience 🚀"}
-                    </Text>
-                  </View>
-                  }
                 </>
               )}
             </View>
 
-            {/* BOTONES */}
             {/* BOTONES */}
 {!hasPurchased && (
   <>
@@ -300,6 +290,7 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
         style={styles.watchButton}
         onPress={watchAd}
       >
+          <MaterialCommunityIcons name="movie-open-play" size={18} color="black" />
         <Text style={styles.watchText}>
           {isEs ? "Ver anuncio" : "Watch ad"} {adsWatched}/{REQUIRED_ADS}
         </Text>
@@ -313,6 +304,7 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
           style={styles.buyButton}
           onPress={handleBuy}
         >
+          <MaterialIcons name="local-offer" size={18} color="black" />
           <Text style={styles.buyText}>
             {isEs ? "Comprar por $11.99" : "Buy for $11.99"}
           </Text>
@@ -453,7 +445,10 @@ const styles = StyleSheet.create({
     backgroundColor:"#FFD700",
     padding:15,
     borderRadius:16,
-    alignItems:"center"
+    alignItems:"center",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 5
   },
 
   watchText:{
@@ -478,7 +473,10 @@ const styles = StyleSheet.create({
     padding:14,
     borderRadius:14,
     alignItems:"center",
-    marginBottom:10
+    marginBottom:10,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 5
   },
 
   buyText:{
@@ -488,11 +486,14 @@ const styles = StyleSheet.create({
 
   restoreButton:{
     alignItems:"center",
-    padding:10
+    padding:10,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
   },
 
   restoreText:{
-    color:"#60a5fa",
+    color:"#cc9e20",
     fontWeight:"700"
   },
 
