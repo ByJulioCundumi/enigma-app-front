@@ -179,7 +179,7 @@ export default function GameRoom() {
       const remaining = Math.ceil((endTimestamp - now) / 1000);
 
       if (elapsed > MAX_TIME || remaining <= 0) {
-        playSound(require("@/assets/sounds/soundFail4.mp3"));
+        playSound(require("@/assets/sounds/soundError3.mp3"));
         clearInterval(interval);
         setTimerActive(false);
         setLevelSuccess(false);
@@ -268,7 +268,7 @@ export default function GameRoom() {
     moveCursorNext(selectedIndex);
     checkWordCompletion(newLetters);
 
-    playSound(require("@/assets/sounds/soundClick2.mp3"));
+    playSound(require("@/assets/sounds/soundClick4.mp3"));
   };
 
   const removeLetter = (index: number) => {
@@ -282,7 +282,7 @@ export default function GameRoom() {
     setSelectedIndex(index);
     setValidationState("idle");
 
-    playSound(require("@/assets/sounds/soundClick3.mp3"));
+    playSound(require("@/assets/sounds/soundClick5.mp3"));
 
     const keyboardIndex = keyboardLetters.findIndex(
       (k) => k.letter === removedLetter && k.used
