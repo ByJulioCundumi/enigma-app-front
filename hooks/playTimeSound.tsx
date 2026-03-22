@@ -13,6 +13,7 @@ export const playTimeSound = async (file: any) => {
 
     const { sound: newSound } = await Audio.Sound.createAsync(file, {
       shouldPlay: true,
+      isLooping: true
     });
 
     sound = newSound;

@@ -63,27 +63,46 @@ export default function TopicList() {
     (state: IRootState) => state.language
   );
 
+  const {hasPurchased} = useSelector(
+    (state: IRootState) => state.purchase
+  );
+
   const isEs = language === "es";
 
   const warningOpacity = useRef(new Animated.Value(0)).current;
+  const [warningText, setWarningText] = useState("");
 
   const topics = getTopics(language); 
 
-  const showVipWarning = () => {
-    Animated.sequence([
-      Animated.timing(warningOpacity, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.delay(1500),
-      Animated.timing(warningOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
+  const hasEnoughEnergy = energy >= PLAY_COST;
+  const isAllowedUser = isVip || hasPurchased;
+  const canPlayTopic = hasEnoughEnergy && isAllowedUser;
+
+const showCustomWarning = (message: string) => {
+  setWarningText(message);
+
+  Animated.sequence([
+    Animated.timing(warningOpacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }),
+    Animated.delay(1500),
+    Animated.timing(warningOpacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }),
+  ]).start();
+};
+
+const closeModal = () => {
+  setVisible(false);
+
+  // Reiniciar mensaje y animación
+  setWarningText("");
+  warningOpacity.setValue(0);
+};
 
   const toggleFavorite = (id: string) => {
     dispatch(toggleFavoriteTopic(id));
@@ -107,20 +126,32 @@ export default function TopicList() {
 });
   }, [progress, favorites]);
 
-  const playTopic = (topicId: string) => {
-    if (!isVip) {
-      playSound(require("@/assets/sounds/soundError2.mp3"));
-      showVipWarning();
-      return;
-    }
+const playTopic = (topicId: string) => {
+  if (!hasEnoughEnergy) {
+    playSound(require("@/assets/sounds/soundError2.mp3"));
+    showCustomWarning(isEs 
+      ? "No tienes suficiente energía" 
+      : "Not enough energy"
+    );
+    return;
+  }
 
-    dispatch(consumeEnergy(PLAY_COST));
-    dispatch(selectTopic(topicId as any));
+  if (!isAllowedUser) {
+    playSound(require("@/assets/sounds/soundError2.mp3"));
+    showCustomWarning(isEs 
+      ? "Debes ser VIP o haber comprado el juego" 
+      : "You must be VIP or have purchased the game"
+    );
+    return;
+  }
 
-    setVisible(false);
-    playSound(require("@/assets/sounds/soundWind.mp3"));
-    router.push("/GameRoom");
-  };
+  dispatch(consumeEnergy(PLAY_COST));
+  dispatch(selectTopic(topicId as any));
+
+  setVisible(false);
+  playSound(require("@/assets/sounds/soundWind.mp3"));
+  router.push("/GameRoom");
+};
 
   const filteredTopics = useMemo(() => {
     return topicsData.filter((t) => {
@@ -185,19 +216,19 @@ export default function TopicList() {
             <Text style={styles.percentText}>{progressPercent}%</Text>
 
             <TouchableOpacity
-              style={[
-                styles.playButton,
-                isCompleted && { opacity: 0.5, backgroundColor: "#475569" } // 🔥 visual bloqueado
-              ]}
-              onPress={() => {
-                if (isCompleted) {
-                  playSound(require("@/assets/sounds/soundError2.mp3"));
-                  return;
-                }
-                playTopic(item.id);
-              }}
-              disabled={isCompleted}
-            >
+                style={[
+                  styles.playButton,
+                  isCompleted && { opacity: 0.5, backgroundColor: "#475569" }
+                ]}
+                onPress={() => {
+                  if (!canPlayTopic) {
+                    playTopic(item.id); // esto mostrará el mensaje correcto
+                    return;
+                  }
+                  playTopic(item.id);
+                }}
+                disabled={isCompleted} // 👈 IMPORTANTE: no lo deshabilites
+              >
               <Text style={styles.playText}>
                 {isCompleted
                   ? (isEs ? "Completado" : "Completed")
@@ -250,7 +281,7 @@ export default function TopicList() {
       <Modal visible={visible} transparent animationType="fade">
         <View style={styles.overlay}>
           <TouchableWithoutFeedback onPress={() => {
-            setVisible(false)
+            closeModal()
             playSound(require("@/assets/sounds/soundWind.mp3"));
           }}>
             <View style={StyleSheet.absoluteFillObject} />
@@ -268,7 +299,7 @@ export default function TopicList() {
               </View>
 
               <TouchableOpacity onPress={() => {
-                setVisible(false)
+                closeModal()
                 playSound(require("@/assets/sounds/soundWind.mp3"));
               }}>
                 <Ionicons name="close" size={22} color="#E2E8F0" />
@@ -312,7 +343,7 @@ export default function TopicList() {
       >
         <FontAwesome6 name="bolt-lightning" size={14} color="#fff" />
         <Text style={styles.energyWarningText}>
-          {isEs ? "Disponible solo para jugadores VIP" : "Available only to VIP players"}
+          {warningText}
         </Text>
       </Animated.View>
           </View>

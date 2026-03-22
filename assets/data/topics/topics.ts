@@ -25,13 +25,13 @@ export const getTopics = (language: string) => {
 
     space: {
       id: "space",
-      name: isEs ? "ESPACIO" : "SPACE",
+      name: isEs ? "Espacio" : "Space",
       levels: isEs ? spaceLevelsEs : spaceLevelsEn,
     },
 
     superpowers:{ 
       id: "superpowers",
-      name: isEs ? "SUPERPODERES" : "SUPERPOWERS",
+      name: isEs ? "Superpoderes" : "Superpowers",
       levels: isEs ? superpowersLevelsEs : superpowersLevelsEn,
     },
   } as const;

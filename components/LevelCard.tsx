@@ -132,7 +132,7 @@ export default function LevelCard() {
       const animations = newOrder.map((itemIndex, newPosIndex) =>
         Animated.timing(animatedPositions[itemIndex], {
           toValue: positions[newPosIndex],
-          duration: 800, // ⬅️ antes 500, ahora más suave
+          duration: 1000, // ⬅️ antes 500, ahora más suave
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: false,
         }),
@@ -331,8 +331,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   badgeText: {
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: "900",
-    color: "#5a3b00",
+    color: "#ffffff",
   },
 });
