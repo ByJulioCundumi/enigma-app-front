@@ -1,0 +1,61 @@
+export const superpowersLevelsEs = [
+  { id: 1, word: "VOLAR", words: ["Cielo", "Aire", "Alas", "Arriba"] },
+  { id: 2, word: "CORRER RÁPIDO", words: ["Velocidad", "Ágil", "Rápido", "Sprint"] },
+  { id: 3, word: "SUPER FUERZA", words: ["Poder", "Levantar", "Fuerte", "Fuerza"] },
+  { id: 4, word: "INVISIBLE", words: ["Oculto", "Fantasma", "Sigilo", "Esconder"] },
+  { id: 5, word: "TELETRANSPORTAR", words: ["Viajar", "Espacio", "Mover", "Salto"] },
+
+  { id: 6, word: "DETENER TIEMPO", words: ["Parar", "Freeze", "Tiempo", "Pausa"] },
+  { id: 7, word: "BOLA DE FUEGO", words: ["Llama", "Arder", "Calor", "Explosión"] },
+  { id: 8, word: "RASTRO DE HIELO", words: ["Frío", "Congelar", "Nieve", "Escarcha"] },
+  { id: 9, word: "EMPUJE DE VIENTO", words: ["Aire", "Tormenta", "Empuje", "Viento"] },
+  { id: 10, word: "OLA DE AGUA", words: ["Agua", "Ola", "Fluir", "Mar"] },
+
+  { id: 11, word: "LEER MENTE", words: ["Pensar", "Cerebro", "Leer", "Mente"] },
+  { id: 12, word: "TELEQUINESIS", words: ["Mover", "Objetos", "Mente", "Poder"] },
+  { id: 13, word: "CURAR", words: ["Sanar", "Vida", "Recuperar", "Salud"] },
+  { id: 14, word: "ESCUDO", words: ["Bloquear", "Proteger", "Defensa", "Barrera"] },
+  { id: 15, word: "ENERGÍA", words: ["Poder", "Fuerza", "Carga", "Impacto"] },
+
+  { id: 16, word: "RAYO DE LUZ", words: ["Láser", "Luz", "Haz", "Flash"] },
+  { id: 17, word: "SOMBRA", words: ["Oscuro", "Noche", "Oculto", "Sigilo"] },
+  { id: 18, word: "GRAVEDAD", words: ["Peso", "Fuerza", "Caída", "Atracción"] },
+  { id: 19, word: "MAGIA", words: ["Hechizo", "Varita", "Mágico", "Poder"] },
+  { id: 20, word: "CLONAR", words: ["Copiar", "Duplicar", "Clon", "Repetir"] },
+
+  { id: 21, word: "RAYOS X", words: ["Ver", "Huesos", "Escanear", "Vista"] },
+  { id: 22, word: "SALTO ALTO", words: ["Saltar", "Alto", "Impulso", "Elevación"] },
+  { id: 23, word: "FUEGO", words: ["Arder", "Llama", "Calor", "Incendio"] },
+  { id: 24, word: "HIELO", words: ["Frío", "Congelar", "Nieve", "Escarcha"] },
+  { id: 25, word: "TORNADO", words: ["Viento", "Tormenta", "Girar", "Aire"] },
+
+  { id: 26, word: "VELOCIDAD", words: ["Rápido", "Sprint", "Veloz", "Corrida"] },
+  { id: 27, word: "CONTROL ANIMAL", words: ["Bestia", "Control", "Naturaleza", "Animales"] },
+  { id: 28, word: "SONIDO", words: ["Ruido", "Eco", "Vibración", "Audio"] },
+  { id: 29, word: "BUCLE TIEMPO", words: ["Repetir", "Bucle", "Tiempo", "Ciclo"] },
+  { id: 30, word: "PORTAL", words: ["Puerta", "Espacio", "Viaje", "Entrada"] },
+
+  { id: 31, word: "MURO DE FUEGO", words: ["Llama", "Arder", "Muro", "Calor"] },
+  { id: 32, word: "MURO DE HIELO", words: ["Congelar", "Frío", "Muro", "Bloque"] },
+  { id: 33, word: "RÁFAGA DE AIRE", words: ["Viento", "Empuje", "Aire", "Explosión"] },
+  { id: 34, word: "TIERRA", words: ["Roca", "Suelo", "Piedra", "Arena"] },
+  { id: 35, word: "LÁSER", words: ["Haz", "Luz", "Rayo", "Energía"] },
+
+  { id: 36, word: "ATRAVESAR", words: ["Pasar", "Fantasma", "Cruzar", "Fase"] },
+  { id: 37, word: "SIGILO", words: ["Oculto", "Silencio", "Sombra", "Esconder"] },
+  { id: 38, word: "VISIÓN", words: ["Ver", "Ojos", "Vista", "Enfoque"] },
+  { id: 39, word: "AUDICIÓN", words: ["Oír", "Escuchar", "Sonido", "Oído"] },
+  { id: 40, word: "OLFATO", words: ["Oler", "Aroma", "Rastro", "Nariz"] },
+
+  { id: 41, word: "ESCALAR", words: ["Subir", "Pared", "Trepar", "Sujetar"] },
+  { id: 42, word: "SÚPER SALTO", words: ["Saltar", "Impulso", "Alto", "Salto"] },
+  { id: 43, word: "LEVITAR", words: ["Flotar", "Aire", "Volver", "Subir"] },
+  { id: 44, word: "IMÁN", words: ["Metal", "Atracción", "Magneto", "Fuerza"] },
+  { id: 45, word: "GIRAR", words: ["Rotar", "Spin", "Mover", "Giro"] },
+
+  { id: 46, word: "EXPLOSIÓN", words: ["Energía", "Impacto", "Onda", "Golpe"] },
+  { id: 47, word: "ARMADURA", words: ["Defensa", "Protección", "Blindaje", "Fuerte"] },
+  { id: 48, word: "IMPULSO", words: ["Boost", "Poder", "Subida", "Aumento"] },
+  { id: 49, word: "DUPLICAR", words: ["Copiar", "Clonar", "Duplicar", "Repetir"] },
+  { id: 50, word: "RÁFAGA", words: ["Energía", "Onda", "Golpe", "Impulso"] },
+];

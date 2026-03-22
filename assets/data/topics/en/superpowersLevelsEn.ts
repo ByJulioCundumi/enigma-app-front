@@ -1,0 +1,61 @@
+export const superpowersLevelsEn = [
+  { id: 1, word: "FLY", words: ["Sky", "Air", "Wings", "Up"] },
+  { id: 2, word: "RUN FAST", words: ["Speed", "Quick", "Rush", "Dash"] },
+  { id: 3, word: "SUPER STRONG", words: ["Power", "Lift", "Heavy", "Force"] },
+  { id: 4, word: "INVISIBLE", words: ["Hide", "Ghost", "Stealth", "Sneak"] },
+  { id: 5, word: "TELEPORT", words: ["Jump", "Move", "Space", "Shift"] },
+
+  { id: 6, word: "TIME STOP", words: ["Pause", "Freeze", "Stop", "Time"] },
+  { id: 7, word: "FIRE BALL", words: ["Flame", "Burn", "Heat", "Blast"] },
+  { id: 8, word: "ICE BLAST", words: ["Cold", "Freeze", "Snow", "Frost"] },
+  { id: 9, word: "WIND PUSH", words: ["Air", "Storm", "Push", "Wind"] },
+  { id: 10, word: "WATER WAVE", words: ["Ocean", "Wave", "Flow", "Surf"] },
+
+  { id: 11, word: "MIND READ", words: ["Think", "Brain", "Read", "Mind"] },
+  { id: 12, word: "TELEKINESIS", words: ["Move", "Objects", "Mind", "Power"] },
+  { id: 13, word: "HEAL POWER", words: ["Heal", "Recover", "Life", "Fix"] },
+  { id: 14, word: "SHIELD", words: ["Block", "Guard", "Protect", "Wall"] },
+  { id: 15, word: "ENERGY", words: ["Power", "Force", "Charge", "Blast"] },
+
+  { id: 16, word: "LIGHT BEAM", words: ["Laser", "Light", "Beam", "Flash"] },
+  { id: 17, word: "SHADOW", words: ["Dark", "Night", "Hide", "Stealth"] },
+  { id: 18, word: "GRAVITY", words: ["Pull", "Weight", "Force", "Down"] },
+  { id: 19, word: "MAGIC", words: ["Spell", "Wand", "Mystic", "Cast"] },
+  { id: 20, word: "CLONE", words: ["Copy", "Clone", "Double", "Self"] },
+
+  { id: 21, word: "X-RAY", words: ["See", "Bones", "Scan", "Vision"] },
+  { id: 22, word: "SUPER JUMP", words: ["Leap", "High", "Jump", "Boost"] },
+  { id: 23, word: "FLAME", words: ["Fire", "Burn", "Heat", "Fire"] },
+  { id: 24, word: "FROST", words: ["Cold", "Ice", "Freeze", "Snow"] },
+  { id: 25, word: "STORM", words: ["Wind", "Rain", "Storm", "Cloud"] },
+
+  { id: 26, word: "SPEED FORCE", words: ["Fast", "Speed", "Rush", "Run"] },
+  { id: 27, word: "BEAST CTRL", words: ["Animals", "Control", "Beast", "Wild"] },
+  { id: 28, word: "SOUND", words: ["Noise", "Wave", "Echo", "Vibe"] },
+  { id: 29, word: "TIME LOOP", words: ["Repeat", "Loop", "Time", "Cycle"] },
+  { id: 30, word: "PORTAL", words: ["Door", "Space", "Gate", "Jump"] },
+
+  { id: 31, word: "FIRE WALL", words: ["Flame", "Wall", "Burn", "Heat"] },
+  { id: 32, word: "ICE WALL", words: ["Freeze", "Wall", "Cold", "Block"] },
+  { id: 33, word: "AIR BLAST", words: ["Wind", "Push", "Air", "Burst"] },
+  { id: 34, word: "EARTH", words: ["Rock", "Stone", "Ground", "Soil"] },
+  { id: 35, word: "LASER", words: ["Beam", "Light", "Laser", "Ray"] },
+
+  { id: 36, word: "PHASE", words: ["Ghost", "Pass", "Through", "Phase"] },
+  { id: 37, word: "STEALTH", words: ["Hide", "Silent", "Sneak", "Dark"] },
+  { id: 38, word: "VISION", words: ["See", "Sight", "Eyes", "View"] },
+  { id: 39, word: "HEARING", words: ["Sound", "Listen", "Hear", "Ear"] },
+  { id: 40, word: "SMELL", words: ["Scent", "Nose", "Track", "Odor"] },
+
+  { id: 41, word: "CLIMB", words: ["Wall", "Climb", "Grip", "Hold"] },
+  { id: 42, word: "JUMP HIGH", words: ["Leap", "Jump", "Up", "Boost"] },
+  { id: 43, word: "FLOAT", words: ["Air", "Levitate", "Float", "Fly"] },
+  { id: 44, word: "MAGNET", words: ["Metal", "Pull", "Magnet", "Force"] },
+  { id: 45, word: "SPIN", words: ["Rotate", "Spin", "Turn", "Move"] },
+
+  { id: 46, word: "ENERGY BLAST", words: ["Power", "Blast", "Wave", "Hit"] },
+  { id: 47, word: "ARMOR", words: ["Shield", "Protect", "Armor", "Defense"] },
+  { id: 48, word: "BOOST", words: ["Power", "Boost", "Up", "Increase"] },
+  { id: 49, word: "DUPLICATE", words: ["Copy", "Clone", "Double", "Self"] },
+  { id: 50, word: "SURGE", words: ["Power", "Wave", "Energy", "Rush"] },
+];

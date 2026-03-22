@@ -1,20 +1,21 @@
-import React, { useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Animated,
-  Easing,
-} from "react-native";
-import { useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import {
   selectCurrentLevel,
   selectCurrentTopic,
 } from "@/store/selectors/topicSelectors";
-import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useEffect, useRef } from "react";
+import {
+  Animated,
+  Dimensions,
+  Easing,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useSelector } from "react-redux";
+import TopicButton from "./TopicButton";
 
 const { width } = Dimensions.get("window");
 
@@ -23,12 +24,11 @@ export default function LevelCard() {
   const levelData = useSelector(selectCurrentLevel);
 
   const selectedTopicId = useSelector(
-    (state: IRootState) => state.topics.selectedTopic
+    (state: IRootState) => state.topics.selectedTopic,
   );
 
   const topicProgress = useSelector(
-    (state: IRootState) =>
-      state.topics.progress[state.topics.selectedTopic]
+    (state: IRootState) => state.topics.progress[state.topics.selectedTopic],
   );
 
   const currentLevelIndex = topicProgress?.currentLevel ?? 0;
@@ -40,9 +40,7 @@ export default function LevelCard() {
   const currentOrderRef = useRef([0, 1, 2, 3]);
 
   const levelText =
-    selectedTopicId === "random"
-      ? `${level}`
-      : `${level}/${totalLevels}`;
+    selectedTopicId === "random" ? `${level}` : `${level}/${totalLevels}`;
 
   const cardWidth = width * 0.9;
   const cardHeight = 240;
@@ -80,10 +78,10 @@ export default function LevelCard() {
   const shineAnim = useRef(new Animated.Value(0)).current;
 
   const animatedPositions = useRef(
-    positions.map((pos) => new Animated.ValueXY(pos))
+    positions.map((pos) => new Animated.ValueXY(pos)),
   ).current;
 
-const isCompleted = topicProgress?.completed ?? false;
+  const isCompleted = topicProgress?.completed ?? false;
 
   useEffect(() => {
     floatAnims.forEach((anim, i) => {
@@ -118,7 +116,7 @@ const isCompleted = topicProgress?.completed ?? false;
           duration: 2600,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
 
@@ -129,12 +127,7 @@ const isCompleted = topicProgress?.completed ?? false;
 
       const prevOrder = currentOrderRef.current;
 
-      const newOrder = [
-        prevOrder[3],
-        prevOrder[0],
-        prevOrder[1],
-        prevOrder[2],
-      ];
+      const newOrder = [prevOrder[3], prevOrder[0], prevOrder[1], prevOrder[2]];
 
       const animations = newOrder.map((itemIndex, newPosIndex) =>
         Animated.timing(animatedPositions[itemIndex], {
@@ -142,7 +135,7 @@ const isCompleted = topicProgress?.completed ?? false;
           duration: 800, // ⬅️ antes 500, ahora más suave
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: false,
-        })
+        }),
       );
 
       Animated.parallel(animations).start();
@@ -153,6 +146,7 @@ const isCompleted = topicProgress?.completed ?? false;
 
   return (
     <View style={styles.wrapper}>
+      <TopicButton />
       <View style={[styles.card, { width: cardWidth, height: cardHeight }]}>
         {items.map((item, index) => {
           return (
@@ -223,9 +217,7 @@ const isCompleted = topicProgress?.completed ?? false;
               {isCompleted ? (
                 <FontAwesome6 name="flag-checkered" size={26} color="#5a3b00" />
               ) : (
-                <Text style={styles.badgeText}>
-                  {levelText}
-                </Text>
+                <Text style={styles.badgeText}>{levelText}</Text>
               )}
             </LinearGradient>
           </View>

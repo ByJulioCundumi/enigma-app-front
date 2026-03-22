@@ -1,30 +1,29 @@
-import PlayButton from "@/components/PlayButton";
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, View } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  interpolate,
-  Easing,
-} from "react-native-reanimated";
-import { useEffect } from "react";
-import TopBar from "@/components/TopBar";
 import LevelCard from "@/components/LevelCard";
-import { useDispatch, useSelector } from "react-redux";
+import PlayButton from "@/components/PlayButton";
+import TopBar from "@/components/TopBar";
+import TopicList from "@/components/TopicList";
+import { stopTimeSound } from "@/hooks/playTimeSound";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
-import { stopTimeSound } from "@/hooks/playTimeSound";
-import CtaButton from "@/components/CtaButton";
 import { IRootState } from "@/store/rootState";
-import TopicList from "@/components/TopicList";
+import { LinearGradient } from "expo-linear-gradient";
+import { useEffect } from "react";
+import { StyleSheet, View } from "react-native";
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Index() {
   const float = useSharedValue(0);
-  const dispatch = useDispatch()
-  const {currentPage} = useSelector((state:IRootState)=> state.currentPage)
-  
+  const dispatch = useDispatch();
+  const { currentPage } = useSelector((state: IRootState) => state.currentPage);
+
   useEffect(() => {
     float.value = withRepeat(
       withTiming(1, {
@@ -32,20 +31,20 @@ export default function Index() {
         easing: Easing.inOut(Easing.ease),
       }),
       -1,
-      true
+      true,
     );
-  }, []);
-  
-  useEffect(() => {
-    dispatch(setCurrentPage("index"))
   }, []);
 
   useEffect(() => {
-      if(currentPage === "index"){
-        stopTimeSound();
-      }
-    }, [currentPage]);
-  
+    dispatch(setCurrentPage("index"));
+  }, []);
+
+  useEffect(() => {
+    if (currentPage === "index") {
+      stopTimeSound();
+    }
+  }, [currentPage]);
+
   useBackgroundMusic(require("@/assets/sounds/music2.mp3"));
 
   const logoStyle = useAnimatedStyle(() => {
@@ -60,10 +59,10 @@ export default function Index() {
   return (
     <LinearGradient
       colors={[
-        "#143788",  // azul oscuro profundo
-        "#184cc4",  // azul intenso
-        "#2c68f5",  // azul vibrante
-        "#2c68f5",  // azul claro brillante
+        "#143788", // azul oscuro profundo
+        "#184cc4", // azul intenso
+        "#2c68f5", // azul vibrante
+        "#2c68f5", // azul claro brillante
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
@@ -77,8 +76,6 @@ export default function Index() {
         style={[styles.logo, logoStyle]}
         resizeMode="contain"
       />
-
-      <CtaButton />
 
       <View style={styles.gameSection}>
         <LevelCard />
@@ -99,7 +96,7 @@ const styles = StyleSheet.create({
 
   gameSection: {
     gap: 15,
-    marginTop: -25,
+    marginTop: -35,
   },
 
   logo: {
