@@ -71,7 +71,7 @@ export default function TopBar() {
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
-    top: Platform.OS === "ios" ? 60 : 30,
+    top: 30,
     width: "100%",
     alignItems: "center",
     zIndex: 20,
@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(17, 24, 39, 0)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0)",
+    maxWidth: 550
   },
 
   leftGroup: {

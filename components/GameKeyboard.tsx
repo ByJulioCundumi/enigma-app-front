@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     maxHeight: 200, // 👉 CLAVE para permitir 3 filas visibles
+    maxWidth: 500
   },
   keyboard: {
     flexDirection: "row",

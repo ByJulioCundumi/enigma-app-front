@@ -8,7 +8,7 @@ import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { IRootState } from "@/store/rootState";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -20,9 +20,28 @@ import Animated, {
 import { useDispatch, useSelector } from "react-redux";
 
 export default function Index() {
+  const { height } = useWindowDimensions();
+
   const float = useSharedValue(0);
   const dispatch = useDispatch();
   const { currentPage } = useSelector((state: IRootState) => state.currentPage);
+
+  // 🔥 BREAKPOINTS por altura
+  const isSmall = height < 750;
+  const isLarge = height > 900;
+  const logoMarginTop = isSmall ? -20 : 0;
+
+  // 🔥 tamaños del logo según dispositivo
+  let logoWidth = 450;
+  let logoHeight = 240;
+
+  if (isSmall) {
+    logoWidth = 320;
+    logoHeight = 170;
+  } else if (isLarge) {
+    logoWidth = 520;
+    logoHeight = 280;
+  }
 
   useEffect(() => {
     float.value = withRepeat(
@@ -59,10 +78,10 @@ export default function Index() {
   return (
     <LinearGradient
       colors={[
-        "#143788", // azul oscuro profundo
-        "#184cc4", // azul intenso
-        "#2c68f5", // azul vibrante
-        "#2c68f5", // azul claro brillante
+        "#143788",
+        "#184cc4",
+        "#2c68f5",
+        "#2c68f5",
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
@@ -73,7 +92,14 @@ export default function Index() {
 
       <Animated.Image
         source={require("../assets/images/logo3.png")}
-        style={[styles.logo, logoStyle]}
+        style={[
+          {
+            width: logoWidth,
+            height: logoHeight,
+            marginTop: logoMarginTop, // 👈 aquí
+          },
+          logoStyle,
+        ]}
         resizeMode="contain"
       />
 
@@ -97,10 +123,5 @@ const styles = StyleSheet.create({
   gameSection: {
     gap: 15,
     marginTop: -35,
-  },
-
-  logo: {
-    width: 450,
-    height: 240,
   },
 });

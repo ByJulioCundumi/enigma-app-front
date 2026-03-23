@@ -390,6 +390,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 20,
     elevation: 10,
+    maxWidth: 350
   },
 
   iconWrapper: {

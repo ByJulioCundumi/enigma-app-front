@@ -384,6 +384,11 @@ const styles = StyleSheet.create({
     padding:24,
     borderWidth:1.5,
     borderColor:"#FFD700",
+
+    // 👇 NUEVO
+    width: "100%",
+    maxWidth: 400,
+    alignSelf: "center",
   },
 
   header:{

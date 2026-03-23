@@ -424,6 +424,11 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     padding: 18,
     maxHeight: "75%",
+
+    // 👇 NUEVO
+    width: "100%",
+    maxWidth: 370,
+    alignSelf: "center",
   },
 
   header: {

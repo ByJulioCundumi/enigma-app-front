@@ -191,6 +191,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
 
     elevation: 12,
+
+    // 👇 NUEVO
+    maxWidth: 400,
+    alignSelf: "center",
   },
 
   header: {

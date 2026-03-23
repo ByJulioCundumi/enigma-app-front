@@ -8,18 +8,35 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
-  Dimensions,
   Easing,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { useSelector } from "react-redux";
 import TopicButton from "./TopicButton";
 
-const { width } = Dimensions.get("window");
-
 export default function LevelCard() {
+  const { width, height } = useWindowDimensions();
+  const MAX_WIDTH = 500;
+
+const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
+
+  // 🔥 BREAKPOINTS
+  const isSmall = height < 750;
+  const isLarge = height > 900;
+
+  // 🔥 ESCALA BASE
+  let scale = 1;
+  if (height < 700) {
+  scale = 0.75; // 🔥 mucho más pequeño
+} else if (height < 812) {
+  scale = 0.85; // 🔥 pequeño moderado
+} else if (height > 900) {
+  scale = 1.15; // 🔥 grande
+}
+
   const topic = useSelector(selectCurrentTopic);
   const levelData = useSelector(selectCurrentLevel);
 
@@ -36,17 +53,16 @@ export default function LevelCard() {
   const totalLevels = topic?.levels.length ?? 0;
 
   const prevLevelRef = useRef(currentLevelIndex);
-
   const currentOrderRef = useRef([0, 1, 2, 3]);
 
   const levelText =
     selectedTopicId === "random" ? `${level}` : `${level}/${totalLevels}`;
 
-  const cardWidth = width * 0.9;
-  const cardHeight = 240;
+  // 🔥 tamaños escalados
+  const cardHeight = 240 * scale;
 
   const boxWidth = cardWidth * 0.42;
-  const boxHeight = 95;
+  const boxHeight = 95 * scale;
 
   const gapX = (cardWidth - boxWidth * 2) / 3;
   const gapY = (cardHeight - boxHeight * 2) / 3;
@@ -88,13 +104,13 @@ export default function LevelCard() {
       const loop = () => {
         Animated.sequence([
           Animated.timing(anim, {
-            toValue: -5,
+            toValue: -5 * scale,
             duration: 1200 + i * 120,
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
           Animated.timing(anim, {
-            toValue: 5,
+            toValue: 5 * scale,
             duration: 1200 + i * 120,
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
@@ -120,33 +136,31 @@ export default function LevelCard() {
     ).start();
   }, []);
 
-  // 🚀 ROTACIÓN MÁS LENTA
   useEffect(() => {
     if (prevLevelRef.current !== currentLevelIndex) {
       prevLevelRef.current = currentLevelIndex;
 
       const prevOrder = currentOrderRef.current;
-
       const newOrder = [prevOrder[3], prevOrder[0], prevOrder[1], prevOrder[2]];
 
       const animations = newOrder.map((itemIndex, newPosIndex) =>
         Animated.timing(animatedPositions[itemIndex], {
           toValue: positions[newPosIndex],
-          duration: 1000, // ⬅️ antes 500, ahora más suave
+          duration: 1000,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: false,
         }),
       );
 
       Animated.parallel(animations).start();
-
       currentOrderRef.current = newOrder;
     }
-  }, [currentLevelIndex]);
+  }, [currentLevelIndex, scale]);
 
   return (
     <View style={styles.wrapper}>
       <TopicButton />
+
       <View style={[styles.card, { width: cardWidth, height: cardHeight }]}>
         {items.map((item, index) => {
           return (
@@ -157,6 +171,7 @@ export default function LevelCard() {
                 {
                   width: boxWidth,
                   height: boxHeight,
+                  borderRadius: 16 * scale,
                   transform: [
                     { translateX: animatedPositions[index].x },
                     { translateY: animatedPositions[index].y },
@@ -164,24 +179,39 @@ export default function LevelCard() {
                 },
               ]}
             >
-              <LinearGradient
-                colors={colors[index] as [string, string]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.gradient}
-              >
-                <Animated.View style={[styles.shine]} />
-                <Animated.View style={[styles.shineB]} />
+              <LinearGradient style={styles.gradient} colors={colors[index] as [string, string]}>
+                <Animated.View
+                  style={[
+                    styles.shine,
+                    {
+                      width: 50 * scale,
+                      height: 50 * scale,
+                      borderRadius: 25 * scale,
+                    },
+                  ]}
+                />
+
+                <Animated.View
+                  style={[
+                    styles.shineB,
+                    {
+                      width: 50 * scale,
+                      height: 50 * scale,
+                      borderRadius: 25 * scale,
+                    },
+                  ]}
+                />
 
                 <View style={styles.questionBackground}>
                   <Animated.Text
                     style={[
                       styles.backgroundQuestionMark,
                       {
+                        fontSize: 85 * scale,
                         transform: [
                           {
                             scale: floatAnims[index].interpolate({
-                              inputRange: [-5, 5],
+                              inputRange: [-5 * scale, 5 * scale],
                               outputRange: [0.95, 1.05],
                             }),
                           },
@@ -195,7 +225,10 @@ export default function LevelCard() {
                 </View>
 
                 <View style={styles.wordContainer}>
-                  <Text style={styles.wordText} numberOfLines={2}>
+                  <Text
+                    style={[styles.wordText, { fontSize: 16 * scale }]}
+                    numberOfLines={2}
+                  >
                     {item.content}
                   </Text>
                 </View>
@@ -204,20 +237,49 @@ export default function LevelCard() {
           );
         })}
 
-        <View style={styles.badgeWrapper}>
-          <View style={styles.badgeOuterRing}>
+        {/* BADGE */}
+        <View
+          style={[
+            styles.badgeWrapper,
+            {
+              transform: [
+                { translateX: -43 * scale },
+                { translateY: -43 * scale },
+              ],
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.badgeOuterRing,
+              {
+                width: 86 * scale,
+                height: 86 * scale,
+                borderRadius: 43 * scale,
+              },
+            ]}
+          >
             <LinearGradient
               colors={["#fff7b0", "#e6b800", "#e6b800"]}
-              start={{ x: 0.2, y: 0 }}
-              end={{ x: 0.8, y: 1 }}
-              style={styles.badgeCore}
+              style={[
+                styles.badgeCore,
+                {
+                  width: 70 * scale,
+                  height: 70 * scale,
+                  borderRadius: 35 * scale,
+                },
+              ]}
             >
-              <View style={styles.topGlow} />
-              <View style={styles.sideGlow} />
               {isCompleted ? (
-                <FontAwesome6 name="flag-checkered" size={26} color="#5a3b00" />
+                <FontAwesome6
+                  name="flag-checkered"
+                  size={26 * scale}
+                  color="#5a3b00"
+                />
               ) : (
-                <Text style={styles.badgeText}>{levelText}</Text>
+                <Text style={[styles.badgeText, { fontSize: 16 * scale }]}>
+                  {levelText}
+                </Text>
               )}
             </LinearGradient>
           </View>
@@ -238,7 +300,6 @@ const styles = StyleSheet.create({
   },
   clueBox: {
     position: "absolute",
-    borderRadius: 16,
     overflow: "hidden",
     borderWidth: 2,
     borderColor: "rgba(255,255,255,0.85)",
@@ -248,18 +309,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -20,
     left: -20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
     backgroundColor: "rgba(255,255,255,0.35)",
   },
   shineB: {
     position: "absolute",
     bottom: -18,
     right: -18,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
     backgroundColor: "rgba(255,255,255,0.25)",
   },
   questionBackground: {
@@ -268,10 +323,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   backgroundQuestionMark: {
-    fontSize: 85,
     fontWeight: "900",
     color: "rgba(255,255,255,0.35)",
-    marginTop: -10,
   },
   wordContainer: {
     flex: 1,
@@ -280,58 +333,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   wordText: {
-    fontSize: 16,
     fontWeight: "900",
     textAlign: "center",
     color: "#ffffff",
-    textShadowColor: "rgba(0, 0, 0, 0.37)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
   },
   badgeWrapper: {
     position: "absolute",
     top: "50%",
     left: "50%",
-    transform: [{ translateX: -43 }, { translateY: -43 }],
     zIndex: 10,
   },
   badgeOuterRing: {
-    width: 86,
-    height: 86,
-    borderRadius: 43,
     backgroundColor: "#c997003a",
     justifyContent: "center",
     alignItems: "center",
   },
   badgeCore: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
     borderColor: "#fff6c2",
   },
-  topGlow: {
-    position: "absolute",
-    top: 6,
-    left: 10,
-    width: 45,
-    height: 18,
-    backgroundColor: "rgba(255, 255, 255, 0.24)",
-    borderRadius: 20,
-  },
-  sideGlow: {
-    position: "absolute",
-    bottom: 10,
-    right: 12,
-    width: 20,
-    height: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    borderRadius: 10,
-  },
   badgeText: {
-    fontSize: 16,
     fontWeight: "900",
     color: "#ffffff",
   },

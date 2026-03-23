@@ -235,6 +235,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 10,
+
+    // 👇 NUEVO
+    width: "100%",
+    maxWidth: 400,
+    alignSelf: "center",
   },
 
   header: {
