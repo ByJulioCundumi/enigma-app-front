@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     gap: 12,
     width: "100%",
-    marginTop: 15,
+    marginTop: 25,
     maxWidth: 500
   },
   x2Text: {

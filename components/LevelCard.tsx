@@ -32,7 +32,7 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
   if (height < 700) {
   scale = 0.75; // 🔥 mucho más pequeño
 } else if (height < 812) {
-  scale = 0.85; // 🔥 pequeño moderado
+  scale = 0.90; // 🔥 pequeño moderado
 } else if (height > 900) {
   scale = 1.15; // 🔥 grande
 }
@@ -297,6 +297,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff18",
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.04)",
+    marginBottom: -10
   },
   clueBox: {
     position: "absolute",
@@ -325,6 +326,7 @@ const styles = StyleSheet.create({
   backgroundQuestionMark: {
     fontWeight: "900",
     color: "rgba(255,255,255,0.35)",
+    marginTop: -8
   },
   wordContainer: {
     flex: 1,

@@ -238,6 +238,12 @@ useEffect(() => {
   ? "#22c55e"
   : "#ef4444";
 
+  const accentBorderColor = isTopicCompleted
+  ? "#ffc4002f" // dorado épico
+  : success
+  ? "#22c55e38"
+  : "#ef444433";
+
   return (
     <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
 
@@ -250,6 +256,7 @@ useEffect(() => {
           {
             opacity,
             transform: [{ scale }, { translateY }],
+            borderColor: accentBorderColor, // 👈 AQUÍ
           },
         ]}
       >

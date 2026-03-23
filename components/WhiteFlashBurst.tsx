@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, StyleSheet, View, Easing } from "react-native";
 
 type Props = {
   trigger: boolean;
@@ -9,32 +9,53 @@ export default function WhiteFlashBurst({ trigger }: Props) {
   const scale = useRef(new Animated.Value(0.2)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+
   useEffect(() => {
     if (!trigger) return;
 
-    // reset
+    // 🛑 detener animación anterior (clave para evitar glitch)
+    animationRef.current?.stop();
+
+    // 🔄 reset limpio
     scale.setValue(0.2);
     opacity.setValue(0);
 
-    Animated.parallel([
+    // 🚀 animación mejor sincronizada
+    const animation = Animated.parallel([
       Animated.timing(scale, {
-        toValue: 2.5, // 🔥 expansión fuerte
-        duration: 500,
+        toValue: 2.2,
+        duration: 450,
+        easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
+
       Animated.sequence([
         Animated.timing(opacity, {
           toValue: 0.6,
-          duration: 120,
+          duration: 100,
+          easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
           toValue: 0,
-          duration: 380,
+          duration: 350,
+          easing: Easing.in(Easing.ease),
           useNativeDriver: true,
         }),
       ]),
-    ]).start();
+    ]);
+
+    animationRef.current = animation;
+
+    animation.start(() => {
+      // 🧼 asegurar estado final limpio
+      opacity.setValue(0);
+    });
+
+    return () => {
+      animation.stop();
+    };
   }, [trigger]);
 
   return (

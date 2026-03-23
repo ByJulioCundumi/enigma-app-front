@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 15
+    marginTop: 23
   },
 
   openButtonText: {

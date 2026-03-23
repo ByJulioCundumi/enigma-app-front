@@ -36,7 +36,7 @@ export default function Index() {
   let logoHeight = 240;
 
   if (isSmall) {
-    logoWidth = 320;
+    logoWidth = 300;
     logoHeight = 170;
   } else if (isLarge) {
     logoWidth = 520;
@@ -122,6 +122,6 @@ const styles = StyleSheet.create({
 
   gameSection: {
     gap: 15,
-    marginTop: -35,
+    marginTop: -33,
   },
 });
