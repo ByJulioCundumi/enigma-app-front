@@ -268,7 +268,7 @@ export default function GameRoom() {
     moveCursorNext(selectedIndex);
     checkWordCompletion(newLetters);
 
-    playSound(require("@/assets/sounds/soundClick4.mp3"));
+    playSound(require("@/assets/sounds/soundClick2.mp3"));
   };
 
   const removeLetter = (index: number) => {
@@ -302,7 +302,7 @@ export default function GameRoom() {
     setValidationState("idle");
 
     if (sound) {
-      playSound(require("@/assets/sounds/soundClick3.mp3"));
+      playSound(require("@/assets/sounds/soundClick6.mp3"));
     }
   };
 

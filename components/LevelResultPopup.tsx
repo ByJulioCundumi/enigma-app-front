@@ -19,6 +19,7 @@ import { IRootState } from "@/store/rootState";
 import { stopTimeSound } from "@/hooks/playTimeSound";
 import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
 import { markTopicCompleted } from "@/store/reducers/topicsSlice";
+import WhiteFlashBurst from "./WhiteFlashBurst";
 
 const { width } = Dimensions.get("window");
 
@@ -69,6 +70,7 @@ const topic = useSelector(selectCurrentTopic);
 
 const currentLevel = progress[selectedTopic]?.currentLevel ?? 0;
 const totalLevels = topic?.levels.length ?? 0;
+const [flashTrigger, setFlashTrigger] = useState(false);
 
 // 🔥 ESTE ES EL MOMENTO REAL
 const isLastLevel = currentLevel + 1 === totalLevels;
@@ -173,6 +175,25 @@ const isTopicCompleted =
   dispatch,
 ]);
 
+useEffect(() => {
+  if (!visible) {
+    setFlashTrigger(false);
+    return;
+  }
+
+  if (success) {
+    setFlashTrigger(false);
+
+    const id = requestAnimationFrame(() => {
+      setFlashTrigger(true);
+    });
+
+    return () => cancelAnimationFrame(id);
+  } else {
+    setFlashTrigger(false);
+  }
+}, [visible, success]);
+
   if (!mounted) return null;
 
   const showEnergyWarning = () => {
@@ -219,6 +240,10 @@ const isTopicCompleted =
 
   return (
     <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
+
+      {/* ⚡ DESTELLO BLANCO */}
+  <WhiteFlashBurst trigger={flashTrigger} />
+
       <Animated.View
         style={[
           styles.container,
@@ -293,10 +318,6 @@ const isTopicCompleted =
         disabled={isDisabled}
       >
         <Ionicons name="refresh" size={18} color="#fff" />
-
-        <Text style={styles.buttonText}>
-          {isEs ? "Reintentar" : "Try again"}
-        </Text>
 
         <View style={styles.energyBadge}>
           <FontAwesome6
@@ -447,7 +468,7 @@ const styles = StyleSheet.create({
   energyBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f97316",
+    backgroundColor: "#d62929",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 8,
