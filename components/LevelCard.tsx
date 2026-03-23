@@ -32,7 +32,7 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
   if (height < 700) {
   scale = 0.75; // 🔥 mucho más pequeño
 } else if (height < 812) {
-  scale = 0.90; // 🔥 pequeño moderado
+  scale = 0.95; // 🔥 pequeño moderado
 } else if (height > 900) {
   scale = 1.15; // 🔥 grande
 }

@@ -1,10 +1,11 @@
-import { store } from "@/store/store";
+import { persistor, store } from "@/store/store";
 import { Stack } from "expo-router";
 import { Provider} from "react-redux";
 import * as NavigationBar from "expo-navigation-bar";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform, View, StyleSheet } from "react-native";
+import { PersistGate } from "redux-persist/integration/react";
 
 export default function RootLayout() {
 
@@ -32,20 +33,20 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <View style={styles.container}>
-        
-        {/* 🔥 OCULTA BARRA SUPERIOR */}
-        <StatusBar hidden />
+      <PersistGate loading={null} persistor={persistor}>
+        <View style={styles.container}>
+          <StatusBar hidden />
 
-        <View style={styles.stackContainer}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "#0c1f48" },
-            }}
-          />
+          <View style={styles.stackContainer}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "#0c1f48" },
+              }}
+            />
+          </View>
         </View>
-      </View>
+      </PersistGate>
     </Provider>
   );
 }
