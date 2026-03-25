@@ -13,6 +13,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { addEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
+import { checkVip } from "@/utils/checkVip";
+import { openVipModal } from "@/store/reducers/vipSlice";
+import { showRewardedAd } from "@/ads/rewardedAd";
+import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
 
 const ENERGY_REWARD = 3;
 const VIP_REWARD = 100;
@@ -38,25 +42,57 @@ export default function EnergyStat() {
     (state: IRootState) => state.purchase
   );
 
+  const { vipExpireAt } = useSelector(
+  (state: IRootState) => state.vip
+);
+
+const [noInternetVisible, setNoInternetVisible] = useState(false);
+
+const showNoInternetMessage = () => {
+  setNoInternetVisible(true);
+
+  setTimeout(() => {
+    setNoInternetVisible(false);
+  }, 2000);
+};
+
+const isVip = checkVip(vipExpireAt);
+
   const isEs = language === "es";
 
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 👉 ANUNCIO (usuario normal)
-  const watchAd = async () => {
-    if (loading) return;
+  const handleGetEnergy = async () => {
+  if (loading) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
+  try {
+    // 👑 VIP o compra
+    if (hasPurchased || isVip) {
+      dispatch(addEnergy(VIP_REWARD));
+      playSound(require("@/assets/sounds/soundWind.mp3"));
+      setVisible(false);
+      return;
+    }
 
-    dispatch(addEnergy(ENERGY_REWARD));
+    const isConnected = await isConnectedToInternet();
 
+    if (isConnected) {
+      showRewardedAd(() => {
+        dispatch(addEnergy(ENERGY_REWARD));
+        playSound(require("@/assets/sounds/soundWind.mp3"));
+        setVisible(false);
+      });
+    } else {
+      showNoInternetMessage(); // 👈 AQUÍ
+    }
+
+  } finally {
     setLoading(false);
-    setVisible(false);
-    playSound(require("@/assets/sounds/soundWind.mp3"));
-  };
+  }
+};
 
   // 👉 VIP (sin anuncio)
   const getVipEnergy = () => {
@@ -152,7 +188,7 @@ export default function EnergyStat() {
                 styles.watchButton,
                 hasPurchased && styles.vipButton
               ]}
-              onPress={hasPurchased ? getVipEnergy : watchAd}
+              onPress={handleGetEnergy}
               disabled={loading && !hasPurchased}
               activeOpacity={0.85}
             >
@@ -174,6 +210,21 @@ export default function EnergyStat() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {noInternetVisible && (
+  <View style={styles.noInternetToast}>
+    <MaterialCommunityIcons
+      name="wifi-off"
+      size={16}
+      color="#fff"
+    />
+    <Text style={styles.noInternetText}>
+      {isEs
+        ? "Se requiere conexión a internet"
+        : "Internet connection required"}
+    </Text>
+  </View>
+)}
     </>
   );
 }
@@ -192,6 +243,26 @@ const styles = StyleSheet.create({
     gap: 6,
     minWidth: 70
   },
+
+  noInternetToast: {
+  position: "absolute",
+  bottom: 40,
+  alignSelf: "center",
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#dc2626",
+  paddingHorizontal: 14,
+  paddingVertical: 8,
+  borderRadius: 12,
+  gap: 6,
+  zIndex: 999,
+},
+
+noInternetText: {
+  color: "#fff",
+  fontWeight: "700",
+  fontSize: 12,
+},
 
   energyIcon: {
     width: 17.5,

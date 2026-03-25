@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IRootState } from "@/store/rootState";
 
 export interface IPurchaseState {
   hasPurchased: boolean;

@@ -231,9 +231,9 @@ export default function GameRoom() {
 
       playSound(require("@/assets/sounds/soundLevelUp.mp3"));
     } else {
+      playSound(require("@/assets/sounds/soundError2.mp3"));
       setValidationState("incorrect");
       triggerShake();
-      playSound(require("@/assets/sounds/soundError2.mp3"));
       Vibration.vibrate(100);
     }
   };

@@ -6,12 +6,18 @@ export interface IVipState {
   adsWatched: number;
   vipStartAt: number | null;
   vipExpireAt: number | null;
+  isVipModalOpen: boolean;
+  vipEntry: "ads" | "purchase";
+  vipPopupCounter: number;
 }
 
 const initialState: IVipState = {
   adsWatched: 0,
   vipStartAt: null,
   vipExpireAt: null,
+  isVipModalOpen: false,
+  vipEntry: "ads",
+  vipPopupCounter: 0,
 };
 
 const vipSlice = createSlice({
@@ -26,6 +32,14 @@ const vipSlice = createSlice({
     resetAds: (state) => {
       state.adsWatched = 0;
     },
+
+    incrementVipPopupCounter: (state) => {
+  state.vipPopupCounter += 1;
+},
+
+resetVipPopupCounter: (state) => {
+  state.vipPopupCounter = 0;
+},
 
     activateVip: (state) => {
 
@@ -42,6 +56,15 @@ const vipSlice = createSlice({
       state.vipStartAt = null;
       state.vipExpireAt = null;
 
+    },
+
+    openVipModal: (state, action) => {
+      state.isVipModalOpen = true;
+      state.vipEntry = action.payload || "ads";
+    },
+
+    closeVipModal: (state) => {
+      state.isVipModalOpen = false;
     },
 
     tickVip: (state) => {
@@ -88,7 +111,11 @@ export const {
   resetAds,
   activateVip,
   tickVip,
-  resetVip
+  resetVip,
+  closeVipModal,
+  openVipModal,
+  incrementVipPopupCounter,
+  resetVipPopupCounter
 } = vipSlice.actions;
 
 export default vipSlice.reducer;

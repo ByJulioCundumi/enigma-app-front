@@ -4,18 +4,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
 import { IRootState } from "@/store/rootState";
-import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { useRouter } from "expo-router";
 
 import SettingsButton from "./SettingsButton";
 import LanguageSelector from "./LanguageSelector";
 import EnergyStat from "./EnergyStat";
-import { stopTimeSound } from "@/hooks/playTimeSound";
 import { playSound } from "@/hooks/playSound";
 import VipButton from "./VipButton";
 

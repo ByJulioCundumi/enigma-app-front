@@ -12,10 +12,13 @@ import { MaterialCommunityIcons, Ionicons, MaterialIcons, AntDesign } from "@exp
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 
-import { activateVip, incrementAd, tickVip } from "@/store/reducers/vipSlice";
+import { activateVip, closeVipModal, incrementAd, openVipModal, tickVip } from "@/store/reducers/vipSlice";
 import { addEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
 import { restorePurchase, setPurchased } from "@/store/reducers/purchaseSlice";
+import VipPurchase from "./VipPurchase";
+import { checkVip } from "@/utils/checkVip";
+import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
 
 interface Props {
   onWatchAd?: () => Promise<boolean>;
@@ -34,8 +37,8 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
     (state: IRootState) => state.vip.adsWatched
   );
 
-  const vipExpireAt = useSelector(
-    (state: IRootState) => state.vip.vipExpireAt
+  const {vipExpireAt, isVipModalOpen, vipEntry} = useSelector(
+    (state: IRootState) => state.vip
   );
 
   const vipStartAt = useSelector(
@@ -46,7 +49,18 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
     (state: IRootState) => state.purchase.hasPurchased
   );
 
-  const vipActive = vipExpireAt !== null || hasPurchased;
+  const [noInternetVisible, setNoInternetVisible] = useState(false);
+
+  const showNoInternetMessage = () => {
+  setNoInternetVisible(true);
+
+  setTimeout(() => {
+    setNoInternetVisible(false);
+  }, 2000);
+};
+
+  const isVip = checkVip(vipExpireAt);
+  const vipActive = isVip || hasPurchased;
 
   const { language } = useSelector(
     (state: IRootState) => state.language
@@ -54,10 +68,8 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
 
   const isEs = language === "es";
 
-  const [visible, setVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState(VIP_DURATION);
-
-  const [isPremiumMode, setIsPremiumMode] = useState(false);
+  const isPremiumMode = vipEntry === "purchase";
 
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60);
@@ -87,40 +99,43 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
   }, [vipExpireAt, vipStartAt]);
 
   const watchAd = async () => {
+  // 🚫 no hacer nada si ya es VIP o compró
+  if (hasPurchased || isVip) return;
 
-    if (adsWatched >= REQUIRED_ADS) return;
+  // 🚫 límite alcanzado
+  if (adsWatched >= REQUIRED_ADS) return;
 
-    let success = true;
+  // 🌐 verificar internet (ESPERA REAL)
+  const isConnected = await isConnectedToInternet();
 
-    if (onWatchAd) {
-      success = await onWatchAd();
-    }
+  if (!isConnected) {
+    showNoInternetMessage(); // 🔥 NOTIFICACIÓN
+    return;
+  }
 
-    if (!success) return;
+  let success = true;
 
-    const newCount = adsWatched + 1;
+  if (onWatchAd) {
+    success = await onWatchAd(); // anuncio real
+  }
 
-    dispatch(incrementAd());
+  // 🚫 si no completó el anuncio
+  if (!success) return;
 
-    if (newCount >= REQUIRED_ADS) {
-      dispatch(activateVip());
-      dispatch(addEnergy(ENERGY_REWARD));
+  const newCount = adsWatched + 1;
 
-      setVisible(false);
-      playSound(require("@/assets/sounds/soundWind.mp3"));
-    }
-  };
+  // ✅ contar anuncio
+  dispatch(incrementAd());
 
-  const handleBuy = () => {
+  // 🎯 activar VIP
+  if (newCount >= REQUIRED_ADS) {
+    dispatch(activateVip());
+    dispatch(addEnergy(ENERGY_REWARD));
+
+    dispatch(closeVipModal());
     playSound(require("@/assets/sounds/soundWind.mp3"));
-    dispatch(setPurchased()); // 🔥 simulado
-    onBuyGame?.();
-  };
-
-  const handleRestore = () => {
-    playSound(require("@/assets/sounds/soundWind.mp3"));
-    dispatch(restorePurchase()); // 🔄 simulado
-  };
+  }
+};
 
   return (
     <>
@@ -129,7 +144,13 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
         style={styles.vipButton}
         activeOpacity={0.9}
         onPress={() => {
-          setVisible(true)
+          const entry = hasPurchased
+            ? "purchase"     // ya compró → mostrar estado VIP
+            : vipActive
+            ? "ads"          // tiene VIP temporal → mostrar progreso
+            : "ads";         // default → anuncios
+
+          dispatch(openVipModal(entry));
           playSound(require("@/assets/sounds/soundWind.mp3"));
         }}
       >
@@ -161,10 +182,10 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
       </TouchableOpacity>
 
       {/* POPUP */}
-      <Modal visible={visible} transparent animationType="fade">
+      <Modal visible={isVipModalOpen} transparent animationType="fade">
         <Pressable
           style={styles.overlay}
-          onPress={() => setVisible(false)}
+          onPress={() => dispatch(closeVipModal())}
         >
           <Pressable style={styles.popup}>
 
@@ -192,7 +213,9 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
 
                 <Switch
                   value={isPremiumMode}
-                  onValueChange={setIsPremiumMode}
+                  onValueChange={(value) => {
+                    dispatch(openVipModal(value ? "purchase" : "ads"));
+                  }}
                   trackColor={{ false: "#555", true: "#555" }}
                   thumbColor={isPremiumMode ? "#ffffff" : "#fff"}
                 />
@@ -297,29 +320,11 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
       </TouchableOpacity>
     )}
 
-    {/* 💰 COMPRAR SOLO SI SWITCH ACTIVO */}
     {isPremiumMode && (
-      <>
-        <TouchableOpacity
-          style={styles.buyButton}
-          onPress={handleBuy}
-        >
-          <MaterialIcons name="local-offer" size={18} color="black" />
-          <Text style={styles.buyText}>
-            {isEs ? "Comprar por $11.99" : "Buy for $11.99"}
-          </Text>
-        </TouchableOpacity>
-
-        {/* 🔄 RESTORE */}
-        <TouchableOpacity
-          style={styles.restoreButton}
-          onPress={handleRestore}
-        >
-          <Text style={styles.restoreText}>
-            {isEs ? "Restaurar compra" : "Restore purchase"}
-          </Text>
-        </TouchableOpacity>
-      </>
+      <VipPurchase
+        isEs={isEs}
+        onBuyGame={onBuyGame}
+      />
     )}
   </>
 )}
@@ -327,6 +332,20 @@ export default function VipButton({ onWatchAd, onBuyGame }: Props) {
           </Pressable>
         </Pressable>
       </Modal>
+      {noInternetVisible && (
+  <View style={styles.noInternetToast}>
+    <MaterialCommunityIcons
+      name="wifi-off"
+      size={16}
+      color="#fff"
+    />
+    <Text style={styles.noInternetText}>
+      {isEs
+        ? "Se requiere conexión a internet"
+        : "Internet connection required"}
+    </Text>
+  </View>
+)}
     </>
   );
 }
@@ -351,6 +370,26 @@ const styles = StyleSheet.create({
     borderRadius:60,
     backgroundColor:"rgba(255,215,0,0.18)"
   },
+
+  noInternetToast: {
+  position: "absolute",
+  bottom: 40,
+  alignSelf: "center",
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#dc2626",
+  paddingHorizontal: 14,
+  paddingVertical: 8,
+  borderRadius: 12,
+  gap: 6,
+  zIndex: 999,
+},
+
+noInternetText: {
+  color: "#fff",
+  fontWeight: "700",
+  fontSize: 12,
+},
 
   badge:{
     position:"absolute",

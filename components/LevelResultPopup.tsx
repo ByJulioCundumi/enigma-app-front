@@ -20,6 +20,10 @@ import { stopTimeSound } from "@/hooks/playTimeSound";
 import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
 import { markTopicCompleted } from "@/store/reducers/topicsSlice";
 import WhiteFlashBurst from "./WhiteFlashBurst";
+import { incrementVipPopupCounter, openVipModal, resetVipPopupCounter } from "@/store/reducers/vipSlice";
+import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
+import { showInterstitialAd } from "@/ads/interstitialAd";
+import { checkVip } from "@/utils/checkVip";
 
 const { width } = Dimensions.get("window");
 
@@ -62,8 +66,20 @@ export default function LevelResultPopup({
     (state: IRootState) => state.language
   );
 
+  const vipPopupCounter = useSelector(
+  (state: IRootState) => state.vip.vipPopupCounter
+);
+
   const { selectedTopic, progress } = useSelector(
   (state: IRootState) => state.topics
+);
+
+const hasPurchased = useSelector(
+  (state: IRootState) => state.purchase.hasPurchased
+);
+
+const vipExpireAt = useSelector(
+  (state: IRootState) => state.vip.vipExpireAt
 );
 
 const topic = useSelector(selectCurrentTopic);
@@ -79,6 +95,58 @@ const isTopicCompleted =
   progress[selectedTopic]?.completed ?? false;
 
   const isEs = language === "es";
+
+useEffect(() => {
+  let isMounted = true;
+
+  const handleMonetization = async () => {
+
+    const isVipActive = checkVip(vipExpireAt);
+
+    // 🚫 NO monetizar si tiene VIP o compró
+    if (hasPurchased || isVipActive) return;
+
+    if (vipPopupCounter > 0 && vipPopupCounter % 5 === 0) {
+
+      const isConnected = await isConnectedToInternet();
+
+      if (!isMounted) return; // 🔥 evita bugs si desmonta
+
+      // 🌐 CON INTERNET → ANUNCIO
+      if (isConnected) {
+        showInterstitialAd(() => {});
+      } 
+      // 📵 SIN INTERNET → POPUP VIP
+      else {
+        dispatch(openVipModal("purchase"));
+      }
+
+      dispatch(resetVipPopupCounter());
+    }
+  };
+
+  handleMonetization();
+
+  return () => {
+    isMounted = false;
+  };
+
+}, [vipPopupCounter, hasPurchased, vipExpireAt]);
+
+
+useEffect(() => {
+  if (!visible) return;
+
+  const isVipActive = checkVip(vipExpireAt);
+
+  // 🚫 no contar si no debe monetizar
+  if (hasPurchased || isVipActive) return;
+
+  dispatch(incrementVipPopupCounter());
+
+}, [visible, hasPurchased, vipExpireAt]);
+
+
 
   useEffect(() => {
     if (visible) {
