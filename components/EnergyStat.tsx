@@ -56,35 +56,41 @@ const showNoInternetMessage = () => {
   const [loading, setLoading] = useState(false);
 
   const handleGetEnergy = async () => {
-  if (loading) return;
+    if (loading) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    // 👑 VIP o compra
-    if (isVip) {
-      dispatch(addEnergy(VIP_REWARD));
-      playSound(require("@/assets/sounds/soundWind.mp3"));
-      setVisible(false);
-      return;
-    }
-
-    const isConnected = await isConnectedToInternet();
-
-    if (isConnected) {
-        showRewardedAd(() => {
-        dispatch(addEnergy(ENERGY_REWARD));
+    try {
+      // 👑 VIP (sin anuncio)
+      if (isVip) {
+        dispatch(addEnergy(VIP_REWARD));
         playSound(require("@/assets/sounds/soundWind.mp3"));
         setVisible(false);
-      });
-    } else {
-      showNoInternetMessage(); // 👈 AQUÍ
-    }
+        setLoading(false); // 👈 aquí sí
+        return;
+      }
 
-  } finally {
-    setLoading(false);
-  }
-};
+      const isConnected = await isConnectedToInternet();
+
+      if (!isConnected) {
+        showNoInternetMessage();
+        setLoading(false); // 👈 liberar si falla
+        return;
+      }
+
+      // 🎬 ANUNCIO
+      showRewardedAd(() => {
+        dispatch(addEnergy(ENERGY_REWARD));
+        playSound(require("@/assets/sounds/soundWind.mp3"));
+
+        setLoading(false); // ✅ SOLO cuando termina
+        setVisible(false);
+      });
+
+    } catch (e) {
+      setLoading(false);
+    }
+  };
 
   // 👉 VIP (sin anuncio)
   const getVipEnergy = () => {
@@ -122,6 +128,7 @@ const showNoInternetMessage = () => {
         <Pressable
           style={styles.overlay}
           onPress={() => {
+            if (loading) return; // 🔒 BLOQUEA CIERRE
             setVisible(false);
             playSound(require("@/assets/sounds/soundWind.mp3"));
           }}
@@ -178,10 +185,11 @@ const showNoInternetMessage = () => {
             <TouchableOpacity
               style={[
                 styles.watchButton,
-                isVip && styles.vipButton
+                isVip && styles.vipButton,
+                loading && { opacity: 0.6 } // 👈 feedback visual
               ]}
               onPress={handleGetEnergy}
-              disabled={loading && !isVip}
+              disabled={loading} // 👈 bloquea SIEMPRE (también VIP)
               activeOpacity={0.85}
             >
               <MaterialCommunityIcons
@@ -201,8 +209,6 @@ const showNoInternetMessage = () => {
 
           </Pressable>
         </Pressable>
-      </Modal>
-
       {noInternetVisible && (
   <View style={styles.noInternetToast}>
     <MaterialCommunityIcons
@@ -217,6 +223,8 @@ const showNoInternetMessage = () => {
     </Text>
   </View>
 )}
+      </Modal>
+
     </>
   );
 }

@@ -11,11 +11,12 @@ import {
   MaterialCommunityIcons,
   Ionicons,
   MaterialIcons,
+  FontAwesome5,
 } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 
-import { openVipModal, closeVipModal } from "@/store/reducers/vipSlice";
+import { openVipModal, closeVipModal, setVip } from "@/store/reducers/vipSlice";
 import { playSound } from "@/hooks/playSound";
 
 interface Props {
@@ -38,7 +39,7 @@ export default function VipButton({ onBuyGame }: Props) {
   const handleBuy = () => {
     playSound(require("@/assets/sounds/soundWind.mp3"));
 
-
+    dispatch(setVip())
     onBuyGame?.();
   };
 
@@ -61,18 +62,24 @@ export default function VipButton({ onBuyGame }: Props) {
       >
         <View style={styles.glow} />
 
+        {!isVip ? <FontAwesome5 name="shopping-basket" size={17} color="#FFD700" style={{ marginTop: -5 }}/> : 
+        
         <MaterialCommunityIcons
           name="crown"
           size={20}
           color="#FFD700"
-          style={{ marginTop: -5 }}
+          style={{ marginTop: -2 }}
         />
+        }
 
+
+        {!isVip && 
         <View style={styles.badge}>
           <Text style={styles.badgeText}>
-            {!isVip ? "$11.99" : "VIP"}
+            $11.99
           </Text>
         </View>
+        }
       </TouchableOpacity>
 
       {/* MODAL */}
@@ -94,8 +101,8 @@ export default function VipButton({ onBuyGame }: Props) {
                       ? "Ya eres VIP 🎉"
                       : "You are already VIP 🎉")
                   : (isEs
-                      ? "Desbloquea todos los beneficios"
-                      : "Unlock all benefits")}
+                      ? "Desbloquea la mejor experiencia de juego"
+                      : "Unlock the ultimate gaming experience")}
               </Text>
             </View>
 
@@ -203,8 +210,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
+    width: 48,
   },
-
+  
   badgeText: {
     fontSize: 10,
     fontWeight: "900",

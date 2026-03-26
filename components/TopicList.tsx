@@ -37,6 +37,7 @@ interface TopicItem {
   completed: boolean; // 🔥 NUEVO
   favorite?: boolean;
   vip?: boolean;
+  image: any; // 👈 AÑADE ESTO
 }
 
 const PLAY_COST = 2;
@@ -116,6 +117,7 @@ const closeModal = () => {
     completed: topicProgress?.completed ?? false, // 🔥 CLAVE
     vip: true,
     favorite: favorites[topic.id] ?? false,
+    image: topic.image, // 👈 AQUÍ LA PASAS
   };
 });
   }, [progress, favorites]);
@@ -173,7 +175,7 @@ const playTopic = (topicId: string) => {
         <View style={styles.cardContent}>
           <View style={styles.imageWrapper}>
             <Image
-              source={{ uri: `https://picsum.photos/seed/${item.id}/100/100` }}
+              source={item.image}
               style={styles.topicImage}
             />
 
@@ -267,7 +269,7 @@ const playTopic = (topicId: string) => {
           }}
         >
           <Octicons name="multi-select" size={12} color="#fff" />
-          <Text style={styles.openButtonText}>{isEs ? "Temas" : "Topics"}</Text>
+          <Text style={styles.openButtonText}>{isEs ? "Más Temas" : "More Topics"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -285,11 +287,11 @@ const playTopic = (topicId: string) => {
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 <MaterialCommunityIcons
-                  name="gamepad-variant-outline"
+                  name="crown"
                   size={18}
                   color="#FACC15"
                 />
-                <Text style={styles.title}>{isEs ? "Tematicas" : "Topics"}</Text>
+                <Text style={styles.title}>{isEs ? "Exclusivo" : "Exclusive"}</Text>
               </View>
 
               <TouchableOpacity onPress={() => {

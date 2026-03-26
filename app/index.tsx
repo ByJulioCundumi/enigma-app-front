@@ -91,7 +91,7 @@ export default function Index() {
       <TopBar />
 
       <Animated.Image
-        source={require("../assets/images/logo3.png")}
+        source={require("../assets/images/logo2.png")}
         style={[
           {
             width: logoWidth,
@@ -117,11 +117,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 130,
+    paddingTop: 120,
   },
 
   gameSection: {
     gap: 15,
-    marginTop: -33,
+    marginTop: -23,
   },
 });
