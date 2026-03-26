@@ -8,9 +8,7 @@ import {
 // 🎯 ID del anuncio recompensado
 // ✅ En desarrollo usa TestIds (OBLIGATORIO para evitar bloqueos)
 // 🔴 En producción reemplaza con tu ID real de AdMob
-const adUnitId = __DEV__
-  ? TestIds.REWARDED
-  : "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"; // 👉 REEMPLAZAR
+const adUnitId = TestIds.REWARDED;
 
 // 🧠 Crear instancia del anuncio
 export const createRewardedAd = () => {

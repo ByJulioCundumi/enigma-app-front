@@ -13,10 +13,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { addEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
-import { checkVip } from "@/utils/checkVip";
-import { openVipModal } from "@/store/reducers/vipSlice";
-import { showRewardedAd } from "@/ads/rewardedAd";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
+import { showRewardedAd } from "@/ads/rewardedAd";
 
 const ENERGY_REWARD = 3;
 const VIP_REWARD = 100;
@@ -38,11 +36,7 @@ export default function EnergyStat() {
     (state: IRootState) => state.language
   );
 
-  const { hasPurchased } = useSelector(
-    (state: IRootState) => state.purchase
-  );
-
-  const { vipExpireAt } = useSelector(
+  const { isVip } = useSelector(
   (state: IRootState) => state.vip
 );
 
@@ -56,8 +50,6 @@ const showNoInternetMessage = () => {
   }, 2000);
 };
 
-const isVip = checkVip(vipExpireAt);
-
   const isEs = language === "es";
 
   const [visible, setVisible] = useState(false);
@@ -70,7 +62,7 @@ const isVip = checkVip(vipExpireAt);
 
   try {
     // 👑 VIP o compra
-    if (hasPurchased || isVip) {
+    if (isVip) {
       dispatch(addEnergy(VIP_REWARD));
       playSound(require("@/assets/sounds/soundWind.mp3"));
       setVisible(false);
@@ -80,7 +72,7 @@ const isVip = checkVip(vipExpireAt);
     const isConnected = await isConnectedToInternet();
 
     if (isConnected) {
-      showRewardedAd(() => {
+        showRewardedAd(() => {
         dispatch(addEnergy(ENERGY_REWARD));
         playSound(require("@/assets/sounds/soundWind.mp3"));
         setVisible(false);
@@ -152,7 +144,7 @@ const isVip = checkVip(vipExpireAt);
               </Text>
 
               <Text style={styles.subtitle}>
-                {hasPurchased
+                {isVip
                   ? (isEs
                       ? "Beneficio VIP: obtén energía ilimitada"
                       : "VIP benefit: get unlimited energy")
@@ -176,7 +168,7 @@ const isVip = checkVip(vipExpireAt);
                 />
 
                 <Text style={styles.rewardText}>
-                  +{hasPurchased ? VIP_REWARD : ENERGY_REWARD}{" "}
+                  +{isVip ? VIP_REWARD : ENERGY_REWARD}{" "}
                   {isEs ? "Energía" : "Energy"}
                 </Text>
               </View>
@@ -186,20 +178,20 @@ const isVip = checkVip(vipExpireAt);
             <TouchableOpacity
               style={[
                 styles.watchButton,
-                hasPurchased && styles.vipButton
+                isVip && styles.vipButton
               ]}
               onPress={handleGetEnergy}
-              disabled={loading && !hasPurchased}
+              disabled={loading && !isVip}
               activeOpacity={0.85}
             >
               <MaterialCommunityIcons
-                name={hasPurchased ? "crown" : "play-circle"}
+                name={isVip ? "crown" : "play-circle"}
                 size={22}
                 color="#1a1a1a"
               />
 
               <Text style={styles.watchText}>
-                {hasPurchased
+                {isVip
                   ? (isEs ? "Obtener Energía" : "Get Energy")
                   : (loading
                       ? (isEs ? "Cargando..." : "Loading...")

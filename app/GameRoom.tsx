@@ -44,7 +44,6 @@ import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 /* ================= HOOKS / UTILS ================= */
 import { playSound } from "@/hooks/playSound";
 import { playTimeSound, stopTimeSound } from "@/hooks/playTimeSound";
-import { checkVip } from "@/utils/checkVip";
 
 /* ================= CONSTANTS ================= */
 const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
@@ -130,9 +129,7 @@ export default function GameRoom() {
     (state: IRootState) => state.timer
   );
 
-  const { vipExpireAt } = useSelector((state: IRootState) => state.vip);
-  const isVip = checkVip(vipExpireAt);
-
+  const { isVip } = useSelector((state: IRootState) => state.vip);
   const word = levelData?.word ?? "";
   const cleanWordLength = word.replace(/ /g, "").length;
   const shouldShowArrows = cleanWordLength > 7;

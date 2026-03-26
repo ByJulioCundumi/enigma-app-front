@@ -26,7 +26,6 @@ import { IRootState } from "@/store/rootState";
 import { selectTopic } from "@/store/reducers/topicsSlice";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { toggleFavoriteTopic } from "@/store/reducers/favoritesSlice";
-import { checkVip } from "@/utils/checkVip";
 import { getTopics } from "@/assets/data/topics/topics";
 import { playSound } from "@/hooks/playSound";
 
@@ -45,8 +44,7 @@ const PLAY_COST = 2;
 export default function TopicList() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const {vipExpireAt} = useSelector((state:IRootState)=>state.vip)
-  const isVip = checkVip(vipExpireAt)
+  const {isVip} = useSelector((state:IRootState)=>state.vip)
 
   const progress = useSelector((state: IRootState) => state.topics.progress);
   const energy = useSelector((state: IRootState) => state.energy.energy);
@@ -63,10 +61,6 @@ export default function TopicList() {
     (state: IRootState) => state.language
   );
 
-  const {hasPurchased} = useSelector(
-    (state: IRootState) => state.purchase
-  );
-
   const isEs = language === "es";
 
   const warningOpacity = useRef(new Animated.Value(0)).current;
@@ -75,7 +69,7 @@ export default function TopicList() {
   const topics = getTopics(language); 
 
   const hasEnoughEnergy = energy >= PLAY_COST;
-  const isAllowedUser = isVip || hasPurchased;
+  const isAllowedUser = isVip;
   const canPlayTopic = hasEnoughEnergy && isAllowedUser;
 
 const showCustomWarning = (message: string) => {

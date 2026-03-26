@@ -23,7 +23,6 @@ import WhiteFlashBurst from "./WhiteFlashBurst";
 import { incrementVipPopupCounter, openVipModal, resetVipPopupCounter } from "@/store/reducers/vipSlice";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
 import { showInterstitialAd } from "@/ads/interstitialAd";
-import { checkVip } from "@/utils/checkVip";
 
 const { width } = Dimensions.get("window");
 
@@ -74,13 +73,10 @@ export default function LevelResultPopup({
   (state: IRootState) => state.topics
 );
 
-const hasPurchased = useSelector(
-  (state: IRootState) => state.purchase.hasPurchased
+const {isVip} = useSelector(
+  (state: IRootState) => state.vip
 );
 
-const vipExpireAt = useSelector(
-  (state: IRootState) => state.vip.vipExpireAt
-);
 
 const topic = useSelector(selectCurrentTopic);
 
@@ -101,10 +97,8 @@ useEffect(() => {
 
   const handleMonetization = async () => {
 
-    const isVipActive = checkVip(vipExpireAt);
-
     // 🚫 NO monetizar si tiene VIP o compró
-    if (hasPurchased || isVipActive) return;
+    if (isVip) return;
 
     if (vipPopupCounter > 0 && vipPopupCounter % 5 === 0) {
 
@@ -118,7 +112,7 @@ useEffect(() => {
       } 
       // 📵 SIN INTERNET → POPUP VIP
       else {
-        dispatch(openVipModal("purchase"));
+        dispatch(openVipModal());
       }
 
       dispatch(resetVipPopupCounter());
@@ -131,20 +125,18 @@ useEffect(() => {
     isMounted = false;
   };
 
-}, [vipPopupCounter, hasPurchased, vipExpireAt]);
+}, [vipPopupCounter, isVip]);
 
 
 useEffect(() => {
   if (!visible) return;
 
-  const isVipActive = checkVip(vipExpireAt);
-
   // 🚫 no contar si no debe monetizar
-  if (hasPurchased || isVipActive) return;
+  if (isVip) return;
 
   dispatch(incrementVipPopupCounter());
 
-}, [visible, hasPurchased, vipExpireAt]);
+}, [visible, isVip]);
 
 
 
