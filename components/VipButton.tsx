@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import {
   MaterialCommunityIcons,
@@ -15,9 +16,9 @@ import {
 } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
-
-import { openVipModal, closeVipModal, setVip } from "@/store/reducers/vipSlice";
+import { openVipModal, closeVipModal } from "@/store/reducers/vipSlice";
 import { playSound } from "@/hooks/playSound";
+import { useIAP } from "@/hooks/useIAP";
 
 interface Props {
   onBuyGame?: () => void;
@@ -25,6 +26,10 @@ interface Props {
 
 export default function VipButton({ onBuyGame }: Props) {
   const dispatch = useDispatch();
+  const { buyVIP, restoreVIP } = useIAP();
+
+  const [loadingBuy, setLoadingBuy] = useState(false);
+  const [loadingRestore, setLoadingRestore] = useState(false);
 
   const { isVipModalOpen, isVip } = useSelector(
     (state: IRootState) => state.vip
@@ -36,17 +41,37 @@ export default function VipButton({ onBuyGame }: Props) {
 
   const isEs = language === "es";
 
-  const handleBuy = () => {
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+  // 🛒 COMPRAR
+  const handleBuy = async () => {
+    if (loadingBuy) return;
 
-    dispatch(setVip())
-    onBuyGame?.();
+    playSound(require("@/assets/sounds/soundWind.mp3"));
+    setLoadingBuy(true);
+
+    try {
+      await buyVIP();
+      onBuyGame?.();
+    } catch (e) {
+      console.log("Compra cancelada o error");
+    } finally {
+      setLoadingBuy(false);
+    }
   };
 
-  const handleRestore = () => {
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+  // 🔄 RESTAURAR
+  const handleRestore = async () => {
+    if (loadingRestore) return;
 
-    
+    playSound(require("@/assets/sounds/soundWind.mp3"));
+    setLoadingRestore(true);
+
+    try {
+      await restoreVIP();
+    } catch (e) {
+      console.log("Error restaurando");
+    } finally {
+      setLoadingRestore(false);
+    }
   };
 
   return (
@@ -62,24 +87,29 @@ export default function VipButton({ onBuyGame }: Props) {
       >
         <View style={styles.glow} />
 
-        {!isVip ? <FontAwesome5 name="shopping-basket" size={17} color="#FFD700" style={{ marginTop: -5 }}/> : 
-        
-        <MaterialCommunityIcons
-          name="crown"
-          size={20}
-          color="#FFD700"
-          style={{ marginTop: -2 }}
-        />
-        }
+        {!isVip ? (
+          <FontAwesome5
+            name="shopping-basket"
+            size={17}
+            color="#FFD700"
+            style={{ marginTop: -4 }}
+          />
+        ) : (
+          <MaterialCommunityIcons
+            name="crown"
+            size={20}
+            color="#FFD700"
+            style={{ marginTop: -2 }}
+          />
+        )}
 
-
-        {!isVip && 
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>
-            $11.99
-          </Text>
-        </View>
-        }
+        {!isVip && (
+          <View style={styles.badge}>
+            <Text numberOfLines={1} style={styles.badgeText}>
+              $11.99
+            </Text>
+          </View>
+        )}
       </TouchableOpacity>
 
       {/* MODAL */}
@@ -97,12 +127,12 @@ export default function VipButton({ onBuyGame }: Props) {
 
               <Text style={styles.subtitle}>
                 {isVip
-                  ? (isEs
-                      ? "Ya eres VIP 🎉"
-                      : "You are already VIP 🎉")
-                  : (isEs
-                      ? "Desbloquea la mejor experiencia de juego"
-                      : "Unlock the ultimate gaming experience")}
+                  ? isEs
+                    ? "Ya eres VIP 🎉"
+                    : "You are already VIP 🎉"
+                  : isEs
+                  ? "Desbloquea la mejor experiencia de juego"
+                  : "Unlock the ultimate gaming experience"}
               </Text>
             </View>
 
@@ -123,14 +153,22 @@ export default function VipButton({ onBuyGame }: Props) {
               </View>
 
               <View style={styles.benefitCard}>
-                <MaterialCommunityIcons name="palette" size={18} color="#5cacf6" />
+                <MaterialCommunityIcons
+                  name="palette"
+                  size={18}
+                  color="#5cacf6"
+                />
                 <Text style={styles.benefitTitle}>
                   {isEs ? "Temáticas exclusivas" : "Exclusive themes"}
                 </Text>
               </View>
 
               <View style={styles.benefitCard}>
-                <MaterialCommunityIcons name="crown" size={18} color="#FFD700" />
+                <MaterialCommunityIcons
+                  name="crown"
+                  size={18}
+                  color="#FFD700"
+                />
                 <Text style={[styles.benefitTitle, { color: "#FFD700" }]}>
                   {isEs ? "VIP para siempre" : "VIP forever"}
                 </Text>
@@ -143,25 +181,41 @@ export default function VipButton({ onBuyGame }: Props) {
                 <TouchableOpacity
                   style={styles.buyButton}
                   onPress={handleBuy}
+                  disabled={loadingBuy}
                 >
-                  <MaterialIcons name="local-offer" size={18} color="black" />
-                  <Text style={styles.buyText}>
-                    {isEs
-                      ? "Comprar por $11.99"
-                      : "Buy for $11.99"}
-                  </Text>
+                  {loadingBuy ? (
+                    <ActivityIndicator color="black" />
+                  ) : (
+                    <>
+                      <MaterialIcons
+                        name="local-offer"
+                        size={18}
+                        color="black"
+                      />
+                      <Text style={styles.buyText}>
+                        {isEs
+                          ? "Comprar por $11.99"
+                          : "Buy for $11.99"}
+                      </Text>
+                    </>
+                  )}
                 </TouchableOpacity>
 
                 {/* RESTAURAR */}
                 <TouchableOpacity
                   style={styles.restoreButton}
                   onPress={handleRestore}
+                  disabled={loadingRestore}
                 >
-                  <Text style={styles.restoreText}>
-                    {isEs
-                      ? "Restaurar compra"
-                      : "Restore purchase"}
-                  </Text>
+                  {loadingRestore ? (
+                    <ActivityIndicator color="#cc9e20" />
+                  ) : (
+                    <Text style={styles.restoreText}>
+                      {isEs
+                        ? "Restaurar compra"
+                        : "Restore purchase"}
+                    </Text>
+                  )}
                 </TouchableOpacity>
               </>
             )}
@@ -204,20 +258,21 @@ const styles = StyleSheet.create({
   },
 
   badge: {
-    position: "absolute",
-    bottom: -8,
-    backgroundColor: "#FFD700",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    width: 48,
-  },
+  position: "absolute",
+  bottom: -8,
+  backgroundColor: "#FFD700",
+  paddingHorizontal: 8,
+  paddingVertical: 2,
+  borderRadius: 10,
+  alignSelf: "flex-start", // 👈 importante
+},
   
   badgeText: {
-    fontSize: 10,
-    fontWeight: "900",
-    color: "#1a1a1a",
-  },
+  fontSize: 10,
+  fontWeight: "900",
+  color: "#1a1a1a",
+  includeFontPadding: false,
+},
 
   overlay: {
     flex: 1,

@@ -1,6 +1,6 @@
-// Generar archivo ABB
+// Generar archivo AAB
 //comando - eas build -p android --profile preview
-const ABB = {
+const AAB = {
   "cli": {
     "version": ">= 5.9.0"
   },

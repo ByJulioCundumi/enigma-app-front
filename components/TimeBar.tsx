@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { IRootState } from "@/store/rootState";
 
 type Props = {
   timeLeft: number;
@@ -16,11 +18,13 @@ export default function TimeBar({ timeLeft, totalTime }: Props) {
     return "#ef4444";
   };
 
+  const {isVip} = useSelector((state:IRootState)=> state.vip)
+
   return (
     <View style={styles.timeBarContainer}>
       <FontAwesome6 name="bolt-lightning" size={12} color="#fff" />
 
-      <Text style={styles.x2Text}>x2</Text>
+      <Text style={styles.x2Text}>{isVip ? "x2" : "x1"}</Text>
 
       <View style={styles.timeBarBackground}>
         <View

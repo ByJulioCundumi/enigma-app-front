@@ -1,29 +1,30 @@
 {
   "expo": {
-    "name": "enigma-app",
+    "name": "Enigma: Guess the Word",
     "slug": "enigma-app",
-    "version": "1.0.0",
+    "version": "1.0.1", 
     "orientation": "portrait",
-    "icon": "./assets/images/logo4.png",
+    "icon": "./assets/images/appIcon.png",
     "scheme": "enigmaapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "android": {
-      "package": "com.julio.enigmaapp",
+      "package": "com.enigma.guesstheword",
+      "versionCode": 2, 
       "adaptiveIcon": {},
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/logo3.png"
+      "favicon": "./assets/images/appIcon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo4.png",
+          "image": "./assets/images/logo4.jpg",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
