@@ -23,7 +23,9 @@ export const useVipIAP = () => {
         console.log("✅ Compra exitosa:", purchase.productId);
 
         // 🔒 (sin backend por ahora)
-        const isValid = true;
+        const isValid =
+          purchase.productId === PRODUCT_ID &&
+          purchase.transactionId != null;
 
         if (!isValid) {
           console.error("❌ Verificación fallida");
@@ -98,15 +100,29 @@ export const useVipIAP = () => {
   };
 
   // 🔄 Restaurar manual (botón)
-  const restoreVipPurchases = async () => {
-    try {
-      await getAvailablePurchases(); // actualiza availablePurchases
+const restoreVipPurchases = async () => {
+  try {
+    // actualiza availablePurchases dentro del hook
+    await getAvailablePurchases();
+
+    // usa availablePurchases del hook
+    const hasVip = availablePurchases?.some(
+      (p) => p.productId === PRODUCT_ID
+    );
+
+    if (hasVip) {
+      dispatch(restoreVip());
+      console.log("✅ Compra restaurada");
       return true;
-    } catch (error) {
-      console.error("❌ Error restaurando:", error);
-      return false;
     }
-  };
+
+    console.log("⚠️ No se encontró compra VIP");
+    return false;
+  } catch (error) {
+    console.error("❌ Error restaurando:", error);
+    return false;
+  }
+};
 
   return {
     connected,

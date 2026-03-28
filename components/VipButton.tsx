@@ -19,15 +19,14 @@ import { IRootState } from "@/store/rootState";
 import { openVipModal, closeVipModal } from "@/store/reducers/vipSlice";
 import { playSound } from "@/hooks/playSound";
 import { useVipIAP } from "@/hooks/useVipIAP";
-const { buyVip, restoreVipPurchases } = useVipIAP();
 
 interface Props {
   onBuyGame?: () => void;
 }
 
 export default function VipButton({ onBuyGame }: Props) {
+  const { buyVip, restoreVipPurchases, products } = useVipIAP();
   const dispatch = useDispatch();
-  const { products } = useVipIAP();
 
   const [loadingBuy, setLoadingBuy] = useState(false);
   const [loadingRestore, setLoadingRestore] = useState(false);
