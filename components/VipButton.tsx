@@ -18,7 +18,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { openVipModal, closeVipModal } from "@/store/reducers/vipSlice";
 import { playSound } from "@/hooks/playSound";
-import { useIAP } from "@/hooks/useIAP";
+import { useVipIAP } from "@/hooks/useVipIAP";
+const { buyVip, restoreVipPurchases } = useVipIAP();
 
 interface Props {
   onBuyGame?: () => void;
@@ -26,7 +27,7 @@ interface Props {
 
 export default function VipButton({ onBuyGame }: Props) {
   const dispatch = useDispatch();
-  const { buyVIP, restoreVIP } = useIAP();
+  const { products } = useVipIAP();
 
   const [loadingBuy, setLoadingBuy] = useState(false);
   const [loadingRestore, setLoadingRestore] = useState(false);
@@ -40,6 +41,7 @@ export default function VipButton({ onBuyGame }: Props) {
   );
 
   const isEs = language === "es";
+  const vipProduct = products.find(p => p.id === "enigma_vip_unlock");
 
   // 🛒 COMPRAR
   const handleBuy = async () => {
@@ -49,8 +51,7 @@ export default function VipButton({ onBuyGame }: Props) {
     setLoadingBuy(true);
 
     try {
-      await buyVIP();
-      onBuyGame?.();
+      await buyVip(); // ✅ AQUÍ
     } catch (e) {
       console.log("Compra cancelada o error");
     } finally {
@@ -66,7 +67,7 @@ export default function VipButton({ onBuyGame }: Props) {
     setLoadingRestore(true);
 
     try {
-      await restoreVIP();
+      await restoreVipPurchases(); // ✅ AQUÍ
     } catch (e) {
       console.log("Error restaurando");
     } finally {
@@ -106,7 +107,7 @@ export default function VipButton({ onBuyGame }: Props) {
         {!isVip && (
           <View style={styles.badge}>
             <Text numberOfLines={1} style={styles.badgeText}>
-              $11.99
+              {vipProduct?.displayPrice ?? "$11.99"}
             </Text>
           </View>
         )}
@@ -194,8 +195,8 @@ export default function VipButton({ onBuyGame }: Props) {
                       />
                       <Text style={styles.buyText}>
                         {isEs
-                          ? "Comprar por $11.99"
-                          : "Buy for $11.99"}
+                          ? `Comprar por ${vipProduct?.displayPrice ?? "$11.99"}`
+                          : `Buy for ${vipProduct?.displayPrice ?? "$11.99"}`}
                       </Text>
                     </>
                   )}
