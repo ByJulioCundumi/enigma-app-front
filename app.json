@@ -11,7 +11,7 @@
     "android": {
       "blockedPermissions": ["android.permission.RECORD_AUDIO"],
       "package": "com.enigma.guesstheword",
-      "versionCode": 2, 
+      "versionCode": 3, 
       "adaptiveIcon": {},
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
