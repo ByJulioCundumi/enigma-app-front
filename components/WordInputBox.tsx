@@ -146,7 +146,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 8,
-    width: "100%",
+    width: "90%",
+    maxWidth: 500
   },
 
   wordScrollContent: {

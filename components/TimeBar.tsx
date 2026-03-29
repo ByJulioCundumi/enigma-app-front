@@ -49,11 +49,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#1e293b",
     paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingVertical: 7,
     borderRadius: 14,
     marginBottom: 20,
     gap: 12,
-    width: "100%",
+    width: "90%",
     marginTop: 25,
     maxWidth: 500
   },

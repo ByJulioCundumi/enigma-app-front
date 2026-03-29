@@ -10,13 +10,13 @@ import {
   Animated,
   Easing,
   Image,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-  TouchableOpacity,
   Modal,
   Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
 } from "react-native";
 import { useSelector } from "react-redux";
 import TopicButton from "./TopicButton";
@@ -25,17 +25,21 @@ export default function LevelCard() {
   const { width, height } = useWindowDimensions();
   const MAX_WIDTH = 500;
 
-  // 🔥 IMPORTANTE: imagen en constante
-  const topicImage = require("@/assets/images/topics/animals.jpg");
+const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
 
-  const [modalVisible, setModalVisible] = useState(false);
+  // 🔥 BREAKPOINTS
+  const isSmall = height < 750;
+  const isLarge = height > 900;
 
-  const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
-
+  // 🔥 ESCALA BASE
   let scale = 1;
-  if (height < 700) scale = 0.75;
-  else if (height < 812) scale = 1;
-  else if (height > 900) scale = 1.15;
+  if (height < 700) {
+  scale = 0.75; // 🔥 mucho más pequeño
+} else if (height < 812) {
+  scale = 1; // 🔥 pequeño moderado
+} else if (height > 900) {
+  scale = 1.15; // 🔥 grande
+}
 
   const topic = useSelector(selectCurrentTopic);
   const levelData = useSelector(selectCurrentLevel);
@@ -52,6 +56,17 @@ export default function LevelCard() {
   const level = currentLevelIndex + 1;
   const totalLevels = topic?.levels.length ?? 0;
 
+  const prevLevelRef = useRef(currentLevelIndex);
+  const currentOrderRef = useRef([0, 1, 2, 3]);
+
+  const topicImage = levelData?.image;
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const levelText =
+    selectedTopicId === "random" ? `${level}` : `${level}/${totalLevels}`;
+
+  // 🔥 tamaños escalados
   const cardHeight = 240 * scale;
 
   const boxWidth = cardWidth * 0.42;
@@ -84,6 +99,7 @@ export default function LevelCard() {
   ];
 
   const floatAnims = useRef(items.map(() => new Animated.Value(0))).current;
+  const shineAnim = useRef(new Animated.Value(0)).current;
 
   const animatedPositions = useRef(
     positions.map((pos) => new Animated.ValueXY(pos)),
@@ -111,63 +127,123 @@ export default function LevelCard() {
       };
       loop();
     });
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shineAnim, {
+          toValue: 1,
+          duration: 2600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shineAnim, {
+          toValue: 0,
+          duration: 2600,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
   }, []);
+
+  useEffect(() => {
+    if (prevLevelRef.current !== currentLevelIndex) {
+      prevLevelRef.current = currentLevelIndex;
+
+      const prevOrder = currentOrderRef.current;
+      const newOrder = [prevOrder[3], prevOrder[0], prevOrder[1], prevOrder[2]];
+
+      const animations = newOrder.map((itemIndex, newPosIndex) =>
+        Animated.timing(animatedPositions[itemIndex], {
+          toValue: positions[newPosIndex],
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+      );
+
+      Animated.parallel(animations).start();
+      currentOrderRef.current = newOrder;
+    }
+  }, [currentLevelIndex, scale]);
 
   return (
     <View style={styles.wrapper}>
       <TopicButton />
 
       <View style={[styles.card, { width: cardWidth, height: cardHeight }]}>
-        {items.map((item, index) => (
-          <Animated.View
-            key={index}
-            style={[
-              styles.clueBox,
-              {
-                width: boxWidth,
-                height: boxHeight,
-                borderRadius: 16 * scale,
-                transform: [
-                  { translateX: animatedPositions[index].x },
-                  { translateY: animatedPositions[index].y },
-                ],
-              },
-            ]}
-          >
-            <LinearGradient style={styles.gradient} colors={colors[index] as [string, string]}>
-              <View style={styles.questionBackground}>
-                <Animated.Text
+        {items.map((item, index) => {
+          return (
+            <Animated.View
+              key={index}
+              style={[
+                styles.clueBox,
+                {
+                  width: boxWidth,
+                  height: boxHeight,
+                  borderRadius: 16 * scale,
+                  transform: [
+                    { translateX: animatedPositions[index].x },
+                    { translateY: animatedPositions[index].y },
+                  ],
+                },
+              ]}
+            >
+              <LinearGradient style={styles.gradient} colors={colors[index] as [string, string]}>
+                <Animated.View
                   style={[
-                    styles.backgroundQuestionMark,
+                    styles.shine,
                     {
-                      fontSize: 85 * scale,
-                      transform: [
-                        {
-                          scale: floatAnims[index].interpolate({
-                            inputRange: [-5 * scale, 5 * scale],
-                            outputRange: [0.95, 1.05],
-                          }),
-                        },
-                        { translateY: floatAnims[index] },
-                      ],
+                      width: 50 * scale,
+                      height: 50 * scale,
+                      borderRadius: 25 * scale,
                     },
                   ]}
-                >
-                  ?
-                </Animated.Text>
-              </View>
+                />
 
-              <View style={styles.wordContainer}>
-                <Text
-                  style={[styles.wordText, { fontSize: 16 * scale }]}
-                  numberOfLines={2}
-                >
-                  {item.content}
-                </Text>
-              </View>
-            </LinearGradient>
-          </Animated.View>
-        ))}
+                <Animated.View
+                  style={[
+                    styles.shineB,
+                    {
+                      width: 50 * scale,
+                      height: 50 * scale,
+                      borderRadius: 25 * scale,
+                    },
+                  ]}
+                />
+
+                <View style={styles.questionBackground}>
+                  <Animated.Text
+                    style={[
+                      styles.backgroundQuestionMark,
+                      {
+                        fontSize: 85 * scale,
+                        transform: [
+                          {
+                            scale: floatAnims[index].interpolate({
+                              inputRange: [-5 * scale, 5 * scale],
+                              outputRange: [0.95, 1.05],
+                            }),
+                          },
+                          { translateY: floatAnims[index] },
+                        ],
+                      },
+                    ]}
+                  >
+                    ?
+                  </Animated.Text>
+                </View>
+
+                <View style={styles.wordContainer}>
+                  <Text
+                    style={[styles.wordText, { fontSize: 16 * scale }]}
+                    numberOfLines={2}
+                  >
+                    {item.content}
+                  </Text>
+                </View>
+              </LinearGradient>
+            </Animated.View>
+          );
+        })}
 
         {/* BADGE */}
         <View
@@ -314,6 +390,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 4,
     borderColor: "#ffffff56",
+  },
+
+  shine: {
+    position: "absolute",
+    top: -20,
+    left: -20,
+    backgroundColor: "rgba(255,255,255,0.35)",
+  },
+  shineB: {
+    position: "absolute",
+    bottom: -18,
+    right: -18,
+    backgroundColor: "rgba(255,255,255,0.25)",
   },
 
   // 🔥 MODAL

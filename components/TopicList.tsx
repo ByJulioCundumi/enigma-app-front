@@ -202,7 +202,7 @@ const playTopic = (topicId: string) => {
                 <Ionicons
                   name={item.favorite ? "heart" : "heart-outline"}
                   size={18}
-                  color={item.favorite ? "#44b0ef" : "#94A3B8"}
+                  color={item.favorite ? "#ffbb00" : "#94A3B8"}
                 />
               </TouchableOpacity>
             </View>
@@ -319,7 +319,7 @@ const playTopic = (topicId: string) => {
                 <Ionicons
                   name={showFavorites ? "heart" : "heart-outline"}
                   size={20}
-                  color="#44b0ef"
+                  color="#ffbb00"
                 />
               </TouchableOpacity>
             </View>
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   },
 
   progressBar: {
-    height: 5,
+    height: 2,
     backgroundColor: "#313c50",
     borderRadius: 6,
     marginTop: 8,
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   },
 
   progressFill: {
-    height: "100%",
-    backgroundColor: "#44b0ef",
+    height: 2,
+    backgroundColor: "#9444ef",
   },
 });

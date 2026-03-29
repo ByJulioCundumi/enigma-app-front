@@ -35,7 +35,7 @@ type Props = {
   onContinue: () => void;
   onRetry: () => void;
   onHome: () => void;
-  isTopicCompleted?: boolean; // 👈 NUEVO
+  word?: string; // 👈 NUEVO
 };
 
 export default function LevelResultPopup({
@@ -45,6 +45,7 @@ export default function LevelResultPopup({
   onContinue,
   onRetry,
   onHome,
+  word, // 👈 NUEVO
 }: Props) {
   const dispatch = useDispatch();
 
@@ -299,10 +300,10 @@ useEffect(() => {
   : "#ef4444";
 
   const accentBorderColor = isTopicCompleted
-  ? "#ffc4002f" // dorado épico
+  ? "#ffc40060" // dorado épico
   : success
-  ? "#22c55e38"
-  : "#ef444433";
+  ? "#ffffff3d"
+  : "#ffffff3d";
 
   return (
     <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
@@ -334,8 +335,8 @@ useEffect(() => {
           {isTopicCompleted
             ? (isEs ? "¡Temática Completada!" : "Topic Completed!")
             : success
-            ? (isEs ? "Nivel Completado" : "Level Completed")
-            : (isEs ? "Nivel fallado" : "Level Failed")}
+            ? (word ? `✨ ${word.toUpperCase()} ✨` : "")
+            : (isEs ? "🔥 Casi Lo Logras! 🔥" : "🔥 So Close! 🔥")}
         </Text>
 
         <Text style={styles.subtitle}>
@@ -446,7 +447,7 @@ const styles = StyleSheet.create({
 
   container: {
     width: "90%",
-    backgroundColor: "#030c18",
+    backgroundColor: "#020b1b",
     borderRadius: 28,
     paddingVertical: 20,
     paddingHorizontal: 32,
@@ -471,14 +472,14 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: "#1e293b",
+    backgroundColor: "#0a1a30",
     alignItems: "center",
     justifyContent: "center",
   },
 
   title: {
     color: "#fff",
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: "900",
     textAlign: "center",
   },

@@ -1,7 +1,32 @@
 export const superpowersLevelsEs = [
-  { id: 1, word: "VOLAR", words: ["Cielo", "Aire", "Alas", "Arriba"] },
-  { id: 2, word: "CORRER RÁPIDO", words: ["Velocidad", "Ágil", "Rápido", "Sprint"] },
-  { id: 3, word: "SUPER FUERZA", words: ["Poder", "Levantar", "Fuerte", "Fuerza"] },
-  { id: 4, word: "INVISIBLE", words: ["Oculto", "Fantasma", "Sigilo", "Esconder"] },
-  { id: 5, word: "TELETRANSPORTAR", words: ["Viajar", "Espacio", "Mover", "Salto"] },
+  { 
+    id: 1, 
+    word: "VUELO", 
+    image: require("@/assets/images/superpowers/fly.jpg"), 
+    words: ["Cielo", "Alas", "Volar", "Aire"] 
+  },
+  { 
+    id: 2, 
+    word: "SUPER VELOCIDAD", 
+    image: require("@/assets/images/superpowers/speed.jpg"), 
+    words: ["Rápido", "Carrera", "Rayo", "Impulso"] 
+  },
+  { 
+    id: 3, 
+    word: "SUPER FUERZA", 
+    image: require("@/assets/images/superpowers/strength.jpg"), 
+    words: ["Poder", "Levantar", "Aplastar", "Fuerza"] 
+  },
+  { 
+    id: 4, 
+    word: "INVISIBILIDAD", 
+    image: require("@/assets/images/superpowers/invisibility.jpg"), 
+    words: ["Oculto", "Sigilo", "Desaparecer", "Fantasma"] 
+  },
+  { 
+    id: 5, 
+    word: "TELETRANSPORTE", 
+    image: require("@/assets/images/superpowers/teleportation.jpg"), 
+    words: ["Salto", "Mover", "Espacio", "Cambio"] 
+  },
 ];
