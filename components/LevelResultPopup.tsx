@@ -22,7 +22,7 @@ import { markTopicCompleted } from "@/store/reducers/topicsSlice";
 import WhiteFlashBurst from "./WhiteFlashBurst";
 import { incrementVipPopupCounter, openVipModal, resetVipPopupCounter } from "@/store/reducers/vipSlice";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
-import { showInterstitialAd } from "@/ads/interstitialAd";
+//import { showInterstitialAd } from "@/ads/interstitialAd";
 
 const { width } = Dimensions.get("window");
 
@@ -108,7 +108,7 @@ useEffect(() => {
 
       // 🌐 CON INTERNET → ANUNCIO
       if (isConnected) {
-        showInterstitialAd(() => {});
+        //showInterstitialAd(() => {});
       } 
       // 📵 SIN INTERNET → POPUP VIP
       else {

@@ -202,7 +202,7 @@ const playTopic = (topicId: string) => {
                 <Ionicons
                   name={item.favorite ? "heart" : "heart-outline"}
                   size={18}
-                  color={item.favorite ? "#EF4444" : "#94A3B8"}
+                  color={item.favorite ? "#44b0ef" : "#94A3B8"}
                 />
               </TouchableOpacity>
             </View>
@@ -319,7 +319,7 @@ const playTopic = (topicId: string) => {
                 <Ionicons
                   name={showFavorites ? "heart" : "heart-outline"}
                   size={20}
-                  color="#EF4444"
+                  color="#44b0ef"
                 />
               </TouchableOpacity>
             </View>
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   },
 
   listContent: {
-    paddingBottom: 20,
+    paddingBottom: 0,
   },
 
   card: {
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
   vipBadge: {
     position: "absolute",
     bottom: -4,
-    left: -4,
+    left: -9,
     backgroundColor: "#243047",
     borderRadius: 10,
     padding: 3,
@@ -561,6 +561,6 @@ const styles = StyleSheet.create({
 
   progressFill: {
     height: "100%",
-    backgroundColor: "#FFC400",
+    backgroundColor: "#44b0ef",
   },
 });

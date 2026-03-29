@@ -1,5 +1,4 @@
 import { IRootState } from "@/store/rootState";
-import { Octicons } from "@expo/vector-icons";
 import React from "react";
 import {
   View,
@@ -7,7 +6,11 @@ import {
   StyleSheet,
 } from "react-native";
 import { useSelector } from "react-redux";
-import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
+import { 
+  selectCurrentTopic
+} from "@/store/selectors/topicSelectors";
+import { getTopics } from "@/assets/data/topics/topics";
+import { MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 
 export default function TopicButton() {
   const { language } = useSelector((state: IRootState) => state.language);
@@ -15,23 +18,46 @@ export default function TopicButton() {
 
   const topic = useSelector(selectCurrentTopic);
 
-  // 🔥 nombre dinámico real
-  const topicName = topic?.name;
+  const topicId = useSelector((state: IRootState) => state.topics.selectedTopic);
+  const currentLevelIndex = useSelector(
+    (state: IRootState) => state.topics.progress[topicId]?.currentLevel ?? 0
+  );
+
+  const topics = getTopics(language);
+  const totalLevels = topics[topicId]?.levels.length ?? 1;
+
+  const isRandom = topicId === "random";
+
+  const topicName = topic?.name ?? (isEs ? "Aleatorio" : "Random");
+  const levelNumber = currentLevelIndex + 1;
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.badge}>
-        <Octicons name="multi-select" size={12} color="#fff" />
 
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="clip"
-          style={styles.text}
-        >
-          {isEs
-            ? `Tema: ${topicName ?? "Aleatorio"}`
-            : `Topic: ${topicName ?? "Random"}`}
+        {/* 🔥 Icono */}
+        <View>
+          <Octicons name="multi-select" size={14} color="#fff" />
+        </View>
+
+        {/* 🔥 Tema */}
+        <Text numberOfLines={1} style={styles.topicText}>
+          {topicName}
         </Text>
+
+        {/* 🔥 Nivel tipo chip */}
+        <View style={styles.levelChip}>
+          <Text style={styles.levelText}>
+            {isEs
+              ? isRandom
+                ? `Nv. ${levelNumber}`
+                : `Nv. ${levelNumber}/${totalLevels}`
+              : isRandom
+                ? `Lv. ${levelNumber}`
+                : `Lv. ${levelNumber}/${totalLevels}`}
+          </Text>
+        </View>
+
       </View>
     </View>
   );
@@ -40,28 +66,41 @@ export default function TopicButton() {
 const styles = StyleSheet.create({
   wrapper: {
     alignSelf: "center",
-    left: 0,
-    top: -14,
-    marginTop: 13,
-    zIndex: 200
+    top: -16,
+    marginTop: 16,
+    zIndex: 200,
   },
 
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff15",
-    paddingHorizontal: 15,
+    backgroundColor: "#ffffff10",
+    paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 16,
-
-    alignSelf: "flex-start", // 🔥 ancho dinámico
+    borderRadius: 999, // 🔥 pill perfecta
     gap: 8,
+
+    borderWidth: 1,
+    borderColor: "#ffffff20",
   },
 
-  text: {
+  topicText: {
     color: "white",
     fontWeight: "800",
     fontSize: 14,
-    flexShrink: 0, // 🔥 evita que se comprima
+    maxWidth: 140,
+  },
+
+  levelChip: {
+    backgroundColor: "#FFD70020",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+
+  levelText: {
+    color: "#FFD700",
+    fontSize: 11,
+    fontWeight: "800",
   },
 });

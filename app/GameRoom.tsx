@@ -451,12 +451,12 @@ export default function GameRoom() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#0f172a", paddingBottom: 20 },
-  container: { flex: 1, paddingHorizontal: 20, paddingTop: 25,  },
+  container: { flex: 1, paddingHorizontal: 20, paddingTop: 30,  },
   scrollContent: { flexGrow: 1, alignItems: "center"},
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 26,
+    marginBottom: 20,
   },
   backButton: {
     backgroundColor: "#1e293b",

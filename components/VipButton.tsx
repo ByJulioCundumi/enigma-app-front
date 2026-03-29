@@ -16,16 +16,16 @@ import {
 } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
-import { openVipModal, closeVipModal } from "@/store/reducers/vipSlice";
+import { openVipModal, closeVipModal, setVip } from "@/store/reducers/vipSlice";
 import { playSound } from "@/hooks/playSound";
-import { useVipIAP } from "@/hooks/useVipIAP";
+//import { useVipIAP } from "@/hooks/useVipIAP";
 
 interface Props {
   onBuyGame?: () => void;
 }
 
 export default function VipButton({ onBuyGame }: Props) {
-  const { buyVip, restoreVipPurchases, products } = useVipIAP();
+  //const { buyVip, restoreVipPurchases, products } = useVipIAP();
   const dispatch = useDispatch();
 
   const [loadingBuy, setLoadingBuy] = useState(false);
@@ -40,7 +40,7 @@ export default function VipButton({ onBuyGame }: Props) {
   );
 
   const isEs = language === "es";
-  const vipProduct = products.find(p => p.id === "enigma_vip_unlock");
+  //const vipProduct = products.find(p => p.id === "enigma_vip_unlock");
 
   // 🛒 COMPRAR
   const handleBuy = async () => {
@@ -50,7 +50,8 @@ export default function VipButton({ onBuyGame }: Props) {
     setLoadingBuy(true);
 
     try {
-      await buyVip(); // ✅ AQUÍ
+      //await buyVip(); // ✅ AQUÍ
+      dispatch(setVip())
     } catch (e) {
       console.log("Compra cancelada o error");
     } finally {
@@ -66,7 +67,7 @@ export default function VipButton({ onBuyGame }: Props) {
     setLoadingRestore(true);
 
     try {
-      await restoreVipPurchases(); // ✅ AQUÍ
+      //await restoreVipPurchases(); // ✅ AQUÍ
     } catch (e) {
       console.log("Error restaurando");
     } finally {
@@ -90,26 +91,27 @@ export default function VipButton({ onBuyGame }: Props) {
         {!isVip ? (
           <FontAwesome5
             name="shopping-basket"
-            size={17}
+            size={14}
             color="#FFD700"
-            style={{ marginTop: -4 }}
+            style={{ marginTop: -2.5 }}
           />
         ) : (
           <MaterialCommunityIcons
-            name="crown"
+            name="badge-account-outline"
             size={20}
             color="#FFD700"
-            style={{ marginTop: -2 }}
+            style={{ marginTop: 0 }}
           />
         )}
 
-        {!isVip && (
+        {
+          !isVip &&
           <View style={styles.badge}>
-            <Text numberOfLines={1} style={styles.badgeText}>
-              {vipProduct?.displayPrice ?? "$11.99"}
-            </Text>
+             <Text style={styles.badgeText}>
+                $9.99
+              </Text>
           </View>
-        )}
+        }
       </TouchableOpacity>
 
       {/* MODAL */}
@@ -121,18 +123,30 @@ export default function VipButton({ onBuyGame }: Props) {
           <Pressable style={styles.popup}>
             {/* HEADER */}
             <View style={styles.header}>
+                <View style={{flexDirection: "row", alignItems: "center", gap:5}}>
+                  <MaterialCommunityIcons
+                  name="badge-account-outline"
+                  size={24}
+                  color="#FFD700"
+                />
               <Text style={styles.title}>
                 {isEs ? "Jugador VIP" : "VIP Player"}
               </Text>
+              <MaterialCommunityIcons
+                  name="badge-account-outline"
+                  size={24}
+                  color="#FFD700"
+                />
+                </View>
 
               <Text style={styles.subtitle}>
-                {isVip
+                {!isVip
                   ? isEs
-                    ? "Ya eres VIP 🎉"
-                    : "You are already VIP 🎉"
+                    ? "Desbloquea la mejor experiencia de juego"
+                    : "Unlock the ultimate gaming experience"
                   : isEs
-                  ? "Desbloquea la mejor experiencia de juego"
-                  : "Unlock the ultimate gaming experience"}
+                  ? "Disfruta la mejor experiencia de juego"
+                  : "Enjoy the ultimate gaming experience"}
               </Text>
             </View>
 
@@ -193,9 +207,10 @@ export default function VipButton({ onBuyGame }: Props) {
                         color="black"
                       />
                       <Text style={styles.buyText}>
+                        {/* vipProduct?.displayPrice ?? */}
                         {isEs
-                          ? `Comprar por ${vipProduct?.displayPrice ?? "$11.99"}`
-                          : `Buy for ${vipProduct?.displayPrice ?? "$11.99"}`}
+                          ? `Comprar por ${"$11.99"}`
+                          : `Buy for ${"$11.99"}`}
                       </Text>
                     </>
                   )}
@@ -225,8 +240,8 @@ export default function VipButton({ onBuyGame }: Props) {
               <View style={styles.vipMessageContainer}>
                 <Text style={styles.vipMessage}>
                   {isEs
-                    ? "Gracias por apoyar el juego ❤️"
-                    : "Thanks for supporting the game ❤️"}
+                    ? "❤️ Gracias por apoyar el juego :)"
+                    : "❤️ Thanks for supporting the game :)"}
                 </Text>
               </View>
             )}
@@ -239,8 +254,8 @@ export default function VipButton({ onBuyGame }: Props) {
 
 const styles = StyleSheet.create({
   vipButton: {
-    width: 42,
-    height: 42,
+    width: 33,
+    height: 33,
     borderRadius: 50,
     backgroundColor: "#0b0b1a",
     justifyContent: "center",
@@ -251,8 +266,8 @@ const styles = StyleSheet.create({
 
   glow: {
     position: "absolute",
-    width: 55,
-    height: 55,
+    width: 45,
+    height: 45,
     borderRadius: 60,
     backgroundColor: "rgba(255,215,0,0.18)",
   },
@@ -262,13 +277,16 @@ const styles = StyleSheet.create({
   bottom: -8,
   backgroundColor: "#FFD700",
   paddingHorizontal: 8,
-  paddingVertical: 2,
+  paddingVertical: 1.5,
   borderRadius: 10,
-  alignSelf: "flex-start", // 👈 importante
+  flexDirection: "row",
+  alignSelf: "flex-start", // 🔥 clave
+  width: 43.5,
+  marginLeft: -7
 },
-  
-  badgeText: {
-  fontSize: 10,
+
+badgeText: {
+  fontSize: 9,
   fontWeight: "900",
   color: "#1a1a1a",
   includeFontPadding: false,
