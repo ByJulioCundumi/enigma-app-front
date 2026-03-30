@@ -1,20 +1,20 @@
 export const superpowersLevelsEs = [
   { 
     id: 1, 
-    word: "VUELO", 
-    image: require("@/assets/images/superpowers/fly.jpg"), 
-    words: ["Cielo", "Alas", "Volar", "Aire"] 
+    word: "VOLAR", 
+    image: require("@/assets/images/superpowers/flight.jpg"), 
+    words: ["Cielo", "Alas", "Flotar", "Aire"] 
   },
   { 
     id: 2, 
     word: "SUPER VELOCIDAD", 
-    image: require("@/assets/images/superpowers/speed.jpg"), 
+    image: require("@/assets/images/superpowers/superspeed.jpg"), 
     words: ["Rápido", "Carrera", "Rayo", "Impulso"] 
   },
   { 
     id: 3, 
     word: "SUPER FUERZA", 
-    image: require("@/assets/images/superpowers/strength.jpg"), 
+    image: require("@/assets/images/superpowers/superstrength.jpg"), 
     words: ["Poder", "Levantar", "Aplastar", "Fuerza"] 
   },
   { 

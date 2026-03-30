@@ -268,8 +268,7 @@ const playTopic = (topicId: string) => {
             playSound(require("@/assets/sounds/soundWind.mp3"));
           }}
         >
-          <Octicons name="multi-select" size={12} color="#fff" />
-          <Text style={styles.openButtonText}>{isEs ? "Más Temas" : "More Topics"}</Text>
+          <Text style={styles.openButtonText}>{isEs ? "¿Qué palabra es?" : "More Topics"}</Text>
         </TouchableOpacity>
       </View>
 

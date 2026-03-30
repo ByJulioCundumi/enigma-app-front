@@ -10,7 +10,7 @@ import {
   selectCurrentTopic
 } from "@/store/selectors/topicSelectors";
 import { getTopics } from "@/assets/data/topics/topics";
-import { MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
+import { FontAwesome6, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 
 export default function TopicButton() {
   const { language } = useSelector((state: IRootState) => state.language);
@@ -37,12 +37,12 @@ export default function TopicButton() {
 
         {/* 🔥 Icono */}
         <View>
-          <Octicons name="multi-select" size={14} color="#fff" />
+          <FontAwesome6 name="ranking-star" size={14} color="#fff" />
         </View>
 
         {/* 🔥 Tema */}
         <Text numberOfLines={1} style={styles.topicText}>
-          {topicName}
+          Nivel
         </Text>
 
         {/* 🔥 Nivel tipo chip */}
@@ -50,11 +50,11 @@ export default function TopicButton() {
           <Text style={styles.levelText}>
             {isEs
               ? isRandom
-                ? `Nv. ${levelNumber}`
-                : `Nv. ${levelNumber}/${totalLevels}`
+                ? `${levelNumber}`
+                : `${levelNumber}/${totalLevels}`
               : isRandom
-                ? `Lv. ${levelNumber}`
-                : `Lv. ${levelNumber}/${totalLevels}`}
+                ? `${levelNumber}`
+                : `${levelNumber}/${totalLevels}`}
           </Text>
         </View>
 

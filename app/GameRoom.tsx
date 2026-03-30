@@ -6,6 +6,7 @@ import {
   ScrollView,
   Animated,
   Vibration,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -45,7 +46,7 @@ import { playSound } from "@/hooks/playSound";
 import { playTimeSound, stopTimeSound } from "@/hooks/playTimeSound";
 
 /* ================= CONSTANTS ================= */
-const ALPHABET = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
+const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
 
 const TOTAL_TIME = 30;
 const EXTRA_TIME = 30;
@@ -53,44 +54,47 @@ const MAX_TIME = 120;
 const MAX_TIME_USES = 3;
 
 /* ================= HELPERS ================= */
-const shuffle = (array: string[]) =>
-  [...array].sort(() => Math.random() - 0.5);
+const shuffleArray = (array: string[]) => {
+  return [...array].sort(() => Math.random() - 0.5);
+};
 
 const generateKeyboardLetters = (word: string) => {
   const cleanWord = word.replace(/ /g, "");
   const wordLetters = cleanWord.split("");
 
-  // 🎯 1. asegurar letras de la palabra
-  let pool = [...wordLetters];
+  const screenWidth = Dimensions.get("window").width;
 
-  // 🎯 2. rellenar hasta 27
-  while (pool.length < 25) {
-  const randomLetter =
-    ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+  const KEY_SIZE = 46;
+  const PADDING = 20;
 
-  // evita exceso de repetición
-  const count = pool.filter((l) => l === randomLetter).length;
+  const availableWidth = screenWidth - PADDING * 2;
 
-  if (count < 2) {
-    pool.push(randomLetter);
+  const lettersPerRow = Math.floor(availableWidth / (KEY_SIZE + 8));
+
+  // 👉 IMPORTANTE: mínimo 3 filas si la palabra es grande
+  let rows = 2;
+
+  if (wordLetters.length > lettersPerRow * 2) {
+    rows = 3;
   }
-}
 
-  // 🎯 3. mezclar
-  const shuffled = shuffle(pool);
+  const totalSlots = rows * lettersPerRow;
 
-  // 🎯 4. convertir a keys
-  const keys = shuffled.map((l) => ({
+  const extraLettersCount = Math.max(
+    0,
+    totalSlots - wordLetters.length
+  );
+
+  const extraLetters = Array.from({ length: extraLettersCount }, () =>
+    alphabet[Math.floor(Math.random() * alphabet.length)]
+  );
+
+  const pool = [...wordLetters, ...extraLetters];
+
+  return shuffleArray(pool).map((l) => ({
     letter: l,
     used: false,
   }));
-
-  // 🎯 5. dividir en 3 filas de 9
-  return [
-    keys.slice(0, 9),
-    keys.slice(9, 18),
-    keys.slice(18, 27),
-  ];
 };
 
 /* ================= COMPONENT ================= */
@@ -110,10 +114,8 @@ export default function GameRoom() {
   >("idle");
 
   const [letters, setLetters] = useState<string[]>([]);
-
-  /* ================= STATE ================= */
   const [keyboardLetters, setKeyboardLetters] = useState<
-    { letter: string; used: boolean }[][]
+    { letter: string; used: boolean }[]
   >([]);
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -153,7 +155,6 @@ export default function GameRoom() {
     };
   }, []);
 
-  /* ================= EFFECT ================= */
   useEffect(() => {
     if (!word) return;
 
@@ -164,32 +165,6 @@ export default function GameRoom() {
     setKeyboardLetters(generateKeyboardLetters(word));
     setValidationState("idle");
   }, [word]);
-
-  /* ================= HELPERS INTERNOS ================= */
-
-// 🔍 buscar letra en teclado
-const findKey = (
-  letter: string,
-  onlyUsed?: boolean
-): { row: number; col: number } | null => {
-  for (let row = 0; row < keyboardLetters.length; row++) {
-    for (let col = 0; col < keyboardLetters[row].length; col++) {
-      const key = keyboardLetters[row][col];
-
-      if (
-        key.letter === letter &&
-        (onlyUsed === undefined || key.used === onlyUsed)
-      ) {
-        return { row, col };
-      }
-    }
-  }
-  return null;
-};
-
-// 🧠 clonar teclado (importante)
-const cloneKeyboard = () =>
-  keyboardLetters.map((row) => row.map((k) => ({ ...k })));
 
   useEffect(() => {
     if (!timerActive) return;
@@ -260,108 +235,108 @@ const cloneKeyboard = () =>
     }
   };
 
-/* ================= LOGIC ================= */
+  const addLetter = (letter: string, keyboardIndex: number) => {
+    if (!timerActive) return;
 
-const addLetter = (letter: string, row: number, col: number) => {
-  if (!timerActive) return;
+    const newLetters = [...letters];
+    if (newLetters[selectedIndex] === " ") return;
 
-  const newLetters = [...letters];
-  if (newLetters[selectedIndex] === " ") return;
+    const previousLetter = newLetters[selectedIndex];
 
-  const previousLetter = newLetters[selectedIndex];
-  const newKeyboard = cloneKeyboard();
+    if (previousLetter) {
+      const prevKeyboardIndex = keyboardLetters.findIndex(
+        (k) => k.letter === previousLetter && k.used
+      );
 
-  // 🔄 liberar letra previa
-  if (previousLetter) {
-    const prev = findKey(previousLetter, true);
-    if (prev) {
-      newKeyboard[prev.row][prev.col].used = false;
+      if (prevKeyboardIndex !== -1) {
+        const newKeyboard = [...keyboardLetters];
+        newKeyboard[prevKeyboardIndex].used = false;
+        setKeyboardLetters(newKeyboard);
+      }
     }
-  }
 
-  // ✅ asignar nueva letra
-  newLetters[selectedIndex] = letter;
-  setLetters(newLetters);
+    newLetters[selectedIndex] = letter;
+    setLetters(newLetters);
 
-  newKeyboard[row][col].used = true;
-  setKeyboardLetters(newKeyboard);
+    const newKeyboard = [...keyboardLetters];
+    newKeyboard[keyboardIndex].used = true;
+    setKeyboardLetters(newKeyboard);
 
-  moveCursorNext(selectedIndex);
-  checkWordCompletion(newLetters);
+    moveCursorNext(selectedIndex);
+    checkWordCompletion(newLetters);
 
-  playSound(require("@/assets/sounds/soundClick2.mp3"));
-};
+    playSound(require("@/assets/sounds/soundClick2.mp3"));
+  };
 
-const removeLetter = (index: number) => {
-  const removedLetter = letters[index];
-  if (!removedLetter || removedLetter === " ") return;
+  const removeLetter = (index: number) => {
+    const removedLetter = letters[index];
+    if (!removedLetter || removedLetter === " ") return;
 
-  const newLetters = [...letters];
-  newLetters[index] = "";
-  setLetters(newLetters);
+    const newLetters = [...letters];
+    newLetters[index] = "";
+    setLetters(newLetters);
 
-  setSelectedIndex(index);
-  setValidationState("idle");
+    setSelectedIndex(index);
+    setValidationState("idle");
 
-  const newKeyboard = cloneKeyboard();
+    playSound(require("@/assets/sounds/soundClick5.mp3"));
 
-  const pos = findKey(removedLetter, true);
-  if (pos) {
-    newKeyboard[pos.row][pos.col].used = false;
-  }
+    const keyboardIndex = keyboardLetters.findIndex(
+      (k) => k.letter === removedLetter && k.used
+    );
 
-  setKeyboardLetters(newKeyboard);
+    if (keyboardIndex !== -1) {
+      const newKeyboard = [...keyboardLetters];
+      newKeyboard[keyboardIndex].used = false;
+      setKeyboardLetters(newKeyboard);
+    }
+  };
 
-  playSound(require("@/assets/sounds/soundClick5.mp3"));
-};
+  const clearLetters = (sound: boolean) => {
+    setLetters(word.split("").map((l) => (l === " " ? " " : "")));
+    setSelectedIndex(0);
+    setKeyboardLetters((prev) => prev.map((k) => ({ ...k, used: false })));
+    setValidationState("idle");
 
-const clearLetters = (sound: boolean) => {
-  setLetters(word.split("").map((l) => (l === " " ? " " : "")));
-  setSelectedIndex(0);
+    if (sound) {
+      playSound(require("@/assets/sounds/soundClick6.mp3"));
+    }
+  };
 
-  // reset limpio
-  setKeyboardLetters(generateKeyboardLetters(word));
+  const useHint = () => {
+    if (energy <= 0 || remainingLetters <= 2) return;
 
-  setValidationState("idle");
+    const availableIndexes = letters
+      .map((l, i) => (word[i] !== " " && l !== word[i] ? i : -1))
+      .filter((i) => i !== -1);
 
-  if (sound) {
-    playSound(require("@/assets/sounds/soundClick6.mp3"));
-  }
-};
+    if (!availableIndexes.length) return;
 
-const useHint = () => {
-  if (energy <= 0 || remainingLetters <= 2) return;
+    const randomIndex =
+      availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
 
-  const availableIndexes = letters
-    .map((l, i) => (word[i] !== " " && l !== word[i] ? i : -1))
-    .filter((i) => i !== -1);
+    const correctLetter = word[randomIndex];
 
-  if (!availableIndexes.length) return;
+    const newLetters = [...letters];
+    newLetters[randomIndex] = correctLetter;
+    setLetters(newLetters);
 
-  const randomIndex =
-    availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+    const keyboardIndex = keyboardLetters.findIndex(
+      (k) => k.letter === correctLetter && !k.used
+    );
 
-  const correctLetter = word[randomIndex];
+    if (keyboardIndex !== -1) {
+      const newKeyboard = [...keyboardLetters];
+      newKeyboard[keyboardIndex].used = true;
+      setKeyboardLetters(newKeyboard);
+    }
 
-  const newLetters = [...letters];
-  newLetters[randomIndex] = correctLetter;
-  setLetters(newLetters);
+    dispatch(consumeEnergy(1));
+    moveCursorNext(randomIndex);
+    checkWordCompletion(newLetters);
 
-  const newKeyboard = cloneKeyboard();
-
-  const pos = findKey(correctLetter, false);
-  if (pos) {
-    newKeyboard[pos.row][pos.col].used = true;
-  }
-
-  setKeyboardLetters(newKeyboard);
-
-  dispatch(consumeEnergy(1));
-  moveCursorNext(randomIndex);
-  checkWordCompletion(newLetters);
-
-  playSound(require("@/assets/sounds/soundDistorted.mp3"));
-};
+    playSound(require("@/assets/sounds/soundDistorted.mp3"));
+  };
 
   const addExtraTime = () => {
     if (energy <= 0 || extraTimeUsed >= MAX_TIME_USES) return;
@@ -448,8 +423,7 @@ const useHint = () => {
             shakeAnim={shakeAnim}
           />
 
-          <View style={styles.bottomBox}>
-            <GameActions
+          <GameActions
             onClear={() => clearLetters(true)}
             onHint={useHint}
             onAddTime={addExtraTime}
@@ -457,11 +431,7 @@ const useHint = () => {
             timeDisabled={timeDisabled}
           />
 
-          <GameKeyboard
-            letters={keyboardLetters}
-            onPressKey={addLetter}
-          />
-          </View>
+          <GameKeyboard letters={keyboardLetters} onPressKey={addLetter} />
         </ScrollView>
       </View>
 
@@ -481,25 +451,17 @@ const useHint = () => {
 /* ================= STYLES ================= */
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#0f172a" },
-  container: { flex: 1, paddingHorizontal: 0, paddingTop: 30,  },
+  screen: { flex: 1, backgroundColor: "#0f172a", paddingBottom: 20 },
+  container: { flex: 1, paddingHorizontal: 20, paddingTop: 25,  },
   scrollContent: { flexGrow: 1, alignItems: "center"},
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
-    width: "90%",
-    marginHorizontal: "auto"
+    marginBottom: 26,
   },
   backButton: {
     backgroundColor: "#1e293b",
     padding: 10,
     borderRadius: 12,
   },
-  bottomBox:{
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  }
 });

@@ -271,8 +271,8 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
               style={[
                 styles.badgeCore,
                 {
-                  width: 90 * scale,
-                  height: 90 * scale,
+                  width: 80 * scale,
+                  height: 80 * scale,
                   borderRadius: 50 * scale,
                 },
               ]}
@@ -288,8 +288,8 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
                   <Image
                     source={topicImage}
                     style={{
-                      width: 82 * scale,
-                      height: 82 * scale,
+                      width: 72 * scale,
+                      height: 72 * scale,
                       borderRadius: 50 * scale,
                       resizeMode: "cover",
                     }}
@@ -380,7 +380,6 @@ const styles = StyleSheet.create({
   },
 
   badgeOuterRing: {
-    backgroundColor: "#c997003a",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -388,7 +387,7 @@ const styles = StyleSheet.create({
   badgeCore: {
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 4,
+    borderWidth: 6,
     borderColor: "#ffffff56",
   },
 
