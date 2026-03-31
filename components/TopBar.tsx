@@ -15,6 +15,7 @@ import LanguageSelector from "./LanguageSelector";
 import EnergyStat from "./EnergyStat";
 import { playSound } from "@/hooks/playSound";
 import VipButton from "./VipButton";
+import TopicList from "./TopicList";
 
 const { width } = Dimensions.get("window");
 
@@ -58,6 +59,7 @@ export default function TopBar() {
             
             {/* DERECHA */}
             <EnergyStat />
+            <TopicList />
           </View>
 
       </View>
@@ -81,6 +83,7 @@ const styles = StyleSheet.create({
     width: width * 0.95,
     borderRadius: 28,
     paddingHorizontal: 12,
+    paddingRight: 0,
     backgroundColor: "rgba(17, 24, 39, 0)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0)",

@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     marginBottom: 20,
     gap: 12,
-    width: "90%",
+    width: "85%",
     marginTop: 25,
     maxWidth: 500
   },

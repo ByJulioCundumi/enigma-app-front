@@ -336,7 +336,7 @@ useEffect(() => {
             ? (isEs ? "¡Temática Completada!" : "Topic Completed!")
             : success
             ? (word ? `✨ ${word.toUpperCase()} ✨` : "")
-            : (isEs ? "🔥 Casi Lo Logras! 🔥" : "🔥 So Close! 🔥")}
+            : (isEs ? "😤 ¡Estuviste muy cerca! 🔥" : "😤 You were so close! 🔥")}
         </Text>
 
         <Text style={styles.subtitle}>

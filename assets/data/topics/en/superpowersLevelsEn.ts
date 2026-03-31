@@ -1,32 +1,7 @@
 export const superpowersLevelsEn = [
-  { 
-    id: 1, 
-    word: "FLIGHT", 
-    image: require("@/assets/images/superpowers/flight.jpg"), 
-    words: ["Sky", "Wings", "Soar", "Air"] 
-  },
-  { 
-    id: 2, 
-    word: "SUPER SPEED", 
-    image: require("@/assets/images/superpowers/superspeed.jpg"), 
-    words: ["Fast", "Dash", "Blur", "Rush"] 
-  },
-  { 
-    id: 3, 
-    word: "SUPER STRENGTH", 
-    image: require("@/assets/images/superpowers/superstrength.jpg"), 
-    words: ["Power", "Lift", "Crush", "Force"] 
-  },
-  { 
-    id: 4, 
-    word: "INVISIBILITY", 
-    image: require("@/assets/images/superpowers/invisibility.jpg"), 
-    words: ["Hidden", "Stealth", "Fade", "Ghost"] 
-  },
-  { 
-    id: 5, 
-    word: "TELEPORTATION", 
-    image: require("@/assets/images/superpowers/teleportation.jpg"), 
-    words: ["Blink", "Warp", "Shift", "Space"] 
-  },
+  { id: 1, word: "FLIGHT", words: ["Sky", "Wings", "Soar", "Air"] },
+  { id: 2, word: "SUPER SPEED", words: ["Fast", "Dash", "Blur", "Rush"] },
+  { id: 3,  word: "SUPER STRENGTH", words: ["Power", "Lift", "Crush", "Force"] },
+  { id: 4, word: "INVISIBILITY", words: ["Hidden", "Stealth", "Fade", "Ghost"] },
+  { id: 5, word: "TELEPORTATION", words: ["Blink", "Warp", "Shift", "Space"] },
 ];

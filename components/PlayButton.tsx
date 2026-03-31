@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: 60,
+    bottom: 50,
   },
 
   toast: {

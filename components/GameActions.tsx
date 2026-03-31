@@ -38,7 +38,7 @@ export default function GameActions({
         <View style={styles.badge}>
           <MaterialCommunityIcons
             name="lightning-bolt"
-            size={12}
+            size={10}
             color="#fff"
           />
           <Text style={styles.badgeText}>1</Text>
@@ -58,7 +58,7 @@ export default function GameActions({
         <View style={styles.timeBadge}>
           <MaterialCommunityIcons
             name="lightning-bolt"
-            size={12}
+            size={10}
             color="#fff"
           />
           <Text style={styles.badgeText}>1</Text>
@@ -73,9 +73,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
-    marginBottom: 24,
-    width: "100%",
-    marginTop: 60,
+    marginBottom: 18,
+    width: "auto",
+    marginTop: 50,
+    paddingVertical: 8,
+    paddingTop: 11,
+    paddingHorizontal: 14,
+    borderRadius: 15,
+    backgroundColor: "#ffffff13",
+    alignSelf: "center"
   },
   actionWrapper: {
     position: "relative",
@@ -110,33 +116,33 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: "absolute",
-    top: -8,
-    right: -8,
+    top: -5,
+    right: -5,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fac000",
     paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingVertical: 1.5,
     borderRadius: 8,
     minWidth: 28,
     justifyContent: "center",
   },
   timeBadge: {
     position: "absolute",
-    top: -8,
-    right: -8,
+    top: -5,
+    right: -5,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#16a34a",
     paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingVertical: 1.5,
     borderRadius: 8,
     minWidth: 28,
     justifyContent: "center",
   },
   badgeText: {
     color: "#fff",
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: "700",
     marginLeft: 2,
   },

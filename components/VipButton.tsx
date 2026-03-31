@@ -124,19 +124,15 @@ export default function VipButton({ onBuyGame }: Props) {
             {/* HEADER */}
             <View style={styles.header}>
                 <View style={{flexDirection: "row", alignItems: "center", gap:5}}>
-                  <MaterialCommunityIcons
-                  name="badge-account-outline"
+              <MaterialCommunityIcons
+                  name="crown"
                   size={24}
                   color="#FFD700"
+                  style={{marginTop: -7}}
                 />
               <Text style={styles.title}>
                 {isEs ? "Jugador VIP" : "VIP Player"}
               </Text>
-              <MaterialCommunityIcons
-                  name="badge-account-outline"
-                  size={24}
-                  color="#FFD700"
-                />
                 </View>
 
               <Text style={styles.subtitle}>
@@ -234,17 +230,6 @@ export default function VipButton({ onBuyGame }: Props) {
                 </TouchableOpacity>
               </>
             )}
-
-            {/* MENSAJE SI YA ES VIP */}
-            {isVip && (
-              <View style={styles.vipMessageContainer}>
-                <Text style={styles.vipMessage}>
-                  {isEs
-                    ? "❤️ Gracias por apoyar el juego :)"
-                    : "❤️ Thanks for supporting the game :)"}
-                </Text>
-              </View>
-            )}
           </Pressable>
         </Pressable>
       </Modal>
@@ -318,6 +303,7 @@ badgeText: {
   title: {
     color: "#FFD700",
     fontSize: 24,
+    marginBottom: 10,
     fontWeight: "900",
   },
 

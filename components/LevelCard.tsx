@@ -5,16 +5,12 @@ import {
 } from "@/store/selectors/topicSelectors";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Easing,
-  Image,
-  Modal,
-  Pressable,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native";
@@ -26,10 +22,6 @@ export default function LevelCard() {
   const MAX_WIDTH = 500;
 
 const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
-
-  // 🔥 BREAKPOINTS
-  const isSmall = height < 750;
-  const isLarge = height > 900;
 
   // 🔥 ESCALA BASE
   let scale = 1;
@@ -58,10 +50,6 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
 
   const prevLevelRef = useRef(currentLevelIndex);
   const currentOrderRef = useRef([0, 1, 2, 3]);
-
-  const topicImage = levelData?.image;
-
-  const [modalVisible, setModalVisible] = useState(false);
 
   const levelText =
     selectedTopicId === "random" ? `${level}` : `${level}/${totalLevels}`;
@@ -170,6 +158,9 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
       <TopicButton />
 
       <View style={[styles.card, { width: cardWidth, height: cardHeight }]}>
+        <View style={styles.topics}>
+          <View style={styles.circle}></View>
+        </View>
         {items.map((item, index) => {
           return (
             <Animated.View
@@ -244,84 +235,7 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
             </Animated.View>
           );
         })}
-
-        {/* BADGE */}
-        <View
-          style={[
-            styles.badgeWrapper,
-            {
-              transform: [
-                { translateX: -43 * scale },
-                { translateY: -43 * scale },
-              ],
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.badgeOuterRing,
-              {
-                width: 86 * scale,
-                height: 86 * scale,
-                borderRadius: 43 * scale,
-              },
-            ]}
-          >
-            <View
-              style={[
-                styles.badgeCore,
-                {
-                  width: 80 * scale,
-                  height: 80 * scale,
-                  borderRadius: 50 * scale,
-                },
-              ]}
-            >
-              {isCompleted ? (
-                <FontAwesome6
-                  name="flag-checkered"
-                  size={26 * scale}
-                  color="#5a3b00"
-                />
-              ) : (
-                <TouchableOpacity onPress={() => setModalVisible(true)}>
-                  <Image
-                    source={topicImage}
-                    style={{
-                      width: 72 * scale,
-                      height: 72 * scale,
-                      borderRadius: 50 * scale,
-                      resizeMode: "cover",
-                    }}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        </View>
       </View>
-
-      {/* 🔥 MODAL CORREGIDO */}
-      <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          
-          {/* Fondo clickeable */}
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={() => setModalVisible(false)}
-          />
-
-          {/* Imagen */}
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => setModalVisible(false)}
-            style={styles.imageWrapper}
-          >
-            <Image source={topicImage} style={styles.fullImage} />
-          </TouchableOpacity>
-
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -337,6 +251,20 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0,0,0,0.04)",
     marginBottom: -10,
   },
+
+  topics: {
+  ...StyleSheet.absoluteFillObject,
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 100
+},
+
+circle:{
+  width: 27,
+  height: 27,
+  borderRadius: 100,
+  backgroundColor: "#ffffff1c"
+},
 
   clueBox: {
     position: "absolute",
@@ -402,26 +330,5 @@ const styles = StyleSheet.create({
     bottom: -18,
     right: -18,
     backgroundColor: "rgba(255,255,255,0.25)",
-  },
-
-  // 🔥 MODAL
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.85)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  imageWrapper: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  fullImage: {
-    width: "95%",
-    maxWidth: "95%",
-    aspectRatio: 1,
-    borderRadius: 20,
-    resizeMode: "contain",
   },
 });

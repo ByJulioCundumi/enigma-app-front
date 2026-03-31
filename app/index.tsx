@@ -1,6 +1,7 @@
 import LevelCard from "@/components/LevelCard";
 import PlayButton from "@/components/PlayButton";
 import TopBar from "@/components/TopBar";
+import TopicButton from "@/components/TopicButton";
 import TopicList from "@/components/TopicList";
 import { stopTimeSound } from "@/hooks/playTimeSound";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
@@ -8,7 +9,7 @@ import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { IRootState } from "@/store/rootState";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
+import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -26,14 +27,20 @@ export default function Index() {
   const dispatch = useDispatch();
   const { currentPage } = useSelector((state: IRootState) => state.currentPage);
 
+  const {language} = useSelector(
+      (state: IRootState) => state.language
+    );
+  
+    const isEs = language === "es";
+
   // 🔥 BREAKPOINTS por altura
   const isSmall = height < 750;
   const isLarge = height > 900;
   const logoMarginTop = isSmall ? -20 : 0;
 
   // 🔥 tamaños del logo según dispositivo
-  let logoWidth = 450;
-  let logoHeight = 240;
+  let logoWidth = 400;
+  let logoHeight = 230;
 
   if (isSmall) {
     logoWidth = 300;
@@ -107,7 +114,8 @@ export default function Index() {
         <LevelCard />
       </View>
 
-      <TopicList />
+      <Text style={styles.textCta}>{isEs ? "¿Qué palabra es?" : "What word is it?"}</Text>
+
       <PlayButton />
     </LinearGradient>
   );
@@ -124,4 +132,14 @@ const styles = StyleSheet.create({
     gap: 15,
     marginTop: -23,
   },
+  textCta:{
+    color: "white",
+    fontWeight: "800",
+    fontSize: 14,
+    backgroundColor: "#ffffff15",
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 15,
+    marginTop: 25
+  }
 });

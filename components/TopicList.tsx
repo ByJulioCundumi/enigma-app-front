@@ -268,7 +268,8 @@ const playTopic = (topicId: string) => {
             playSound(require("@/assets/sounds/soundWind.mp3"));
           }}
         >
-          <Text style={styles.openButtonText}>{isEs ? "¿Qué palabra es?" : "More Topics"}</Text>
+          <Octicons name="multi-select" size={14} color="#fff" />
+          <Text style={styles.openButtonText}>{isEs ? "Temas" : "Topics"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -394,7 +395,9 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 23
+    position: "absolute",
+    top: 40,
+    right: 15
   },
 
   openButtonText: {
@@ -560,6 +563,6 @@ const styles = StyleSheet.create({
 
   progressFill: {
     height: 2,
-    backgroundColor: "#9444ef",
+    backgroundColor: "#4472ef",
   },
 });

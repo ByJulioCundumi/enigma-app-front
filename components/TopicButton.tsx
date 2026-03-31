@@ -37,24 +37,24 @@ export default function TopicButton() {
 
         {/* 🔥 Icono */}
         <View>
-          <FontAwesome6 name="ranking-star" size={14} color="#fff" />
+          <Octicons name="multi-select" size={14} color="#fff" />
         </View>
 
         {/* 🔥 Tema */}
         <Text numberOfLines={1} style={styles.topicText}>
-          Nivel
+          {topicName}
         </Text>
 
         {/* 🔥 Nivel tipo chip */}
         <View style={styles.levelChip}>
-          <Text style={styles.levelText}>
+          <Text style={styles.levelText}> 
             {isEs
               ? isRandom
-                ? `${levelNumber}`
-                : `${levelNumber}/${totalLevels}`
+                ? `Nv. ${levelNumber}`
+                : `Nv. ${levelNumber}/${totalLevels}`
               : isRandom
-                ? `${levelNumber}`
-                : `${levelNumber}/${totalLevels}`}
+                ? `Lv. ${levelNumber}`
+                : `Lv. ${levelNumber}/${totalLevels}`}
           </Text>
         </View>
 

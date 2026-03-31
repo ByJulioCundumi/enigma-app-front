@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 8,
-    width: "90%",
+    width: "85%",
     maxWidth: 500
   },
 
@@ -169,28 +169,32 @@ const styles = StyleSheet.create({
 
   letterBox: {
     width: 34,
-    height: 34,
+    height: 38,
     marginHorizontal: 4,
-    borderRadius: 10,
-    backgroundColor: "#1e293b",
+    borderRadius: 8,
+    backgroundColor: "#2a374d",
     borderWidth: 2,
-    borderColor: "#334155",
+    borderColor: "#33415500",
     justifyContent: "center",
     alignItems: "center",
   },
 
   selectedLetterBox: {
-    borderColor: "#f59e0b",
-    backgroundColor: "#1e293b88",
+    borderWidth: 2,
+    borderBottomWidth: 2,
+    borderBottomColor: "#a5a5a585",
+    backgroundColor: "#2a374d",
   },
 
   correctBox: {
     borderColor: "#22c55e94",
+    borderBottomWidth: 2,
     backgroundColor: "#22c55e22",
   },
 
   incorrectBox: {
     borderColor: "#ef444477",
+    borderBottomWidth: 2,
     backgroundColor: "#ef444422",
   },
 
