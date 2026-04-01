@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -18,14 +18,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { openVipModal, closeVipModal, setVip } from "@/store/reducers/vipSlice";
 import { playSound } from "@/hooks/playSound";
-//import { useVipIAP } from "@/hooks/useVipIAP";
+import { useVipIAP } from "@/hooks/useVipIAP";
 
 interface Props {
   onBuyGame?: () => void;
 }
 
 export default function VipButton({ onBuyGame }: Props) {
-  //const { buyVip, restoreVipPurchases, products } = useVipIAP();
+  const { 
+  buyVip, 
+  restoreVipPurchases, 
+  products,
+  error,
+  success,
+  clearMessages
+} = useVipIAP();
   const dispatch = useDispatch();
 
   const [loadingBuy, setLoadingBuy] = useState(false);
@@ -40,7 +47,17 @@ export default function VipButton({ onBuyGame }: Props) {
   );
 
   const isEs = language === "es";
-  //const vipProduct = products.find(p => p.id === "enigma_vip_unlock");
+  const vipProduct = products.find(p => p.id === "enigma_vip_unlock");
+
+  useEffect(() => {
+  if (error || success) {
+    const timer = setTimeout(() => {
+      clearMessages();
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }
+}, [error, success]);
 
   // 🛒 COMPRAR
   const handleBuy = async () => {
@@ -50,8 +67,7 @@ export default function VipButton({ onBuyGame }: Props) {
     setLoadingBuy(true);
 
     try {
-      //await buyVip(); // ✅ AQUÍ
-      dispatch(setVip())
+      await buyVip(); // ✅ AQUÍ
     } catch (e) {
       console.log("Compra cancelada o error");
     } finally {
@@ -67,13 +83,26 @@ export default function VipButton({ onBuyGame }: Props) {
     setLoadingRestore(true);
 
     try {
-      //await restoreVipPurchases(); // ✅ AQUÍ
+      await restoreVipPurchases(); // ✅ AQUÍ
     } catch (e) {
       console.log("Error restaurando");
     } finally {
       setLoadingRestore(false);
     }
   };
+
+  const formatPriceWithCode = (product: any) => {
+  if (!product) return "$11.99";
+
+  const value = Number(product.price);
+
+  const formatted = new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: product.currencyCode,
+  }).format(value);
+
+  return `${formatted} ${product.currencyCode}`;
+};
 
   return (
     <>
@@ -82,6 +111,7 @@ export default function VipButton({ onBuyGame }: Props) {
         style={styles.vipButton}
         activeOpacity={0.9}
         onPress={() => {
+          clearMessages(); // 👈 agrega esto
           dispatch(openVipModal());
           playSound(require("@/assets/sounds/soundWind.mp3"));
         }}
@@ -203,10 +233,9 @@ export default function VipButton({ onBuyGame }: Props) {
                         color="black"
                       />
                       <Text style={styles.buyText}>
-                        {/* vipProduct?.displayPrice ?? */}
                         {isEs
-                          ? `Comprar por ${"$11.99"}`
-                          : `Buy for ${"$11.99"}`}
+                          ? `Comprar por ${formatPriceWithCode(vipProduct)}`
+                          : `Buy for ${formatPriceWithCode(vipProduct)}`}
                       </Text>
                     </>
                   )}
@@ -230,6 +259,25 @@ export default function VipButton({ onBuyGame }: Props) {
                 </TouchableOpacity>
               </>
             )}
+
+            {(error || success) && (
+  <View style={styles.vipMessageContainer}>
+    <Text
+      style={[
+        styles.vipMessage,
+        { color: error ? "#ef4444" : "#22c55e" } // rojo o verde
+      ]}
+    >
+      {error || success}
+    </Text>
+
+    <TouchableOpacity onPress={clearMessages}>
+      <Text style={{ color: "#888", fontSize: 11, marginTop: 4 }}>
+        OK
+      </Text>
+    </TouchableOpacity>
+  </View>
+)}
           </Pressable>
         </Pressable>
       </Modal>
@@ -360,14 +408,18 @@ badgeText: {
   },
 
   vipMessageContainer: {
-    marginTop: 10,
-    alignItems: "center",
-  },
+  marginTop: 12,
+  alignItems: "center",
+  backgroundColor: "#020617",
+  padding: 10,
+  borderRadius: 10,
+  borderWidth: 1,
+  borderColor: "#334155",
+},
 
-  vipMessage: {
-    color: "#FFD700",
-    fontWeight: "800",
-    textAlign: "center",
-    fontSize: 13,
-  },
+vipMessage: {
+  fontWeight: "800",
+  textAlign: "center",
+  fontSize: 13,
+},
 });

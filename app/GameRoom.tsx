@@ -258,7 +258,12 @@ export default function GameRoom() {
 
     const formedWord = currentLetters.join("");
 
-    if (formedWord === word) {
+    if (formedWord !== word) {
+      playSound(require("@/assets/sounds/soundError2.mp3"));
+      setValidationState("incorrect");
+      triggerShake();
+      Vibration.vibrate(100);
+    } else {
       setValidationState("correct");
       setTimerActive(false);
       setLevelSuccess(true);
@@ -269,11 +274,6 @@ export default function GameRoom() {
         : dispatch(addEnergy(1));
 
       playSound(require("@/assets/sounds/soundLevelUp.mp3"));
-    } else {
-      playSound(require("@/assets/sounds/soundError2.mp3"));
-      setValidationState("incorrect");
-      triggerShake();
-      Vibration.vibrate(100);
     }
   };
 

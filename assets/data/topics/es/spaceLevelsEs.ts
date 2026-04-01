@@ -1,9 +1,9 @@
 export const spaceLevelsEs = [
   { 
     id: 1, 
-    word: "ESPACIO", 
-    words: ["Galaxias", "Estrellas", "Vacío", "Universo"],
-    image: require("@/assets/images/space/space.jpg"),
+    word: "SOL", 
+    words: ["Calor", "Luz", "Estrella", "Energía"],
+    image: require("@/assets/images/space/sun.jpg"),
   },
   { 
     id: 2, 
@@ -25,8 +25,8 @@ export const spaceLevelsEs = [
   },
   { 
     id: 5, 
-    word: "SOL", 
-    words: ["Calor", "Luz", "Estrella", "Energía"],
-    image: require("@/assets/images/space/sun.jpg"),
+    word: "ESPACIO", 
+    words: ["Galaxias", "Estrellas", "Vacío", "Universo"],
+    image: require("@/assets/images/space/space.jpg"),
   },
 ];

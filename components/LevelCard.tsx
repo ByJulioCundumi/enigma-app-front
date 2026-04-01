@@ -299,6 +299,9 @@ circle:{
     fontWeight: "900",
     textAlign: "center",
     color: "#ffffff",
+    textShadowColor: "rgba(0, 0, 0, 0.16)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
 
   badgeWrapper: {

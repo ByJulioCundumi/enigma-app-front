@@ -28,7 +28,7 @@ import {
 } from "@/store/reducers/vipSlice";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
 import SunburstBackground from "./SunburstBackground";
-import ConfettiBurst from "./ConfettiBurst";
+import { showInterstitialAd } from "@/ads/interstitialAd";
 
 const RETRY_COST = 2;
 
@@ -71,8 +71,6 @@ export default function LevelResultPopup({
   const isLastLevel = currentLevel + 1 === totalLevels;
   const isTopicCompleted = progress[selectedTopic]?.completed ?? false;
 
-  const [showConfetti, setShowConfetti] = useState(false);
-
   // Animaciones
   const scale = useRef(new Animated.Value(0.9)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -88,10 +86,37 @@ export default function LevelResultPopup({
   const [flashTrigger, setFlashTrigger] = useState(false);
   const levelData = topic?.levels[currentLevel];
 
+  const zoomAnim = useRef(new Animated.Value(1)).current;
+
   // 🎯 Imagen dinámica
   const resultImage = success
   ? levelData?.image
   : require("@/assets/images/ui/fail.jpg");
+
+  useEffect(() => {
+  if (!visible) return;
+
+  const zoomLoop = Animated.loop(
+    Animated.sequence([
+      Animated.timing(zoomAnim, {
+        toValue: 1.05, // zoom in
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(zoomAnim, {
+        toValue: 1, // zoom out
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+    ])
+  );
+
+  zoomLoop.start();
+
+  return () => {
+    zoomAnim.stopAnimation(); // limpia al desmontar
+  };
+}, [visible]);
 
   // 🎬 Animación entrada/salida
   useEffect(() => {
@@ -156,15 +181,6 @@ export default function LevelResultPopup({
     if (!visible) rewardGivenRef.current = false;
   }, [visible, success]);
 
-
-  useEffect(() => {
-  if (visible && success) {
-    setShowConfetti(true);
-  } else {
-    setShowConfetti(false);
-  }
-}, [visible, success]);
-
   // ⚡ Flash efecto
   useEffect(() => {
     if (!visible || !success) return;
@@ -189,7 +205,7 @@ export default function LevelResultPopup({
         const isConnected = await isConnectedToInternet();
 
         if (isConnected) {
-          // showInterstitialAd()
+          showInterstitialAd()
         } else {
           dispatch(openVipModal());
         }
@@ -237,7 +253,6 @@ export default function LevelResultPopup({
 
   return (
     <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
-      {showConfetti && <ConfettiBurst active />}
       <Animated.View
         style={[
           styles.container,
@@ -250,21 +265,28 @@ export default function LevelResultPopup({
 
         <SunburstBackground isSuccess={success} />
         {/* 🖼️ Imagen dinámica */}
-        <View style={styles.imgContainer}>
+        <Animated.View
+          style={[
+            styles.imgContainer,
+            {
+              transform: [{ scale: zoomAnim }],
+            },
+          ]}
+        >
           <Image source={resultImage} style={styles.image} />
-        </View>
+        </Animated.View>
 
         {/* 🧠 Texto */}
         <Text style={styles.title}>
           {isTopicCompleted
             ? isEs
-              ? "🎉 ¡Temática completada!"
-              : "🎉 Topic completed!"
+              ? "✨ Tema Completado ✨"
+              : "✨ Topic completed ✨"
             : success
-            ? `✨  ${word?.toUpperCase() || ""}  ✨`
+            ? `✨ ${word?.toUpperCase() || ""} ✨`
             : isEs
-            ? "😤 ¡Casi lo logras!"
-            : "😤 So close!"}
+            ? "Casi lo logras"
+            : "So close"}
         </Text>
 
         <Text style={styles.subtitle}>
@@ -273,8 +295,8 @@ export default function LevelResultPopup({
               ? "Buen trabajo!"
               : "Great job!"
             : isEs
-            ? "Inténtalo de nuevo 💪"
-            : "Try again 💪"}
+            ? "Inténtalo de nuevo"
+            : "Try again"}
         </Text>
 
         {/* 🎮 Botones */}
@@ -359,10 +381,10 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    width: "95%",
+    width: "100%",
     maxWidth: 500,
     borderRadius: 28,
-    padding: 24,
+    padding: 29,
     alignItems: "center",
   },
 
@@ -373,7 +395,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "#ffffffbe"
+    borderColor: "#ffffff9c"
   },
 
   image: {
@@ -384,19 +406,25 @@ const styles = StyleSheet.create({
 
   title: {
     color: "#fff",
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "900",
     textAlign: "center",
+    backgroundColor: "#ccd1ff1e",
+    padding: 5,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    letterSpacing: 4
   },
 
   subtitle: {
-    color: "#94a3b8",
-    marginTop: 6,
+    color: "#95a5bb",
+    marginTop: 10,
     textAlign: "center",
+    fontSize: 14
   },
 
   buttons: {
-    marginTop: 18,
+    marginTop: 50,
     gap: 12,
   },
 

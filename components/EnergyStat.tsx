@@ -14,6 +14,7 @@ import { IRootState } from "@/store/rootState";
 import { addEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
+import { showRewardedAd } from "@/ads/rewardedAd";
 //import { showRewardedAd } from "@/ads/rewardedAd";
 
 const ENERGY_REWARD = 3;
@@ -78,7 +79,6 @@ const showNoInternetMessage = () => {
         return;
       }
 
-      /*
       // 🎬 ANUNCIO
       showRewardedAd(() => {
         dispatch(addEnergy(ENERGY_REWARD));
@@ -87,7 +87,6 @@ const showNoInternetMessage = () => {
         setLoading(false); // ✅ SOLO cuando termina
         setVisible(false);
       });
-      */
 
     } catch (e) {
       setLoading(false);

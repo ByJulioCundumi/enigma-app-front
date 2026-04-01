@@ -168,8 +168,8 @@ const styles = StyleSheet.create({
   },
 
   letterBox: {
-    width: 34,
-    height: 38,
+    width: 32,
+    height: 35,
     marginHorizontal: 4,
     borderRadius: 8,
     backgroundColor: "#2a374d",
