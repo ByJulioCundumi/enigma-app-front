@@ -3,7 +3,6 @@ import {
   selectCurrentLevel,
   selectCurrentTopic,
 } from "@/store/selectors/topicSelectors";
-import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import {
@@ -15,7 +14,6 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSelector } from "react-redux";
-import TopicButton from "./TopicButton";
 import TopicList from "./TopicList";
 
 export default function LevelCard() {

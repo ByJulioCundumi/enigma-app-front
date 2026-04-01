@@ -20,7 +20,6 @@ import { IRootState } from "@/store/rootState";
 import { stopTimeSound } from "@/hooks/playTimeSound";
 import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
 import { markTopicCompleted } from "@/store/reducers/topicsSlice";
-import WhiteFlashBurst from "./WhiteFlashBurst";
 import {
   incrementVipPopupCounter,
   openVipModal,
@@ -85,8 +84,37 @@ export default function LevelResultPopup({
   const rewardGivenRef = useRef(false);
   const [flashTrigger, setFlashTrigger] = useState(false);
   const levelData = topic?.levels[currentLevel];
+  const isAdRunningRef = useRef(false);
 
   const zoomAnim = useRef(new Animated.Value(1)).current;
+
+  const showInterstitialAdSafe = () => {
+  return new Promise<void>((resolve) => {
+    let finished = false;
+
+    const timeout = setTimeout(() => {
+      if (!finished) {
+        console.log("⏱️ Interstitial timeout");
+        finished = true;
+        resolve();
+      }
+    }, 8000); // 👈 máximo 4s
+
+    try {
+      showInterstitialAd(() => {
+        if (finished) return;
+
+        finished = true;
+        clearTimeout(timeout);
+        resolve();
+      });
+    } catch (e) {
+      console.log("❌ Interstitial error");
+      clearTimeout(timeout);
+      resolve();
+    }
+  });
+};
 
   // 🎯 Imagen dinámica
   const resultImage = success
@@ -205,7 +233,7 @@ export default function LevelResultPopup({
         const isConnected = await isConnectedToInternet();
 
         if (isConnected) {
-          showInterstitialAd()
+          await showInterstitialAdSafe(); // ✅ SEGURO
         } else {
           dispatch(openVipModal());
         }

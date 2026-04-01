@@ -91,19 +91,6 @@ export default function VipButton({ onBuyGame }: Props) {
     }
   };
 
-  const formatPriceWithCode = (product: any) => {
-  if (!product) return "$11.99";
-
-  const value = Number(product.price);
-
-  const formatted = new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: product.currencyCode,
-  }).format(value);
-
-  return `${formatted} ${product.currencyCode}`;
-};
-
   return (
     <>
       {/* BOTÓN VIP */}
@@ -137,8 +124,9 @@ export default function VipButton({ onBuyGame }: Props) {
         {
           !isVip &&
           <View style={styles.badge}>
+             <MaterialIcons name="sell" size={10} color="black" />
              <Text style={styles.badgeText}>
-                $9.99
+                Plus
               </Text>
           </View>
         }
@@ -234,8 +222,9 @@ export default function VipButton({ onBuyGame }: Props) {
                       />
                       <Text style={styles.buyText}>
                         {isEs
-                          ? `Comprar por ${formatPriceWithCode(vipProduct)}`
-                          : `Buy for ${formatPriceWithCode(vipProduct)}`}
+                          ? `Comprar por ${vipProduct?.displayPrice || "$9.99"}`
+                          : `Buy for ${vipProduct?.displayPrice || "$9.99"}`
+                        }
                       </Text>
                     </>
                   )}
@@ -309,13 +298,15 @@ const styles = StyleSheet.create({
   position: "absolute",
   bottom: -8,
   backgroundColor: "#FFD700",
-  paddingHorizontal: 8,
+  paddingHorizontal: 7,
   paddingVertical: 1.5,
   borderRadius: 10,
   flexDirection: "row",
   alignSelf: "flex-start", // 🔥 clave
   width: 43.5,
-  marginLeft: -7
+  marginLeft: -7,
+  alignItems: "center",
+  gap: 2
 },
 
 badgeText: {

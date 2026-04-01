@@ -1,8 +1,6 @@
 import LevelCard from "@/components/LevelCard";
 import PlayButton from "@/components/PlayButton";
 import TopBar from "@/components/TopBar";
-import TopicButton from "@/components/TopicButton";
-import TopicList from "@/components/TopicList";
 import { stopTimeSound } from "@/hooks/playTimeSound";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";

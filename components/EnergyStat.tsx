@@ -15,7 +15,6 @@ import { addEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
 import { showRewardedAd } from "@/ads/rewardedAd";
-//import { showRewardedAd } from "@/ads/rewardedAd";
 
 const ENERGY_REWARD = 3;
 const VIP_REWARD = 100;
@@ -56,42 +55,59 @@ const showNoInternetMessage = () => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleGetEnergy = async () => {
-    if (loading) return;
+const handleGetEnergy = async () => {
+  if (loading) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      // 👑 VIP (sin anuncio)
-      if (isVip) {
-        dispatch(addEnergy(VIP_REWARD));
-        playSound(require("@/assets/sounds/soundWind.mp3"));
-        setVisible(false);
-        setLoading(false); // 👈 aquí sí
-        return;
-      }
+  let finished = false;
 
-      const isConnected = await isConnectedToInternet();
+  const timeout = setTimeout(() => {
+    if (finished) return;
 
-      if (!isConnected) {
-        showNoInternetMessage();
-        setLoading(false); // 👈 liberar si falla
-        return;
-      }
+    console.log("⏰ Ad timeout");
 
-      // 🎬 ANUNCIO
-      showRewardedAd(() => {
-        dispatch(addEnergy(ENERGY_REWARD));
-        playSound(require("@/assets/sounds/soundWind.mp3"));
+    setLoading(false);
+  }, 8000); // ⏱ 8 segundos (ideal)
 
-        setLoading(false); // ✅ SOLO cuando termina
-        setVisible(false);
-      });
-
-    } catch (e) {
+  try {
+    if (isVip) {
+      dispatch(addEnergy(VIP_REWARD));
+      playSound(require("@/assets/sounds/soundWind.mp3"));
+      setVisible(false);
+      finished = true;
+      clearTimeout(timeout);
       setLoading(false);
+      return;
     }
-  };
+
+    const isConnected = await isConnectedToInternet();
+
+    if (!isConnected) {
+      showNoInternetMessage();
+      clearTimeout(timeout);
+      setLoading(false);
+      return;
+    }
+
+    showRewardedAd(() => {
+      if (finished) return;
+
+      finished = true;
+      clearTimeout(timeout);
+
+      dispatch(addEnergy(ENERGY_REWARD));
+      playSound(require("@/assets/sounds/soundWind.mp3"));
+
+      setLoading(false);
+      setVisible(false);
+    });
+
+  } catch (e) {
+    clearTimeout(timeout);
+    setLoading(false);
+  }
+};
 
   // 👉 VIP (sin anuncio)
   const getVipEnergy = () => {

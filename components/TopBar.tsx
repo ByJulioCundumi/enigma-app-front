@@ -15,7 +15,6 @@ import LanguageSelector from "./LanguageSelector";
 import EnergyStat from "./EnergyStat";
 import { playSound } from "@/hooks/playSound";
 import VipButton from "./VipButton";
-import TopicList from "./TopicList";
 
 const { width } = Dimensions.get("window");
 

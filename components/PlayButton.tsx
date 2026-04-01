@@ -18,7 +18,6 @@ import { IRootState } from "@/store/rootState";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { playSound } from "@/hooks/playSound";
 import { stopBackgroundMusic } from "@/hooks/useBackgroundMusic";
-import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
 
 export default function PlayButton() {
   const router = useRouter();
