@@ -5,8 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
-  Dimensions,
+  Image,
 } from "react-native";
+
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -20,11 +21,14 @@ import { stopTimeSound } from "@/hooks/playTimeSound";
 import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
 import { markTopicCompleted } from "@/store/reducers/topicsSlice";
 import WhiteFlashBurst from "./WhiteFlashBurst";
-import { incrementVipPopupCounter, openVipModal, resetVipPopupCounter } from "@/store/reducers/vipSlice";
+import {
+  incrementVipPopupCounter,
+  openVipModal,
+  resetVipPopupCounter,
+} from "@/store/reducers/vipSlice";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
-//import { showInterstitialAd } from "@/ads/interstitialAd";
-
-const { width } = Dimensions.get("window");
+import SunburstBackground from "./SunburstBackground";
+import ConfettiBurst from "./ConfettiBurst";
 
 const RETRY_COST = 2;
 
@@ -35,7 +39,7 @@ type Props = {
   onContinue: () => void;
   onRetry: () => void;
   onHome: () => void;
-  word?: string; // 👈 NUEVO
+  word?: string;
 };
 
 export default function LevelResultPopup({
@@ -45,134 +49,77 @@ export default function LevelResultPopup({
   onContinue,
   onRetry,
   onHome,
-  word, // 👈 NUEVO
+  word,
 }: Props) {
   const dispatch = useDispatch();
 
-  const scale = useRef(new Animated.Value(0.85)).current;
+  const { language } = useSelector((state: IRootState) => state.language);
+  const { selectedTopic, progress } = useSelector(
+    (state: IRootState) => state.topics
+  );
+  const { isVip, vipPopupCounter } = useSelector(
+    (state: IRootState) => state.vip
+  );
+
+  const topic = useSelector(selectCurrentTopic);
+
+  const isEs = language === "es";
+
+  const currentLevel = progress[selectedTopic]?.currentLevel ?? 0;
+  const totalLevels = topic?.levels.length ?? 0;
+
+  const isLastLevel = currentLevel + 1 === totalLevels;
+  const isTopicCompleted = progress[selectedTopic]?.completed ?? false;
+
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // Animaciones
+  const scale = useRef(new Animated.Value(0.9)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(40)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const warningOpacity = useRef(new Animated.Value(0)).current;
-  const rewardGivenRef = useRef(false);
 
   const [mounted, setMounted] = useState(false);
-
-  // 🔥 BLOQUEO REAL (anti multi-click)
-  const isProcessingRef = useRef(false);
   const [isDisabled, setIsDisabled] = useState(false);
 
-  const { language } = useSelector(
-    (state: IRootState) => state.language
-  );
+  const isProcessingRef = useRef(false);
+  const rewardGivenRef = useRef(false);
+  const [flashTrigger, setFlashTrigger] = useState(false);
+  const levelData = topic?.levels[currentLevel];
 
-  const vipPopupCounter = useSelector(
-  (state: IRootState) => state.vip.vipPopupCounter
-);
+  // 🎯 Imagen dinámica
+  const resultImage = success
+  ? levelData?.image
+  : require("@/assets/images/ui/fail.jpg");
 
-  const { selectedTopic, progress } = useSelector(
-  (state: IRootState) => state.topics
-);
-
-const {isVip} = useSelector(
-  (state: IRootState) => state.vip
-);
-
-
-const topic = useSelector(selectCurrentTopic);
-
-const currentLevel = progress[selectedTopic]?.currentLevel ?? 0;
-const totalLevels = topic?.levels.length ?? 0;
-const [flashTrigger, setFlashTrigger] = useState(false);
-
-// 🔥 ESTE ES EL MOMENTO REAL
-const isLastLevel = currentLevel + 1 === totalLevels;
-
-const isTopicCompleted =
-  progress[selectedTopic]?.completed ?? false;
-
-  const isEs = language === "es";
-
-useEffect(() => {
-  let isMounted = true;
-
-  const handleMonetization = async () => {
-
-    // 🚫 NO monetizar si tiene VIP o compró
-    if (isVip) return;
-
-    if (vipPopupCounter > 0 && vipPopupCounter % 5 === 0) {
-
-      const isConnected = await isConnectedToInternet();
-
-      if (!isMounted) return; // 🔥 evita bugs si desmonta
-
-      // 🌐 CON INTERNET → ANUNCIO
-      if (isConnected) {
-        //showInterstitialAd(() => {});
-      } 
-      // 📵 SIN INTERNET → POPUP VIP
-      else {
-        dispatch(openVipModal());
-      }
-
-      dispatch(resetVipPopupCounter());
-    }
-  };
-
-  handleMonetization();
-
-  return () => {
-    isMounted = false;
-  };
-
-}, [vipPopupCounter, isVip]);
-
-
-useEffect(() => {
-  if (!visible) return;
-
-  // 🚫 no contar si no debe monetizar
-  if (isVip) return;
-
-  dispatch(incrementVipPopupCounter());
-
-}, [visible, isVip]);
-
-
-
+  // 🎬 Animación entrada/salida
   useEffect(() => {
     if (visible) {
       setMounted(true);
       stopTimeSound();
 
-      // reset bloqueo cuando se abre
       isProcessingRef.current = false;
       setIsDisabled(false);
 
       Animated.parallel([
         Animated.timing(overlayOpacity, {
           toValue: 1,
-          duration: 220,
+          duration: 200,
           useNativeDriver: true,
         }),
-
         Animated.spring(scale, {
           toValue: 1,
-          friction: 6,
-          tension: 90,
           useNativeDriver: true,
         }),
-
         Animated.timing(opacity, {
           toValue: 1,
-          duration: 220,
+          duration: 200,
           useNativeDriver: true,
         }),
-
         Animated.timing(translateY, {
           toValue: 0,
-          duration: 220,
+          duration: 200,
           useNativeDriver: true,
         }),
       ]).start();
@@ -180,101 +127,100 @@ useEffect(() => {
       Animated.parallel([
         Animated.timing(overlayOpacity, {
           toValue: 0,
-          duration: 180,
+          duration: 150,
           useNativeDriver: true,
         }),
-
         Animated.timing(scale, {
           toValue: 0.9,
-          duration: 180,
+          duration: 150,
           useNativeDriver: true,
         }),
-
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 180,
-          useNativeDriver: true,
-        }),
-
-        Animated.timing(translateY, {
-          toValue: 40,
-          duration: 180,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setMounted(false);
-      });
+      ]).start(() => setMounted(false));
     }
   }, [visible]);
 
+  // 🎁 Recompensa final
   useEffect(() => {
-  if (
-  visible &&
-  success &&
-  isLastLevel &&
-  !isTopicCompleted && // 🔥 CLAVE
-  !rewardGivenRef.current
-) {
-    // 🎯 marcar temática completada
-    dispatch(markTopicCompleted(selectedTopic));
+    if (
+      visible &&
+      success &&
+      isLastLevel &&
+      !isTopicCompleted &&
+      !rewardGivenRef.current
+    ) {
+      dispatch(markTopicCompleted(selectedTopic));
+      dispatch(addEnergy(15));
+      rewardGivenRef.current = true;
+    }
 
-    // 🎁 recompensa
-    dispatch(addEnergy(15));
+    if (!visible) rewardGivenRef.current = false;
+  }, [visible, success]);
 
-    rewardGivenRef.current = true;
-  }
 
-  if (!visible) {
-    rewardGivenRef.current = false;
-  }
-}, [
-  visible,
-  success,
-  isLastLevel,
-  isTopicCompleted,
-  selectedTopic,
-  dispatch,
-]);
-
-useEffect(() => {
-  if (!visible) {
-    setFlashTrigger(false);
-    return;
-  }
-
-  if (success) {
-    setFlashTrigger(false);
-
-    const id = requestAnimationFrame(() => {
-      setFlashTrigger(true);
-    });
-
-    return () => cancelAnimationFrame(id);
+  useEffect(() => {
+  if (visible && success) {
+    setShowConfetti(true);
   } else {
-    setFlashTrigger(false);
+    setShowConfetti(false);
   }
 }, [visible, success]);
 
+  // ⚡ Flash efecto
+  useEffect(() => {
+    if (!visible || !success) return;
+
+    setFlashTrigger(false);
+    const id = requestAnimationFrame(() => setFlashTrigger(true));
+    return () => cancelAnimationFrame(id);
+  }, [visible, success]);
+
+  // 💰 Monetización
+  useEffect(() => {
+    if (!visible || isVip) return;
+
+    dispatch(incrementVipPopupCounter());
+  }, [visible]);
+
+  useEffect(() => {
+    const handle = async () => {
+      if (isVip) return;
+
+      if (vipPopupCounter > 0 && vipPopupCounter % 5 === 0) {
+        const isConnected = await isConnectedToInternet();
+
+        if (isConnected) {
+          // showInterstitialAd()
+        } else {
+          dispatch(openVipModal());
+        }
+
+        dispatch(resetVipPopupCounter());
+      }
+    };
+
+    handle();
+  }, [vipPopupCounter]);
+
   if (!mounted) return null;
 
+  // ⚠️ Warning energía
   const showEnergyWarning = () => {
     Animated.sequence([
       Animated.timing(warningOpacity, {
         toValue: 1,
-        duration: 220,
+        duration: 200,
         useNativeDriver: true,
       }),
-      Animated.delay(1600),
+      Animated.delay(1400),
       Animated.timing(warningOpacity, {
         toValue: 0,
-        duration: 220,
+        duration: 200,
         useNativeDriver: true,
       }),
     ]).start();
   };
 
   const handleRetry = () => {
-    // 🔥 BLOQUEO INSTANTÁNEO (clave)
     if (isProcessingRef.current) return;
 
     if (energy < RETRY_COST) {
@@ -282,140 +228,108 @@ useEffect(() => {
       return;
     }
 
-    // 🔥 activar bloqueo
     isProcessingRef.current = true;
     setIsDisabled(true);
 
-    // 🔥 cobrar UNA SOLA VEZ
     dispatch(consumeEnergy(RETRY_COST));
-
-    // 🔥 cerrar inmediatamente (evita spam visual)
     onRetry();
   };
 
-  const accentColor = isTopicCompleted
-  ? "#ffc400" // dorado épico
-  : success
-  ? "#22c55e"
-  : "#ef4444";
-
-  const accentBorderColor = isTopicCompleted
-  ? "#ffc40060" // dorado épico
-  : success
-  ? "#ffffff3d"
-  : "#ffffff3d";
-
   return (
     <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
-
-      {/* ⚡ DESTELLO BLANCO */}
-  <WhiteFlashBurst trigger={flashTrigger} />
-
+      {showConfetti && <ConfettiBurst active />}
       <Animated.View
         style={[
           styles.container,
           {
             opacity,
             transform: [{ scale }, { translateY }],
-            borderColor: accentBorderColor, // 👈 AQUÍ
           },
         ]}
       >
-        <View style={[styles.iconWrapper, { borderColor: accentColor }]}>
-          <View style={styles.iconCircle}>
-            <Ionicons
-              name={success ? "trophy" : "close"}
-              size={38}
-              color={success ? "#FFD54A" : "#ef4444"}
-            />
-          </View>
+
+        <SunburstBackground isSuccess={success} />
+        {/* 🖼️ Imagen dinámica */}
+        <View style={styles.imgContainer}>
+          <Image source={resultImage} style={styles.image} />
         </View>
 
+        {/* 🧠 Texto */}
         <Text style={styles.title}>
           {isTopicCompleted
-            ? (isEs ? "¡Temática Completada!" : "Topic Completed!")
+            ? isEs
+              ? "🎉 ¡Temática completada!"
+              : "🎉 Topic completed!"
             : success
-            ? (word ? `✨ ${word.toUpperCase()} ✨` : "")
-            : (isEs ? "😤 ¡Estuviste muy cerca! 🔥" : "😤 You were so close! 🔥")}
+            ? `✨  ${word?.toUpperCase() || ""}  ✨`
+            : isEs
+            ? "😤 ¡Casi lo logras!"
+            : "😤 So close!"}
         </Text>
 
         <Text style={styles.subtitle}>
-          {isTopicCompleted
-            ? (isEs
-                ? "Has completado todos los niveles"
-                : "You completed all levels")
-            : success
-            ? (isEs ? "Excelente trabajo." : "Great job.")
-            : (isEs ? "Puedes volver a intentarlo." : "You can try again.")}
+          {success
+            ? isEs
+              ? "Buen trabajo!"
+              : "Great job!"
+            : isEs
+            ? "Inténtalo de nuevo 💪"
+            : "Try again 💪"}
         </Text>
 
+        {/* 🎮 Botones */}
         <View style={styles.buttons}>
-  {/* 🏠 SIEMPRE HOME */}
-  <TouchableOpacity
-    activeOpacity={0.85}
-    style={styles.homeButton}
-    onPress={onHome}
-  >
-    <Ionicons name="home" size={18} color="#fff" />
-    <Text style={styles.buttonText}>
-      {isEs ? "Inicio" : "Home"}
-    </Text>
-  </TouchableOpacity>
+          <TouchableOpacity style={styles.homeButton} onPress={onHome}>
+            <Ionicons name="return-up-back-outline" size={18} color="#fff" />
+          </TouchableOpacity>
 
-  {/* 🚫 SI TERMINÓ LA TEMÁTICA → NO MOSTRAR NADA MÁS */}
-  {!isTopicCompleted && (
-    success ? (
-      <TouchableOpacity
-        activeOpacity={0.9}
-        style={styles.continueButton}
-        onPress={onContinue}
-      >
-        <Ionicons name="play" size={18} color="#fff" />
-        <Text style={styles.buttonText}>
-          {isEs ? "Continuar" : "Continue"}
-        </Text>
-      </TouchableOpacity>
-    ) : (
-      <TouchableOpacity
-        activeOpacity={0.9}
-        style={[
-          styles.retryButton,
-          isDisabled && { opacity: 0.6 },
-        ]}
-        onPress={handleRetry}
-        disabled={isDisabled}
-      >
-        <Ionicons name="refresh" size={18} color="#fff" />
+          {!isTopicCompleted &&
+            (success ? (
+              <TouchableOpacity
+                style={styles.continueButton}
+                onPress={onContinue}
+              >
+                <Ionicons name="play" size={18} color="#fff" />
+                <Text style={styles.buttonText}>
+                  {isEs ? "Continuar" : "Continue"}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[
+                  styles.retryButton,
+                  isDisabled && { opacity: 0.6 },
+                ]}
+                onPress={handleRetry}
+                disabled={isDisabled}
+              >
+                <Ionicons name="refresh" size={18} color="#fff" />
 
-        <View style={styles.energyBadge}>
-          <FontAwesome6
-            name="bolt-lightning"
-            size={10}
-            color="#fff"
-          />
-          <Text style={styles.energyBadgeText}>
-            -{RETRY_COST}
-          </Text>
+                <Text style={{color: "#fff", fontWeight: 800}}>
+                  {isEs
+                    ? "Reintentar"
+                    : "Try Again"}
+                </Text>
+
+                <View style={styles.energyBadge}>
+                  <FontAwesome6
+                    name="bolt-lightning"
+                    size={10}
+                    color="#fff"
+                  />
+                  <Text style={styles.energyBadgeText}>
+                    -{RETRY_COST}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
         </View>
-      </TouchableOpacity>
-    )
-  )}
-</View>
 
+        {/* ⚠️ Warning */}
         <Animated.View
           style={[
             styles.energyWarning,
-            {
-              opacity: warningOpacity,
-              transform: [
-                {
-                  translateY: warningOpacity.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [15, 0],
-                  }),
-                },
-              ],
-            },
+            { opacity: warningOpacity },
           ]}
         >
           <MaterialCommunityIcons
@@ -423,11 +337,10 @@ useEffect(() => {
             size={18}
             color="#fff"
           />
-
           <Text style={styles.energyWarningText}>
             {isEs
-              ? "No tienes suficiente energía"
-              : "You don't have enough energy"}
+              ? "No tienes energía"
+              : "Not enough energy"}
           </Text>
         </Animated.View>
       </Animated.View>
@@ -440,41 +353,33 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(0,0,0,0.8)",
+    backgroundColor: "rgba(0,0,0,0.85)",
     justifyContent: "center",
     alignItems: "center",
   },
 
   container: {
-    width: "90%",
-    backgroundColor: "#020b1b",
+    width: "95%",
+    maxWidth: 500,
     borderRadius: 28,
-    paddingVertical: 20,
-    paddingHorizontal: 32,
+    padding: 24,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#1f2937",
-    shadowColor: "#000",
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 10,
-    maxWidth: 350
   },
 
-  iconWrapper: {
+  imgContainer: {
+    width: "100%",
+    height: 220,
+    marginBottom: 26,
+    borderRadius: 16,
+    overflow: "hidden",
     borderWidth: 2,
-    borderRadius: 50,
-    padding: 6,
-    marginBottom: 14,
+    borderColor: "#ffffffbe"
   },
 
-  iconCircle: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: "#0a1a30",
-    alignItems: "center",
-    justifyContent: "center",
+  image: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
 
   title: {
@@ -486,80 +391,66 @@ const styles = StyleSheet.create({
 
   subtitle: {
     color: "#94a3b8",
-    fontSize: 15,
+    marginTop: 6,
     textAlign: "center",
-    maxWidth: 360,
-    lineHeight: 20,
   },
 
   buttons: {
-    flexDirection: "row",
     marginTop: 18,
-    gap: 14,
+    gap: 12,
   },
 
   homeButton: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#374151",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 14,
-    gap: 6,
+    padding: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignSelf: "center",
   },
 
   continueButton: {
     flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#22c55e",
-    paddingHorizontal: 22,
-    paddingVertical: 12,
-    borderRadius: 14,
+    padding: 12,
+    borderRadius: 12,
     gap: 6,
   },
 
   retryButton: {
     flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#ef4444",
-    paddingHorizontal: 22,
-    paddingVertical: 12,
-    borderRadius: 14,
-    gap: 8,
+    padding: 12,
+    borderRadius: 12,
+    gap: 6,
   },
 
   buttonText: {
     color: "#fff",
     fontWeight: "800",
-    fontSize: 15,
   },
 
   energyBadge: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#d62929",
+    backgroundColor: "#b91c1c",
     paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginLeft: 4,
-    gap: 3,
+    borderRadius: 6,
+    marginLeft: 6,
+    alignItems: "center",
+    gap: 2
   },
 
   energyBadgeText: {
     color: "#fff",
     fontSize: 11,
-    fontWeight: "900",
   },
 
   energyWarning: {
     position: "absolute",
-    bottom: -24,
+    bottom: -20,
     flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#dc2626",
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 12,
+    padding: 8,
+    borderRadius: 10,
     gap: 6,
   },
 

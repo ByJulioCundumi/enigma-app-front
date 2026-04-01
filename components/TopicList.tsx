@@ -28,6 +28,7 @@ import { consumeEnergy } from "@/store/reducers/energySlice";
 import { toggleFavoriteTopic } from "@/store/reducers/favoritesSlice";
 import { getTopics } from "@/assets/data/topics/topics";
 import { playSound } from "@/hooks/playSound";
+import TopicButton from "./TopicButton";
 
 interface TopicItem {
   id: string;
@@ -260,18 +261,10 @@ const playTopic = (topicId: string) => {
   return (
     <View>
       {/* BOTÓN */}
-      <View style={styles.openButtonWrapper}>
-        <TouchableOpacity
-          style={styles.openButton}
-          onPress={() => {
-            setVisible(true)
-            playSound(require("@/assets/sounds/soundWind.mp3"));
-          }}
-        >
-          <Octicons name="multi-select" size={14} color="#fff" />
-          <Text style={styles.openButtonText}>{isEs ? "Temas" : "Topics"}</Text>
-        </TouchableOpacity>
-      </View>
+      <TopicButton onPress={() => {
+        setVisible(true);
+        playSound(require("@/assets/sounds/soundWind.mp3"));
+      }}/>
 
       {/* MODAL */}
       <Modal visible={visible} transparent animationType="fade">

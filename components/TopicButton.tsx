@@ -4,15 +4,16 @@ import {
   View,
   Text,
   StyleSheet,
+  TouchableOpacity, // 👈 IMPORTANTE
 } from "react-native";
 import { useSelector } from "react-redux";
 import { 
   selectCurrentTopic
 } from "@/store/selectors/topicSelectors";
 import { getTopics } from "@/assets/data/topics/topics";
-import { FontAwesome6, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
+import { Octicons } from "@expo/vector-icons";
 
-export default function TopicButton() {
+export default function TopicButton({ onPress }: { onPress: () => void }) {
   const { language } = useSelector((state: IRootState) => state.language);
   const isEs = language === "es";
 
@@ -32,20 +33,14 @@ export default function TopicButton() {
   const levelNumber = currentLevelIndex + 1;
 
   return (
-    <View style={styles.wrapper}>
+    <TouchableOpacity style={styles.wrapper} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.badge}>
+        <Octicons name="multi-select" size={14} color="#fff" />
 
-        {/* 🔥 Icono */}
-        <View>
-          <Octicons name="multi-select" size={14} color="#fff" />
-        </View>
-
-        {/* 🔥 Tema */}
         <Text numberOfLines={1} style={styles.topicText}>
           {topicName}
         </Text>
 
-        {/* 🔥 Nivel tipo chip */}
         <View style={styles.levelChip}>
           <Text style={styles.levelText}> 
             {isEs
@@ -57,9 +52,8 @@ export default function TopicButton() {
                 : `Lv. ${levelNumber}/${totalLevels}`}
           </Text>
         </View>
-
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

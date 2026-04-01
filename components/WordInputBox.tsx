@@ -188,12 +188,14 @@ const styles = StyleSheet.create({
 
   correctBox: {
     borderColor: "#22c55e94",
+    borderBottomColor: "#22c55e94",
     borderBottomWidth: 2,
     backgroundColor: "#22c55e22",
   },
 
   incorrectBox: {
     borderColor: "#ef444477",
+    borderBottomColor: "#ef444477",
     borderBottomWidth: 2,
     backgroundColor: "#ef444422",
   },

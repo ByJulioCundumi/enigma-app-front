@@ -4,8 +4,6 @@ import { animalsLevelsEs } from "./es/animalsLevelsEs";
 import { animalsLevelsEn } from "./en/animalsLevelsEn";
 import { spaceLevelsEs } from "./es/spaceLevelsEs";
 import { spaceLevelsEn } from "./en/spaceLevelsEn";
-import { superpowersLevelsEn } from "./en/superpowersLevelsEn";
-import { superpowersLevelsEs } from "./es/superpowersLevelsEs";
 
 export const getTopics = (language: string) => {
   const isEs = language === "es";
@@ -30,13 +28,6 @@ export const getTopics = (language: string) => {
       name: isEs ? "Espacio" : "Space",
       levels: isEs ? spaceLevelsEs : spaceLevelsEn,
       image: require("@/assets/images/topics/space.jpg")
-    },
-
-    superpowers:{ 
-      id: "superpowers",
-      name: isEs ? "Superpoderes" : "Superpowers",
-      levels: isEs ? superpowersLevelsEs : superpowersLevelsEn,
-      image: require("@/assets/images/topics/superpowers.jpg")
     },
   } as const;
 };

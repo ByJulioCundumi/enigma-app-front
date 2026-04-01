@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 import TopicButton from "./TopicButton";
+import TopicList from "./TopicList";
 
 export default function LevelCard() {
   const { width, height } = useWindowDimensions();
@@ -155,7 +156,7 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
 
   return (
     <View style={styles.wrapper}>
-      <TopicButton />
+      <TopicList />
 
       <View style={[styles.card, { width: cardWidth, height: cardHeight }]}>
         <View style={styles.topics}>
