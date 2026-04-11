@@ -18,6 +18,15 @@ export default function TimeBar({ timeLeft, totalTime }: Props) {
     return "#ef4444";
   };
 
+  const formatTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  const paddedSecs = secs < 10 ? `0${secs}` : secs;
+
+  return `${mins}:${paddedSecs}`;
+};
+
   const {isVip} = useSelector((state:IRootState)=> state.vip)
 
   return (
@@ -38,7 +47,7 @@ export default function TimeBar({ timeLeft, totalTime }: Props) {
         />
       </View>
 
-      <Text style={styles.timeText}>{timeLeft}s</Text>
+      <Text style={styles.timeText}>{formatTime(timeLeft)}</Text>
     </View>
   );
 }

@@ -6,6 +6,8 @@ import {
   ScrollView,
   Animated,
   Vibration,
+  Dimensions,
+  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,6 +23,7 @@ import WordInputBox from "@/components/WordInputBox";
 import GameActions from "@/components/GameActions";
 import GameKeyboard from "@/components/GameKeyboard";
 import VipButton from "@/components/VipButton";
+import ConfettiCannon from "react-native-confetti-cannon";
 
 /* ================= STORE ================= */
 import {
@@ -44,11 +47,9 @@ import { IRootState } from "@/store/rootState";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 
 /* ================= HOOKS / UTILS ================= */
-import { playSound } from "@/hooks/playSound";
-import {
-  playTimeSound,
-  stopTimeSound,
-} from "@/hooks/playTimeSound";
+import { useSoundEffect } from "@/hooks/useSoundEffect";
+import { useTimeSound } from "@/hooks/useTimeSound";
+
 
 /* ================= CONSTANTS ================= */
 const ALPHABET = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
@@ -104,6 +105,7 @@ const generateKeyboardLetters = (word: string) => {
 export default function GameRoom() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { width } = Dimensions.get("window");
 
   /* ---------- STATE ---------- */
   const [showResult, setShowResult] = useState(false);
@@ -133,6 +135,7 @@ export default function GameRoom() {
   );
 
   const { isVip } = useSelector((state: IRootState) => state.vip);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const word = levelData?.word ?? "";
   const cleanWordLength = word.replace(/ /g, "").length;
@@ -146,15 +149,25 @@ export default function GameRoom() {
   const hintDisabled = remainingLetters <= 2 || energy <= 0;
   const timeDisabled = extraTimeUsed >= MAX_TIME_USES || energy <= 0;
 
+  const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
+  const actionSound = useSoundEffect(require("@/assets/sounds/soundDistorted.mp3"));
+  const failedLevel = useSoundEffect(require("@/assets/sounds/soundError3.mp3"));
+  const errorSound = useSoundEffect(require("@/assets/sounds/soundError2.mp3"));
+  const timeSound = useTimeSound(require("@/assets/sounds/soundTime.mp3"));
+  const levelUpSound = useSoundEffect(require("@/assets/sounds/soundLevelUp.mp3"));
+  const clickSound = useSoundEffect(require("@/assets/sounds/soundClick2.mp3"));
+  const clickSoundTwo = useSoundEffect(require("@/assets/sounds/soundClick5.mp3"));
+  const clickSoundThree = useSoundEffect(require("@/assets/sounds/soundClick6.mp3"));
+
   /* ================= EFFECTS ================= */
   useEffect(() => {
     dispatch(setCurrentPage("gameMode"));
-    playTimeSound(require("@/assets/sounds/soundTime.mp3"));
+    timeSound.play()
 
     return () => {
       dispatch(resetTimer());
       dispatch(resetSelectedTopic());
-      stopTimeSound();
+      timeSound.pause()
     };
   }, []);
 
@@ -210,7 +223,7 @@ export default function GameRoom() {
       const remaining = Math.ceil((endTimestamp - now) / 1000);
 
       if (elapsed > MAX_TIME || remaining <= 0) {
-        playSound(require("@/assets/sounds/soundError3.mp3"));
+        failedLevel.play()
 
         clearInterval(interval);
         setTimerActive(false);
@@ -218,7 +231,7 @@ export default function GameRoom() {
         setShowResult(true);
         setTimeLeft(0);
 
-        stopTimeSound();
+        timeSound.pause()
         return;
       }
 
@@ -259,21 +272,22 @@ export default function GameRoom() {
     const formedWord = currentLetters.join("");
 
     if (formedWord !== word) {
-      playSound(require("@/assets/sounds/soundError2.mp3"));
+      errorSound.play();
       setValidationState("incorrect");
       triggerShake();
       Vibration.vibrate(100);
     } else {
+      setShowConfetti(true);
       setValidationState("correct");
       setTimerActive(false);
       setLevelSuccess(true);
-      setShowResult(true);
 
       isVip
         ? dispatch(addEnergy(2))
         : dispatch(addEnergy(1));
 
-      playSound(require("@/assets/sounds/soundLevelUp.mp3"));
+      levelUpSound.play();
+      timeSound.pause();
     }
   };
 
@@ -310,7 +324,7 @@ export default function GameRoom() {
     moveCursorNext(selectedIndex);
     checkWordCompletion(newLetters);
 
-    playSound(require("@/assets/sounds/soundClick2.mp3"));
+    clickSound.play();
   };
 
   const removeLetter = (index: number) => {
@@ -334,7 +348,7 @@ export default function GameRoom() {
 
     setKeyboardLetters(newKeyboard);
 
-    playSound(require("@/assets/sounds/soundClick5.mp3"));
+    clickSoundTwo.play();
   };
 
   const clearLetters = (sound: boolean) => {
@@ -347,7 +361,7 @@ export default function GameRoom() {
     setValidationState("idle");
 
     if (sound) {
-      playSound(require("@/assets/sounds/soundClick6.mp3"));
+      clickSoundThree.play();
     }
   };
 
@@ -387,7 +401,7 @@ export default function GameRoom() {
     moveCursorNext(randomIndex);
     checkWordCompletion(newLetters);
 
-    playSound(require("@/assets/sounds/soundDistorted.mp3"));
+    actionSound.play();
   };
 
   const addExtraTime = () => {
@@ -396,7 +410,7 @@ export default function GameRoom() {
     dispatch(addExtraTimeToTimer(EXTRA_TIME));
     dispatch(consumeEnergy(1));
 
-    playSound(require("@/assets/sounds/soundDistorted.mp3"));
+    actionSound.play();
   };
 
   /* ================= HANDLERS ================= */
@@ -410,8 +424,8 @@ export default function GameRoom() {
     setShowResult(false);
     setTimerActive(true);
 
-    playTimeSound(require("@/assets/sounds/soundTime.mp3"));
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+    timeSound.play();
+    windSound.play();
   };
 
   const handleRetry = () => {
@@ -421,8 +435,8 @@ export default function GameRoom() {
     setShowResult(false);
     setTimerActive(true);
 
-    playTimeSound(require("@/assets/sounds/soundTime.mp3"));
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+    timeSound.play();
+    windSound.play();
   };
 
   const handleHome = () => {
@@ -430,7 +444,7 @@ export default function GameRoom() {
       dispatch(nextLevel());
     }
 
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+    windSound.play();
     dispatch(resetTimer());
     router.replace("/");
   };
@@ -445,6 +459,27 @@ export default function GameRoom() {
       end={{ x: 0, y: 1 }}
       style={styles.screen}
     >
+
+      {/* 🎉 CONFETTI */}
+      <Modal transparent visible={showConfetti} animationType="none">
+        <View style={{ flex: 1 }}>
+          <ConfettiCannon
+            count={60}
+            origin={{ x: width / 2, y: 0 }}
+            fadeOut
+            fallSpeed={1800}
+            onAnimationEnd={() => {
+              setShowConfetti(false);
+
+              // pequeño delay opcional para suavidad
+              setTimeout(() => {
+                handleContinue();
+              }, 200);
+            }}
+          />
+        </View>
+      </Modal>
+
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.header}>
@@ -497,12 +532,9 @@ export default function GameRoom() {
 
       <LevelResultPopup
         visible={showResult}
-        success={levelSuccess}
         energy={energy}
-        onContinue={handleContinue}
         onRetry={handleRetry}
         onHome={handleHome}
-        word={word}
       />
     </LinearGradient>
   );

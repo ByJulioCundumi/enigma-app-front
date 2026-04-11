@@ -12,9 +12,9 @@ import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-ico
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { addEnergy } from "@/store/reducers/energySlice";
-import { playSound } from "@/hooks/playSound";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
-import { showRewardedAd } from "@/ads/rewardedAd";
+import { useSoundEffect } from "@/hooks/useSoundEffect";
+//import { showRewardedAd } from "@/ads/rewardedAd";
 
 const ENERGY_REWARD = 3;
 const VIP_REWARD = 100;
@@ -27,6 +27,7 @@ const formatNumber = (num: number) => {
 
 export default function EnergyStat() {
   const dispatch = useDispatch();
+  const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
 
   const energy = useSelector(
     (state: IRootState) => state.energy.energy
@@ -73,7 +74,7 @@ const handleGetEnergy = async () => {
   try {
     if (isVip) {
       dispatch(addEnergy(VIP_REWARD));
-      playSound(require("@/assets/sounds/soundWind.mp3"));
+      windSound.play();
       setVisible(false);
       finished = true;
       clearTimeout(timeout);
@@ -90,6 +91,7 @@ const handleGetEnergy = async () => {
       return;
     }
 
+    /*
     showRewardedAd(() => {
       if (finished) return;
 
@@ -97,11 +99,12 @@ const handleGetEnergy = async () => {
       clearTimeout(timeout);
 
       dispatch(addEnergy(ENERGY_REWARD));
-      playSound(require("@/assets/sounds/soundWind.mp3"));
+      windSound.play();
 
       setLoading(false);
       setVisible(false);
     });
+    */
 
   } catch (e) {
     clearTimeout(timeout);
@@ -113,7 +116,7 @@ const handleGetEnergy = async () => {
   const getVipEnergy = () => {
     dispatch(addEnergy(VIP_REWARD));
     setVisible(false);
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+    windSound.play();
   };
 
   return (
@@ -124,7 +127,7 @@ const handleGetEnergy = async () => {
         style={styles.statBadge}
         onPress={() => {
           setVisible(true);
-          playSound(require("@/assets/sounds/soundWind.mp3"));
+          windSound.play();
         }}
       >
         <View style={styles.energyIcon}>
@@ -147,7 +150,7 @@ const handleGetEnergy = async () => {
           onPress={() => {
             if (loading) return; // 🔒 BLOQUEA CIERRE
             setVisible(false);
-            playSound(require("@/assets/sounds/soundWind.mp3"));
+            windSound.play();
           }}
         >
           <Pressable style={styles.popup}>

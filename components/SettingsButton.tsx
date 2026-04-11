@@ -15,10 +15,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { toggleMusic } from "@/store/reducers/musicSlice";
-import { playSound } from "@/hooks/playSound";
+import { useSoundEffect } from "@/hooks/useSoundEffect";
 
 export default function SettingsButton() {
   const [visible, setVisible] = useState(false);
+  const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
 
   const scaleAnim = useRef(new Animated.Value(0.85)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
@@ -35,7 +36,7 @@ export default function SettingsButton() {
 
   const openModal = () => {
     setVisible(true);
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+    windSound.play();
 
     Animated.parallel([
       Animated.spring(scaleAnim, {
@@ -67,7 +68,7 @@ export default function SettingsButton() {
       }),
     ]).start(() => {
       setVisible(false)
-      playSound(require("@/assets/sounds/soundWind.mp3"));
+      windSound.play();
     });
   };
 

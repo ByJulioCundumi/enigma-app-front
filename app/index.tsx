@@ -1,7 +1,6 @@
 import LevelCard from "@/components/LevelCard";
 import PlayButton from "@/components/PlayButton";
 import TopBar from "@/components/TopBar";
-import { stopTimeSound } from "@/hooks/playTimeSound";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { IRootState } from "@/store/rootState";
@@ -20,10 +19,10 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function Index() {
   const { height } = useWindowDimensions();
+  const bgMusic = useBackgroundMusic(require("@/assets/sounds/music2.mp3"));
 
   const float = useSharedValue(0);
   const dispatch = useDispatch();
-  const { currentPage } = useSelector((state: IRootState) => state.currentPage);
 
   const {language} = useSelector(
       (state: IRootState) => state.language
@@ -61,15 +60,13 @@ export default function Index() {
 
   useEffect(() => {
     dispatch(setCurrentPage("index"));
+    bgMusic.play();
+
+    return ()=>{
+      bgMusic.pause();
+    }
   }, []);
 
-  useEffect(() => {
-    if (currentPage === "index") {
-      stopTimeSound();
-    }
-  }, [currentPage]);
-
-  useBackgroundMusic(require("@/assets/sounds/music2.mp3"));
 
   const logoStyle = useAnimatedStyle(() => {
     const translateY = interpolate(float.value, [0, 1], [0, -12]);
@@ -83,10 +80,10 @@ export default function Index() {
   return (
     <LinearGradient
       colors={[
-        "#143788",
-        "#184cc4",
-        "#2c68f5",
-        "#2c68f5",
+        "#1954dd",
+        "#477dfc",
+        "#477dfc",
+        "#2264ff",
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}

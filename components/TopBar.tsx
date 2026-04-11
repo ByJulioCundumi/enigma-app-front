@@ -13,14 +13,15 @@ import { useRouter } from "expo-router";
 import SettingsButton from "./SettingsButton";
 import LanguageSelector from "./LanguageSelector";
 import EnergyStat from "./EnergyStat";
-import { playSound } from "@/hooks/playSound";
 import VipButton from "./VipButton";
+import { useSoundEffect } from "@/hooks/useSoundEffect";
 
 const { width } = Dimensions.get("window");
 
 export default function TopBar() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
 
   const { currentPage } = useSelector(
     (state: IRootState) => state.currentPage
@@ -28,7 +29,7 @@ export default function TopBar() {
 
   const goToIndex = () => {
     router.replace("/");
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+    windSound.play();
   };
 
   return (

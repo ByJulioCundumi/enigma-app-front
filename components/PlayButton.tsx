@@ -16,12 +16,13 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { consumeEnergy } from "@/store/reducers/energySlice";
-import { playSound } from "@/hooks/playSound";
-import { stopBackgroundMusic } from "@/hooks/useBackgroundMusic";
+import { useSoundEffect } from "@/hooks/useSoundEffect";
 
 export default function PlayButton() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
+  const errorSound = useSoundEffect(require("@/assets/sounds/soundError2.mp3"));
 
   const energy = useSelector(
     (state: IRootState) => state.energy.energy
@@ -107,7 +108,7 @@ export default function PlayButton() {
 
   // 🚫 BLOQUEO POR TEMÁTICA COMPLETADA
   if (isTopicCompleted) {
-    playSound(require("@/assets/sounds/soundError2.mp3"));
+    errorSound.play();
     showCompletedMessage();
 
     isProcessingRef.current = false;
@@ -117,7 +118,7 @@ export default function PlayButton() {
 
   // ⚡ ENERGÍA
   if (energy < requiredEnergy) {
-    playSound(require("@/assets/sounds/soundError2.mp3"));
+    errorSound.play();
     showEnergyMessage();
 
     isProcessingRef.current = false;
@@ -125,13 +126,12 @@ export default function PlayButton() {
     return;
   }
 
-  playSound(require("@/assets/sounds/soundWind.mp3"));
+  windSound.play();
 
   dispatch(consumeEnergy(requiredEnergy));
 
   setTimeout(() => {
     router.replace("/GameRoom");
-    stopBackgroundMusic();
   }, 100);
 };
 

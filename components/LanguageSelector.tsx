@@ -14,10 +14,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { setLanguage } from "@/store/reducers/languageSlice";
-import { playSound } from "@/hooks/playSound";
+import { useSoundEffect } from "@/hooks/useSoundEffect";
 
 export default function LanguageSelector() {
   const [visible, setVisible] = useState(false);
+  const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
 
   const scaleAnim = useRef(new Animated.Value(0.85)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
@@ -32,7 +33,7 @@ export default function LanguageSelector() {
 
   const openModal = () => {
     setVisible(true);
-    playSound(require("@/assets/sounds/soundWind.mp3"));
+    windSound.play();
 
     Animated.parallel([
       Animated.spring(scaleAnim, {
@@ -64,7 +65,7 @@ export default function LanguageSelector() {
       }),
     ]).start(() => {
       setVisible(false)
-      playSound(require("@/assets/sounds/soundWind.mp3"));
+      windSound.play();
     });
   };
 

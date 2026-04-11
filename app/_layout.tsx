@@ -1,11 +1,13 @@
-import { persistor, store } from "@/store/store";
 import { Stack } from "expo-router";
-import { Provider} from "react-redux";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "@/store/store";
+
 import * as NavigationBar from "expo-navigation-bar";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform, View, StyleSheet } from "react-native";
-import { PersistGate } from "redux-persist/integration/react";
+//import InterstitialManager from "@/components/InterstitialManager";
 
 export default function RootLayout() {
 
@@ -37,14 +39,21 @@ export default function RootLayout() {
         <View style={styles.container}>
           <StatusBar hidden />
 
-          <View style={styles.stackContainer}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: "#0c1f48" },
-              }}
-            />
-          </View>
+          {/* 
+            <InterstitialManager />
+          */}
+
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              gestureEnabled: false,
+              contentStyle: { backgroundColor: "#0c1f48" },
+            }}
+          >
+            <Stack.Screen name="index" />
+            <Stack.Screen name="GameRoom" />
+          </Stack>
+
         </View>
       </PersistGate>
     </Provider>
@@ -54,9 +63,6 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#03051b"
-  },
-  stackContainer: {
-    flex: 1,
+    backgroundColor: "#050624",
   },
 });

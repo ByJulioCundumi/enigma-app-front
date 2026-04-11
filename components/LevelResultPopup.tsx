@@ -15,60 +15,30 @@ import {
 } from "@expo/vector-icons";
 
 import { useDispatch, useSelector } from "react-redux";
-import { addEnergy, consumeEnergy } from "@/store/reducers/energySlice";
+import { consumeEnergy } from "@/store/reducers/energySlice";
 import { IRootState } from "@/store/rootState";
-import { stopTimeSound } from "@/hooks/playTimeSound";
-import { selectCurrentTopic } from "@/store/selectors/topicSelectors";
-import { markTopicCompleted } from "@/store/reducers/topicsSlice";
-import {
-  incrementVipPopupCounter,
-  openVipModal,
-  resetVipPopupCounter,
-} from "@/store/reducers/vipSlice";
-import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
 import SunburstBackground from "./SunburstBackground";
-import { showInterstitialAd } from "@/ads/interstitialAd";
 
 const RETRY_COST = 2;
 
 type Props = {
   visible: boolean;
-  success: boolean;
   energy: number;
-  onContinue: () => void;
   onRetry: () => void;
   onHome: () => void;
-  word?: string;
 };
 
 export default function LevelResultPopup({
   visible,
-  success,
   energy,
-  onContinue,
   onRetry,
   onHome,
-  word,
 }: Props) {
   const dispatch = useDispatch();
 
   const { language } = useSelector((state: IRootState) => state.language);
-  const { selectedTopic, progress } = useSelector(
-    (state: IRootState) => state.topics
-  );
-  const { isVip, vipPopupCounter } = useSelector(
-    (state: IRootState) => state.vip
-  );
-
-  const topic = useSelector(selectCurrentTopic);
 
   const isEs = language === "es";
-
-  const currentLevel = progress[selectedTopic]?.currentLevel ?? 0;
-  const totalLevels = topic?.levels.length ?? 0;
-
-  const isLastLevel = currentLevel + 1 === totalLevels;
-  const isTopicCompleted = progress[selectedTopic]?.completed ?? false;
 
   // Animaciones
   const scale = useRef(new Animated.Value(0.9)).current;
@@ -81,76 +51,41 @@ export default function LevelResultPopup({
   const [isDisabled, setIsDisabled] = useState(false);
 
   const isProcessingRef = useRef(false);
-  const rewardGivenRef = useRef(false);
-  const [flashTrigger, setFlashTrigger] = useState(false);
-  const levelData = topic?.levels[currentLevel];
-  const isAdRunningRef = useRef(false);
 
   const zoomAnim = useRef(new Animated.Value(1)).current;
 
-  const showInterstitialAdSafe = () => {
-  return new Promise<void>((resolve) => {
-    let finished = false;
-
-    const timeout = setTimeout(() => {
-      if (!finished) {
-        console.log("⏱️ Interstitial timeout");
-        finished = true;
-        resolve();
-      }
-    }, 8000); // 👈 máximo 4s
-
-    try {
-      showInterstitialAd(() => {
-        if (finished) return;
-
-        finished = true;
-        clearTimeout(timeout);
-        resolve();
-      });
-    } catch (e) {
-      console.log("❌ Interstitial error");
-      clearTimeout(timeout);
-      resolve();
-    }
-  });
-};
-
-  // 🎯 Imagen dinámica
-  const resultImage = success
-  ? levelData?.image
-  : require("@/assets/images/ui/fail.jpg");
+  // Imagen fija (fallo)
+  const resultImage = require("@/assets/images/ui/fail.jpg");
 
   useEffect(() => {
-  if (!visible) return;
+    if (!visible) return;
 
-  const zoomLoop = Animated.loop(
-    Animated.sequence([
-      Animated.timing(zoomAnim, {
-        toValue: 1.05, // zoom in
-        duration: 1200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(zoomAnim, {
-        toValue: 1, // zoom out
-        duration: 1200,
-        useNativeDriver: true,
-      }),
-    ])
-  );
+    const zoomLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(zoomAnim, {
+          toValue: 1.05,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(zoomAnim, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
 
-  zoomLoop.start();
+    zoomLoop.start();
 
-  return () => {
-    zoomAnim.stopAnimation(); // limpia al desmontar
-  };
-}, [visible]);
+    return () => {
+      zoomAnim.stopAnimation();
+    };
+  }, [visible]);
 
-  // 🎬 Animación entrada/salida
+  // Animación entrada/salida
   useEffect(() => {
     if (visible) {
       setMounted(true);
-      stopTimeSound();
 
       isProcessingRef.current = false;
       setIsDisabled(false);
@@ -192,62 +127,9 @@ export default function LevelResultPopup({
     }
   }, [visible]);
 
-  // 🎁 Recompensa final
-  useEffect(() => {
-    if (
-      visible &&
-      success &&
-      isLastLevel &&
-      !isTopicCompleted &&
-      !rewardGivenRef.current
-    ) {
-      dispatch(markTopicCompleted(selectedTopic));
-      dispatch(addEnergy(15));
-      rewardGivenRef.current = true;
-    }
-
-    if (!visible) rewardGivenRef.current = false;
-  }, [visible, success]);
-
-  // ⚡ Flash efecto
-  useEffect(() => {
-    if (!visible || !success) return;
-
-    setFlashTrigger(false);
-    const id = requestAnimationFrame(() => setFlashTrigger(true));
-    return () => cancelAnimationFrame(id);
-  }, [visible, success]);
-
-  // 💰 Monetización
-  useEffect(() => {
-    if (!visible || isVip) return;
-
-    dispatch(incrementVipPopupCounter());
-  }, [visible]);
-
-  useEffect(() => {
-    const handle = async () => {
-      if (isVip) return;
-
-      if (vipPopupCounter > 0 && vipPopupCounter % 5 === 0) {
-        const isConnected = await isConnectedToInternet();
-
-        if (isConnected) {
-          await showInterstitialAdSafe(); // ✅ SEGURO
-        } else {
-          dispatch(openVipModal());
-        }
-
-        dispatch(resetVipPopupCounter());
-      }
-    };
-
-    handle();
-  }, [vipPopupCounter]);
-
   if (!mounted) return null;
 
-  // ⚠️ Warning energía
+  // Warning energía
   const showEnergyWarning = () => {
     Animated.sequence([
       Animated.timing(warningOpacity, {
@@ -290,9 +172,8 @@ export default function LevelResultPopup({
           },
         ]}
       >
+        <SunburstBackground isSuccess={false} />
 
-        <SunburstBackground isSuccess={success} />
-        {/* 🖼️ Imagen dinámica */}
         <Animated.View
           style={[
             styles.imgContainer,
@@ -304,78 +185,41 @@ export default function LevelResultPopup({
           <Image source={resultImage} style={styles.image} />
         </Animated.View>
 
-        {/* 🧠 Texto */}
         <Text style={styles.title}>
-          {isTopicCompleted
-            ? isEs
-              ? "✨ Tema Completado ✨"
-              : "✨ Topic completed ✨"
-            : success
-            ? `✨ ${word?.toUpperCase() || ""} ✨`
-            : isEs
-            ? "Casi lo logras"
-            : "So close"}
+          {isEs ? "Casi lo logras" : "So close"}
         </Text>
 
         <Text style={styles.subtitle}>
-          {success
-            ? isEs
-              ? "Buen trabajo!"
-              : "Great job!"
-            : isEs
-            ? "Inténtalo de nuevo"
-            : "Try again"}
+          {isEs ? "Inténtalo de nuevo" : "Try again"}
         </Text>
 
-        {/* 🎮 Botones */}
         <View style={styles.buttons}>
           <TouchableOpacity style={styles.homeButton} onPress={onHome}>
             <Ionicons name="return-up-back-outline" size={18} color="#fff" />
           </TouchableOpacity>
 
-          {!isTopicCompleted &&
-            (success ? (
-              <TouchableOpacity
-                style={styles.continueButton}
-                onPress={onContinue}
-              >
-                <Ionicons name="play" size={18} color="#fff" />
-                <Text style={styles.buttonText}>
-                  {isEs ? "Continuar" : "Continue"}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[
-                  styles.retryButton,
-                  isDisabled && { opacity: 0.6 },
-                ]}
-                onPress={handleRetry}
-                disabled={isDisabled}
-              >
-                <Ionicons name="refresh" size={18} color="#fff" />
+          <TouchableOpacity
+            style={[styles.retryButton, isDisabled && { opacity: 0.6 }]}
+            onPress={handleRetry}
+            disabled={isDisabled}
+          >
+            <Ionicons name="refresh" size={18} color="#fff" />
 
-                <Text style={{color: "#fff", fontWeight: 800}}>
-                  {isEs
-                    ? "Reintentar"
-                    : "Try Again"}
-                </Text>
+            <Text style={{ color: "#fff", fontWeight: "800" }}>
+              {isEs ? "Reintentar" : "Try Again"}
+            </Text>
 
-                <View style={styles.energyBadge}>
-                  <FontAwesome6
-                    name="bolt-lightning"
-                    size={10}
-                    color="#fff"
-                  />
-                  <Text style={styles.energyBadgeText}>
-                    -{RETRY_COST}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+            <View style={styles.energyBadge}>
+              <FontAwesome6
+                name="bolt-lightning"
+                size={10}
+                color="#fff"
+              />
+              <Text style={styles.energyBadgeText}>-{RETRY_COST}</Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
-        {/* ⚠️ Warning */}
         <Animated.View
           style={[
             styles.energyWarning,
@@ -388,9 +232,7 @@ export default function LevelResultPopup({
             color="#fff"
           />
           <Text style={styles.energyWarningText}>
-            {isEs
-              ? "No tienes energía"
-              : "Not enough energy"}
+            {isEs ? "No tienes energía" : "Not enough energy"}
           </Text>
         </Animated.View>
       </Animated.View>
@@ -464,25 +306,12 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 
-  continueButton: {
-    flexDirection: "row",
-    backgroundColor: "#22c55e",
-    padding: 12,
-    borderRadius: 12,
-    gap: 6,
-  },
-
   retryButton: {
     flexDirection: "row",
     backgroundColor: "#ef4444",
     padding: 12,
     borderRadius: 12,
     gap: 6,
-  },
-
-  buttonText: {
-    color: "#fff",
-    fontWeight: "800",
   },
 
   energyBadge: {

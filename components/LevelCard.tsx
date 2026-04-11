@@ -1,7 +1,6 @@
 import { IRootState } from "@/store/rootState";
 import {
   selectCurrentLevel,
-  selectCurrentTopic,
 } from "@/store/selectors/topicSelectors";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
@@ -32,32 +31,22 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
   scale = 1.15; // 🔥 grande
 }
 
-  const topic = useSelector(selectCurrentTopic);
   const levelData = useSelector(selectCurrentLevel);
-
-  const selectedTopicId = useSelector(
-    (state: IRootState) => state.topics.selectedTopic,
-  );
 
   const topicProgress = useSelector(
     (state: IRootState) => state.topics.progress[state.topics.selectedTopic],
   );
 
   const currentLevelIndex = topicProgress?.currentLevel ?? 0;
-  const level = currentLevelIndex + 1;
-  const totalLevels = topic?.levels.length ?? 0;
 
   const prevLevelRef = useRef(currentLevelIndex);
   const currentOrderRef = useRef([0, 1, 2, 3]);
 
-  const levelText =
-    selectedTopicId === "random" ? `${level}` : `${level}/${totalLevels}`;
-
   // 🔥 tamaños escalados
-  const cardHeight = 240 * scale;
+  const cardHeight = 242 * scale;
 
   const boxWidth = cardWidth * 0.42;
-  const boxHeight = 95 * scale;
+  const boxHeight = 97 * scale;
 
   const gapX = (cardWidth - boxWidth * 2) / 3;
   const gapY = (cardHeight - boxHeight * 2) / 3;
@@ -91,8 +80,6 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
   const animatedPositions = useRef(
     positions.map((pos) => new Animated.ValueXY(pos)),
   ).current;
-
-  const isCompleted = topicProgress?.completed ?? false;
 
   useEffect(() => {
     floatAnims.forEach((anim, i) => {

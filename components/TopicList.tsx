@@ -26,8 +26,8 @@ import { selectTopic } from "@/store/reducers/topicsSlice";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { toggleFavoriteTopic } from "@/store/reducers/favoritesSlice";
 import { getTopics } from "@/assets/data/topics/topics";
-import { playSound } from "@/hooks/playSound";
 import TopicButton from "./TopicButton";
+import { useSoundEffect } from "@/hooks/useSoundEffect";
 
 interface TopicItem {
   id: string;
@@ -44,6 +44,8 @@ const PLAY_COST = 2;
 
 export default function TopicList() {
   const dispatch = useDispatch();
+  const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
+  const errorSound = useSoundEffect(require("@/assets/sounds/soundError2.mp3"));
   const router = useRouter();
   const {isVip} = useSelector((state:IRootState)=>state.vip)
 
@@ -124,7 +126,7 @@ const closeModal = () => {
 
 const playTopic = (topicId: string) => {
   if (!hasEnoughEnergy) {
-    playSound(require("@/assets/sounds/soundError2.mp3"));
+    errorSound.play();
     showCustomWarning(isEs 
       ? "No tienes suficiente energía" 
       : "Not enough energy"
@@ -133,7 +135,7 @@ const playTopic = (topicId: string) => {
   }
 
   if (!isAllowedUser) {
-    playSound(require("@/assets/sounds/soundError2.mp3"));
+    errorSound.play();
     showCustomWarning(isEs 
       ? "Debes ser VIP o haber comprado el juego" 
       : "You must be VIP or have purchased the game"
@@ -145,7 +147,7 @@ const playTopic = (topicId: string) => {
   dispatch(selectTopic(topicId as any));
 
   setVisible(false);
-  playSound(require("@/assets/sounds/soundWind.mp3"));
+  windSound.play();
   router.push("/GameRoom");
 };
 
@@ -262,7 +264,7 @@ const playTopic = (topicId: string) => {
       {/* BOTÓN */}
       <TopicButton onPress={() => {
         setVisible(true);
-        playSound(require("@/assets/sounds/soundWind.mp3"));
+        windSound.play();
       }}/>
 
       {/* MODAL */}
@@ -270,7 +272,7 @@ const playTopic = (topicId: string) => {
         <View style={styles.overlay}>
           <TouchableWithoutFeedback onPress={() => {
             closeModal()
-            playSound(require("@/assets/sounds/soundWind.mp3"));
+            windSound.play();
           }}>
             <View style={StyleSheet.absoluteFillObject} />
           </TouchableWithoutFeedback>
@@ -288,7 +290,7 @@ const playTopic = (topicId: string) => {
 
               <TouchableOpacity onPress={() => {
                 closeModal()
-                playSound(require("@/assets/sounds/soundWind.mp3"));
+                windSound.play();
               }}>
                 <Ionicons name="close" size={22} color="#E2E8F0" />
               </TouchableOpacity>
