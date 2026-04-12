@@ -13,7 +13,6 @@ import musicSlice from "@/store/reducers/musicSlice";
 import vipSlice from "@/store/reducers/vipSlice";
 import topicSlice from "@/store/reducers/topicsSlice";
 import timerSlice from "@/store/reducers/timerSlice";
-import favoritesSlice from "@/store/reducers/favoritesSlice";
 
 // 🔥 combinas reducers
 const rootReducer = combineReducers({
@@ -24,7 +23,6 @@ const rootReducer = combineReducers({
   vip: vipSlice,
   topics: topicSlice,
   timer: timerSlice,
-  favorites: favoritesSlice,
 });
 
 // 🔥 config de persistencia

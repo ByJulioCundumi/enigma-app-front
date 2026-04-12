@@ -1,6 +1,5 @@
 import { ICurrentPage } from "./reducers/currentPageSlice";
 import { IEnergyState } from "./reducers/energySlice";
-import { IFavoritesState } from "./reducers/favoritesSlice";
 import { ILanguageState } from "./reducers/languageSlice";
 import { IMusicState } from "./reducers/musicSlice";
 import { ITimerState } from "./reducers/timerSlice";
@@ -15,5 +14,4 @@ export interface IRootState {
   vip: IVipState,
   topics: ITopicsState,
   timer: ITimerState,
-  favorites: IFavoritesState,
 }

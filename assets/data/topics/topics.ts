@@ -1,9 +1,5 @@
 import { randomLevelsEs } from "./es/randomLevelsEs";
 import { randomLevelsEn } from "./en/randomLevelsEn";
-import { animalsLevelsEs } from "./es/animalsLevelsEs";
-import { animalsLevelsEn } from "./en/animalsLevelsEn";
-import { spaceLevelsEs } from "./es/spaceLevelsEs";
-import { spaceLevelsEn } from "./en/spaceLevelsEn";
 
 export const getTopics = (language: string) => {
   const isEs = language === "es";
@@ -13,21 +9,6 @@ export const getTopics = (language: string) => {
       id: "random",
       name: isEs ? "Aleatorio" : "Random",
       levels: isEs ? randomLevelsEs : randomLevelsEn,
-      image: require("@/assets/images/topics/random.jpg")
-    },
-
-    animals: {
-      id: "animals",
-      name: isEs ? "Animales" : "Animals",
-      levels: isEs ? animalsLevelsEs : animalsLevelsEn,
-      image: require("@/assets/images/topics/animals.jpg")
-    },
-
-    space: {
-      id: "space",
-      name: isEs ? "Espacio" : "Space",
-      levels: isEs ? spaceLevelsEs : spaceLevelsEn,
-      image: require("@/assets/images/topics/space.jpg")
     },
   } as const;
 };

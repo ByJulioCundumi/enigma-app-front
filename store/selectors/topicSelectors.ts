@@ -31,5 +31,10 @@ export const selectCurrentLevel = (state: IRootState) => {
 
 export const selectIsTopicCompleted = (state: IRootState) => {
   const topicId = state.topics.selectedTopic;
-  return state.topics.progress[topicId]?.completed ?? false;
+  const progress = state.topics.progress[topicId];
+
+  const topics = getTopics("es"); // o dinámico
+  const totalLevels = topics[topicId]?.levels.length ?? 0;
+
+  return progress.currentLevel >= totalLevels;
 };

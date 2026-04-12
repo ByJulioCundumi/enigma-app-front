@@ -1,6 +1,7 @@
 import { IRootState } from "@/store/rootState";
 import {
   selectCurrentLevel,
+  selectIsTopicCompleted,
 } from "@/store/selectors/topicSelectors";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
@@ -13,8 +14,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSelector } from "react-redux";
-import TopicList from "./TopicList";
-
+import LevelInfo from "./LevelInfo";
 export default function LevelCard() {
   const { width, height } = useWindowDimensions();
   const MAX_WIDTH = 500;
@@ -38,6 +38,7 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
   );
 
   const currentLevelIndex = topicProgress?.currentLevel ?? 0;
+  const { language } = useSelector((state: IRootState) => state.language);
 
   const prevLevelRef = useRef(currentLevelIndex);
   const currentOrderRef = useRef([0, 1, 2, 3]);
@@ -52,6 +53,10 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
   const gapY = (cardHeight - boxHeight * 2) / 3;
 
   const words = levelData?.words ?? ["Casa", "Perro", "Sol", "Árbol"];
+
+  const isEs = language === "es";
+    const isTopicCompleted = useSelector(selectIsTopicCompleted);
+    const showCongrats = isTopicCompleted;
 
   const positions = [
     { x: gapX, y: gapY },
@@ -141,13 +146,22 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
 
   return (
     <View style={styles.wrapper}>
-      <TopicList />
+      <LevelInfo />
 
       <View style={[styles.card, { width: cardWidth, height: cardHeight }]}>
         <View style={styles.topics}>
           <View style={styles.circle}></View>
         </View>
-        {items.map((item, index) => {
+        {
+         showCongrats ? (
+            <View style={styles.congratsContainer}>
+              <Text style={styles.congratsTitle}>{isEs ? "🎉 ¡Felicidades! 🎉" : "🎉 Congratulations! 🎉"}</Text>
+              <Text style={styles.congratsSubtitle}>
+                {isEs ? "Has completado todo el juego :)" : "You've completed the entire game :)"}
+              </Text>
+            </View>
+          ) : 
+        items.map((item, index) => {
           return (
             <Animated.View
               key={index}
@@ -250,6 +264,28 @@ circle:{
   height: 27,
   borderRadius: 100,
   backgroundColor: "#ffffff1c"
+},
+
+congratsContainer: {
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: 20,
+},
+
+congratsTitle: {
+  fontSize: 25,
+  fontWeight: "900",
+  color: "#17ccbd",
+  marginBottom: 10,
+},
+
+congratsSubtitle: {
+  fontSize: 14,
+  color: "#ffffffcc",
+  textAlign: "center",
 },
 
   clueBox: {

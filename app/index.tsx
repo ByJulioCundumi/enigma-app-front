@@ -80,10 +80,10 @@ export default function Index() {
   return (
     <LinearGradient
       colors={[
-        "#1954dd",
+        "#1d77ee",
         "#477dfc",
         "#477dfc",
-        "#2264ff",
+        "#22b9ff",
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}

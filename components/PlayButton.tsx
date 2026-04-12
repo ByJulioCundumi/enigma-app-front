@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { consumeEnergy } from "@/store/reducers/energySlice";
 import { useSoundEffect } from "@/hooks/useSoundEffect";
+import { selectIsTopicCompleted } from "@/store/selectors/topicSelectors";
 
 export default function PlayButton() {
   const router = useRouter();
@@ -135,10 +136,6 @@ export default function PlayButton() {
   }, 100);
 };
 
-  const { selectedTopic, progress } = useSelector(
-  (state: IRootState) => state.topics
-);
-
 const showCompletedMessage = () => {
   setShowMessage(true);
 
@@ -157,7 +154,7 @@ const showCompletedMessage = () => {
   setTimeout(() => setShowMessage(false), 2000);
 };
 
-const isTopicCompleted = progress[selectedTopic]?.completed ?? false;
+const isTopicCompleted = useSelector(selectIsTopicCompleted);
 
   return (
     <View style={styles.card}>
@@ -168,8 +165,8 @@ const isTopicCompleted = progress[selectedTopic]?.completed ?? false;
           <Text style={styles.toastText}>
             {isTopicCompleted
               ? (isEs
-                  ? "Esta temática ya fue completada"
-                  : "This topic is already completed")
+                  ? "Haz completado el juego :)"
+                  : "You've completed the game :)")
               : (isEs
                   ? "No tienes suficiente energía"
                   : "You don't have enough energy")}

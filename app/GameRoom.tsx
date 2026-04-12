@@ -127,19 +127,20 @@ export default function GameRoom() {
 
   /* ---------- SELECTORS ---------- */
   const levelData = useSelector(selectCurrentLevel);
-  const energy = useSelector((state: any) => state.energy.energy);
-  const isTopicCompleted = useSelector(selectIsTopicCompleted);
-
+  
   const { startTimestamp, endTimestamp, extraTimeUsed } = useSelector(
     (state: IRootState) => state.timer
   );
-
+  
   const { isVip } = useSelector((state: IRootState) => state.vip);
   const [showConfetti, setShowConfetti] = useState(false);
-
+  
   const word = levelData?.word ?? "";
   const cleanWordLength = word.replace(/ /g, "").length;
+  const energy = useSelector((state: any) => state.energy.energy);
   const shouldShowArrows = cleanWordLength > 7;
+  
+  const isTopicCompleted = useSelector(selectIsTopicCompleted);
 
   /* ---------- DERIVED ---------- */
   const remainingLetters = letters.filter(
@@ -159,31 +160,36 @@ export default function GameRoom() {
   const clickSoundTwo = useSoundEffect(require("@/assets/sounds/soundClick5.mp3"));
   const clickSoundThree = useSoundEffect(require("@/assets/sounds/soundClick6.mp3"));
 
+  const gameEnabled = !isTopicCompleted && timerActive;
+
   /* ================= EFFECTS ================= */
   useEffect(() => {
-    dispatch(setCurrentPage("gameMode"));
-    timeSound.play()
+  dispatch(setCurrentPage("gameMode"));
 
-    return () => {
-      dispatch(resetTimer());
-      dispatch(resetSelectedTopic());
-      timeSound.pause()
-    };
-  }, []);
+  if (!isTopicCompleted) {
+    timeSound.play();
+  }
+
+  return () => {
+    dispatch(resetTimer());
+    dispatch(resetSelectedTopic());
+    timeSound.pause();
+  };
+}, [isTopicCompleted]);
 
   useEffect(() => {
-    if (!word) return;
+  if (!word || isTopicCompleted) return;
 
-    dispatch(startLevelTimer(TOTAL_TIME));
+  dispatch(startLevelTimer(TOTAL_TIME));
 
-    setLetters(
-      word.split("").map((l) => (l === " " ? " " : ""))
-    );
+  setLetters(
+    word.split("").map((l) => (l === " " ? " " : ""))
+  );
 
-    setSelectedIndex(0);
-    setKeyboardLetters(generateKeyboardLetters(word));
-    setValidationState("idle");
-  }, [word]);
+  setSelectedIndex(0);
+  setKeyboardLetters(generateKeyboardLetters(word));
+  setValidationState("idle");
+}, [word, isTopicCompleted]);
 
   /* ================= HELPERS INTERNOS ================= */
 
@@ -213,9 +219,9 @@ export default function GameRoom() {
       row.map((k) => ({ ...k }))
     );
 
-  useEffect(() => {
-    if (!timerActive) return;
-    if (!startTimestamp || !endTimestamp) return;
+useEffect(() => {
+  if (!timerActive || isTopicCompleted) return;
+  if (!startTimestamp || !endTimestamp) return;
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -298,8 +304,7 @@ export default function GameRoom() {
     row: number,
     col: number
   ) => {
-    if (!timerActive) return;
-
+    if (!timerActive || isTopicCompleted) return;
     const newLetters = [...letters];
     if (newLetters[selectedIndex] === " ") return;
 
@@ -328,6 +333,7 @@ export default function GameRoom() {
   };
 
   const removeLetter = (index: number) => {
+    if (!gameEnabled) return;
     const removedLetter = letters[index];
 
     if (!removedLetter || removedLetter === " ") return;
@@ -352,6 +358,7 @@ export default function GameRoom() {
   };
 
   const clearLetters = (sound: boolean) => {
+    if (!gameEnabled) return;
     setLetters(
       word.split("").map((l) => (l === " " ? " " : ""))
     );
@@ -367,6 +374,7 @@ export default function GameRoom() {
 
   const useHint = () => {
     if (energy <= 0 || remainingLetters <= 2) return;
+    if (!gameEnabled) return;
 
     const availableIndexes = letters
       .map((l, i) =>
@@ -406,6 +414,7 @@ export default function GameRoom() {
 
   const addExtraTime = () => {
     if (energy <= 0 || extraTimeUsed >= MAX_TIME_USES) return;
+    if (!gameEnabled) return;
 
     dispatch(addExtraTimeToTimer(EXTRA_TIME));
     dispatch(consumeEnergy(1));
