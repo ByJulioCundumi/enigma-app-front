@@ -188,17 +188,6 @@ export default function VipButton({ onBuyGame }: Props) {
 
               <View style={styles.benefitCard}>
                 <MaterialCommunityIcons
-                  name="palette"
-                  size={18}
-                  color="#5cacf6"
-                />
-                <Text style={styles.benefitTitle}>
-                  {isEs ? "Temáticas exclusivas" : "Exclusive themes"}
-                </Text>
-              </View>
-
-              <View style={styles.benefitCard}>
-                <MaterialCommunityIcons
                   name="crown"
                   size={18}
                   color="#FFD700"
