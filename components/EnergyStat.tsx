@@ -28,6 +28,7 @@ const formatNumber = (num: number) => {
 export default function EnergyStat() {
   const dispatch = useDispatch();
   const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
+  const [adErrorVisible, setAdErrorVisible] = useState(false);
 
   const energy = useSelector(
     (state: IRootState) => state.energy.energy
@@ -40,6 +41,14 @@ export default function EnergyStat() {
   const { isVip } = useSelector(
   (state: IRootState) => state.vip
 );
+
+const showAdErrorMessage = () => {
+  setAdErrorVisible(true);
+
+  setTimeout(() => {
+    setAdErrorVisible(false);
+  }, 2000);
+};
 
 const [noInternetVisible, setNoInternetVisible] = useState(false);
 
@@ -67,9 +76,11 @@ const handleGetEnergy = async () => {
     if (finished) return;
 
     console.log("⏰ Ad timeout");
+    finished = true;
 
     setLoading(false);
-  }, 8000); // ⏱ 8 segundos (ideal)
+    showAdErrorMessage();
+  }, 10000); 
 
   try {
     if (isVip) {
@@ -85,6 +96,7 @@ const handleGetEnergy = async () => {
     const isConnected = await isConnectedToInternet();
 
     if (!isConnected) {
+      finished = true;
       showNoInternetMessage();
       clearTimeout(timeout);
       setLoading(false);
@@ -229,20 +241,36 @@ const handleGetEnergy = async () => {
 
           </Pressable>
         </Pressable>
-      {noInternetVisible && (
-  <View style={styles.noInternetToast}>
-    <MaterialCommunityIcons
-      name="wifi-off"
-      size={16}
-      color="#fff"
-    />
-    <Text style={styles.noInternetText}>
-      {isEs
-        ? "Se requiere conexión a internet"
-        : "Internet connection required"}
-    </Text>
-  </View>
-)}
+
+        {noInternetVisible && (
+          <View style={styles.noInternetToast}>
+            <MaterialCommunityIcons
+              name="wifi-off"
+              size={16}
+              color="#fff"
+            />
+            <Text style={styles.noInternetText}>
+              {isEs
+                ? "Se requiere conexión a internet"
+                : "Internet connection required"}
+            </Text>
+          </View>
+        )}
+
+        {adErrorVisible && (
+          <View style={styles.noInternetToast}>
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={16}
+              color="#fff"
+            />
+            <Text style={styles.noInternetText}>
+              {isEs
+                ? "No se pudo cargar el anuncio"
+                : "Ad failed to load"}
+            </Text>
+          </View>
+        )}
       </Modal>
 
     </>

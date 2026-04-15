@@ -44,10 +44,10 @@ const cardWidth = Math.min(width * 0.9, MAX_WIDTH);
   const currentOrderRef = useRef([0, 1, 2, 3]);
 
   // 🔥 tamaños escalados
-  const cardHeight = 242 * scale;
+  const cardHeight = 250 * scale;
 
   const boxWidth = cardWidth * 0.42;
-  const boxHeight = 97 * scale;
+  const boxHeight = 100 * scale;
 
   const gapX = (cardWidth - boxWidth * 2) / 3;
   const gapY = (cardHeight - boxHeight * 2) / 3;

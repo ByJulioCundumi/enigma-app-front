@@ -27,6 +27,8 @@ export default function Index() {
   const {language} = useSelector(
       (state: IRootState) => state.language
     );
+    
+   const {enabled} = useSelector((state:IRootState)=>state.music)
   
     const isEs = language === "es";
 
@@ -58,14 +60,24 @@ export default function Index() {
     );
   }, []);
 
-  useEffect(() => {
+  useEffect(()=>{
     dispatch(setCurrentPage("index"));
-    bgMusic.play();
+    if(enabled){
+      bgMusic.play();
+    }
 
     return ()=>{
       bgMusic.pause();
     }
-  }, []);
+  },[])
+
+  useEffect(()=>{
+    if(enabled){
+      bgMusic.play();
+    } else {
+      bgMusic.pause();
+    }
+  },[enabled])
 
 
   const logoStyle = useAnimatedStyle(() => {
@@ -80,10 +92,10 @@ export default function Index() {
   return (
     <LinearGradient
       colors={[
-        "#1d77ee",
-        "#477dfc",
-        "#477dfc",
-        "#22b9ff",
+        "#6338ff",
+        "#4771fc",
+        "#4771fc",
+        "#6338ff",
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
