@@ -13,7 +13,7 @@
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.enigma.guesstheword",
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {},
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
