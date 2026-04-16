@@ -7,7 +7,7 @@ import * as NavigationBar from "expo-navigation-bar";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform, View, StyleSheet } from "react-native";
-//import InterstitialManager from "@/components/InterstitialManager";
+import InterstitialManager from "@/components/InterstitialManager";
 
 export default function RootLayout() {
 
@@ -39,9 +39,7 @@ export default function RootLayout() {
         <View style={styles.container}>
           <StatusBar hidden />
 
-          {/* 
-            <InterstitialManager />
-          */}
+          <InterstitialManager />
 
           <Stack
             screenOptions={{

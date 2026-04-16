@@ -14,7 +14,7 @@ import { IRootState } from "@/store/rootState";
 import { addEnergy } from "@/store/reducers/energySlice";
 import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
 import { useSoundEffect } from "@/hooks/useSoundEffect";
-//import { showRewardedAd } from "@/ads/rewardedAd";
+import { showRewardedAd } from "@/ads/rewardedAd";
 
 const ENERGY_REWARD = 3;
 const VIP_REWARD = 100;
@@ -103,7 +103,6 @@ const handleGetEnergy = async () => {
       return;
     }
 
-    /*
     showRewardedAd(() => {
       if (finished) return;
 
@@ -116,7 +115,6 @@ const handleGetEnergy = async () => {
       setLoading(false);
       setVisible(false);
     });
-    */
 
   } catch (e) {
     clearTimeout(timeout);
