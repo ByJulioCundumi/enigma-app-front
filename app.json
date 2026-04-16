@@ -4,7 +4,7 @@
     "slug": "enigma-app",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/appIcon.png",
+    "icon": "./assets/images/appIcon.jpg",
     "scheme": "enigmaapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -20,7 +20,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/appIcon.png"
+      "favicon": "./assets/images/appIcon.jpg"
     },
     "plugins": [
       "expo-router",

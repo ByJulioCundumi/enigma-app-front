@@ -27,7 +27,7 @@ export default function Index() {
   const {language} = useSelector(
       (state: IRootState) => state.language
     );
-    
+
    const {enabled} = useSelector((state:IRootState)=>state.music)
   
     const isEs = language === "es";
@@ -38,7 +38,7 @@ export default function Index() {
   const logoMarginTop = isSmall ? -20 : 0;
 
   // 🔥 tamaños del logo según dispositivo
-  let logoWidth = 400;
+  let logoWidth = 350;
   let logoHeight = 230;
 
   if (isSmall) {
@@ -111,6 +111,7 @@ export default function Index() {
             width: logoWidth,
             height: logoHeight,
             marginTop: logoMarginTop, // 👈 aquí
+            marginLeft: -15
           },
           logoStyle,
         ]}
@@ -132,12 +133,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 120,
+    paddingTop: 135,
   },
 
   gameSection: {
     gap: 15,
-    marginTop: -23,
+    marginTop: -35,
   },
   textCta:{
     color: "white",
