@@ -4,7 +4,7 @@
     "slug": "enigma-app",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/appIcon.jpg",
+    "icon": "./assets/images/appIcon.png",
     "scheme": "enigmaapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,14 +13,14 @@
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.enigma.guesstheword",
-      "versionCode": 6,
+      "versionCode": 7,
       "adaptiveIcon": {},
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/appIcon.jpg"
+      "favicon": "./assets/images/appIcon.png"
     },
     "plugins": [
       "expo-router",
@@ -28,8 +28,8 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo4.jpg",
-          "imageWidth": 200,
+          "image": "./assets/images/logo3.jpg",
+          "imageWidth": 250,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {

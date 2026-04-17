@@ -58,8 +58,8 @@ const shuffle = (array: string[]) =>
   [...array].sort(() => Math.random() - 0.5);
 
 
-const TOTAL_TIME = 30;
-const EXTRA_TIME = 30;
+const TOTAL_TIME = 60;
+const EXTRA_TIME = 60;
 const MAX_TIME = 120;
 const MAX_TIME_USES = 3;
 
