@@ -39,14 +39,14 @@ export default function Index() {
 
   // 🔥 tamaños del logo según dispositivo
   let logoWidth = 350;
-  let logoHeight = 230;
+  let logoHeight = 220;
 
   if (isSmall) {
     logoWidth = 300;
-    logoHeight = 170;
+    logoHeight = 150;
   } else if (isLarge) {
     logoWidth = 520;
-    logoHeight = 280;
+    logoHeight = 240;
   }
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function Index() {
         "#6338ff",
         "#4771fc",
         "#4771fc",
-        "#6338ff",
+        "#5638ff",
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}

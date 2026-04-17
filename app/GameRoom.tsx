@@ -60,7 +60,7 @@ const shuffle = (array: string[]) =>
 
 const TOTAL_TIME = 60;
 const EXTRA_TIME = 60;
-const MAX_TIME = 120;
+const MAX_TIME = 180;
 const MAX_TIME_USES = 3;
 
 /* ================= HELPERS ================= */
@@ -147,7 +147,7 @@ export default function GameRoom() {
     (l, i) => word[i] !== " " && l === ""
   ).length;
 
-  const hintDisabled = remainingLetters <= 2 || energy <= 0;
+  const hintDisabled = remainingLetters <= 1 || energy <= 0;
   const timeDisabled = extraTimeUsed >= MAX_TIME_USES || energy <= 0;
 
   const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
@@ -283,17 +283,19 @@ useEffect(() => {
       triggerShake();
       Vibration.vibrate(100);
     } else {
-      setShowConfetti(true);
       setValidationState("correct");
       setTimerActive(false);
       setLevelSuccess(true);
-
+      
       isVip
-        ? dispatch(addEnergy(2))
-        : dispatch(addEnergy(1));
-
+      ? dispatch(addEnergy(2))
+      : dispatch(addEnergy(1));
+      
       levelUpSound.play();
       timeSound.pause();
+      setTimeout(() => {
+    setShowConfetti(true);
+  }, 300);
     }
   };
 
@@ -373,7 +375,7 @@ useEffect(() => {
   };
 
   const useHint = () => {
-    if (energy <= 0 || remainingLetters <= 2) return;
+    if (energy <= 0 || remainingLetters <= 1) return;
     if (!gameEnabled) return;
 
     const availableIndexes = letters
@@ -554,7 +556,7 @@ useEffect(() => {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#0f172a" },
   container: { flex: 1, paddingTop: 30,  },
-  scrollContent: { flexGrow: 1, alignItems: "center"},
+  scrollContent: { flexGrow: 1, alignItems: "center", height: 740},
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

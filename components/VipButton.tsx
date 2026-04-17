@@ -18,13 +18,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "@/store/rootState";
 import { openVipModal, closeVipModal, setVip } from "@/store/reducers/vipSlice";
 import { useSoundEffect } from "@/hooks/useSoundEffect";
-import { useVipIAP } from "@/hooks/useVipIAP";
+//import { useVipIAP } from "@/hooks/useVipIAP";
 
 interface Props {
   onBuyGame?: () => void;
 }
 
 export default function VipButton({ onBuyGame }: Props) {
+  /*
   const { 
   buyVip, 
   restoreVipPurchases, 
@@ -33,6 +34,7 @@ export default function VipButton({ onBuyGame }: Props) {
   success,
   clearMessages
 } = useVipIAP();
+ */
   const dispatch = useDispatch();
   const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
 
@@ -49,6 +51,7 @@ export default function VipButton({ onBuyGame }: Props) {
 
   const isEs = language === "es";
 
+  /*
   const vipProduct = products.find(p => p.id === "enigma_vip_unlock");
 
   useEffect(() => {
@@ -60,6 +63,7 @@ export default function VipButton({ onBuyGame }: Props) {
     return () => clearTimeout(timer);
   }
 }, [error, success]);
+*/
 
   // 🛒 COMPRAR
   const handleBuy = async () => {
@@ -69,7 +73,7 @@ export default function VipButton({ onBuyGame }: Props) {
     setLoadingBuy(true);
 
     try {
-      await buyVip(); // ✅ AQUÍ
+      //await buyVip(); // ✅ AQUÍ
     } catch (e) {
       console.log("Compra cancelada o error");
     } finally {
@@ -85,7 +89,7 @@ export default function VipButton({ onBuyGame }: Props) {
     setLoadingRestore(true);
 
     try {
-      await restoreVipPurchases(); // ✅ AQUÍ
+      //await restoreVipPurchases(); // ✅ AQUÍ
     } catch (e) {
       console.log("Error restaurando");
     } finally {
@@ -100,7 +104,7 @@ export default function VipButton({ onBuyGame }: Props) {
         style={styles.vipButton}
         activeOpacity={0.9}
         onPress={() => {
-          clearMessages(); // 👈 agrega esto
+          //clearMessages(); // 👈 agrega esto
           dispatch(openVipModal());
           windSound.play();
         }}
@@ -212,10 +216,10 @@ export default function VipButton({ onBuyGame }: Props) {
                         color="black"
                       />
                       <Text style={styles.buyText}>
-                        { isEs
+                        {/* isEs
                           ? `Comprar por ${vipProduct?.displayPrice || "$9.99"}`
                           : `Buy for ${vipProduct?.displayPrice || "$9.99"}`
-                        } 
+                        */} 
                       </Text>
                     </>
                   )}
@@ -240,7 +244,7 @@ export default function VipButton({ onBuyGame }: Props) {
               </>
             )}
 
-            { (error || success) && (
+            {/* (error || success) && (
               <View style={styles.vipMessageContainer}>
                 <Text
                   style={[
@@ -257,7 +261,7 @@ export default function VipButton({ onBuyGame }: Props) {
                   </Text>
                 </TouchableOpacity>
               </View>
-            ) }
+            ) */}
           </Pressable>
         </Pressable>
       </Modal>

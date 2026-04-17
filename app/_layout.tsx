@@ -39,7 +39,11 @@ export default function RootLayout() {
         <View style={styles.container}>
           <StatusBar hidden />
 
-          <InterstitialManager />
+          {
+            /*
+            <InterstitialManager />
+            */
+          }
 
           <Stack
             screenOptions={{
