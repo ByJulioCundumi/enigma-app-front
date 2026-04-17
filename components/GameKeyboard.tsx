@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 
 type Key = {
@@ -24,6 +25,18 @@ export default function GameKeyboard({
   letters,
   onPressKey,
 }: Props) {
+  const { width } = useWindowDimensions();
+
+  // 🔹 Ancho base (Samsung A15 aprox)
+  const BASE_WIDTH = 360;
+
+  // 🔹 Escala proporcional (con límites para que no se rompa)
+  const scale = Math.min(Math.max(width / BASE_WIDTH, 0.85), 1.6);
+
+  const dynamicFontSize = 18 * scale;
+  const dynamicKeyWidth = 32 * scale;
+  const dynamicKeyHeight = 38 * scale;
+
   return (
     <View style={styles.container}>
       {letters.map((row, rowIndex) => (
@@ -33,6 +46,10 @@ export default function GameKeyboard({
               key={`${rowIndex}-${colIndex}`}
               style={[
                 styles.key,
+                {
+                  width: dynamicKeyWidth,
+                  height: dynamicKeyHeight,
+                },
                 key.used && styles.keyUsed,
               ]}
               disabled={key.used}
@@ -40,7 +57,12 @@ export default function GameKeyboard({
                 onPressKey(key.letter, rowIndex, colIndex)
               }
             >
-              <Text style={styles.keyText}>
+              <Text
+                style={[
+                  styles.keyText,
+                  { fontSize: dynamicFontSize },
+                ]}
+              >
                 {key.letter}
               </Text>
             </TouchableOpacity>
@@ -69,8 +91,6 @@ const styles = StyleSheet.create({
   },
 
   key: {
-    width: 35,
-    height: 40,
     marginHorizontal: 3,
     borderRadius: 10,
     backgroundColor: "#334155",
@@ -84,7 +104,6 @@ const styles = StyleSheet.create({
 
   keyText: {
     color: "#fff",
-    fontSize: 18,
     fontWeight: "bold",
   },
 });

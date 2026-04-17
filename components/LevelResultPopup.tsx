@@ -259,8 +259,8 @@ const styles = StyleSheet.create({
   },
 
   imgContainer: {
-    width: 280,
-    height: 240,
+    width: 320,
+    height: 230,
     marginBottom: 26,
     borderRadius: 16,
     overflow: "hidden",
