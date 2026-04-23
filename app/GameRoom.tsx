@@ -464,7 +464,7 @@ useEffect(() => {
 
   return (
     <LinearGradient
-      colors={["#0c1936", "#0f172a", "#0f172a", "#0f172a"]}
+      colors={["#0f1a31", "#0f172a", "#111829", "#141a29"]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}

@@ -6,7 +6,7 @@ import { setCurrentPage } from "@/store/reducers/currentPageSlice";
 import { IRootState } from "@/store/rootState";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
-import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { ImageBackground, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -38,7 +38,7 @@ export default function Index() {
   const logoMarginTop = isSmall ? -20 : 0;
 
   // 🔥 tamaños del logo según dispositivo
-  let logoWidth = 350;
+  let logoWidth = 320;
   let logoHeight = 220;
 
   if (isSmall) {
@@ -90,12 +90,17 @@ export default function Index() {
   });
 
   return (
+    <ImageBackground
+      source={require("../assets/images/bg.jpg")}
+      style={styles.bgImage}
+      resizeMode="cover"
+    >
     <LinearGradient
       colors={[
-        "#6338ff",
-        "#4771fc",
-        "#4771fc",
-        "#5638ff",
+        "#014da360",
+        "#0032744b",
+        "#0057c93b",
+        "#0051ad80",
       ]}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
@@ -126,6 +131,7 @@ export default function Index() {
 
       <PlayButton />
     </LinearGradient>
+      </ImageBackground>
   );
 }
 
@@ -149,5 +155,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 15,
     marginTop: 25
+  },
+  bgImage: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
   }
 });

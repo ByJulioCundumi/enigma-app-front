@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 20,
     paddingBottom: 25,
-    backgroundColor: "#1e293b",
+    backgroundColor: "#1a2433",
     gap: 8,
   },
 
@@ -91,11 +91,13 @@ const styles = StyleSheet.create({
   },
 
   key: {
-    marginHorizontal: 3,
-    borderRadius: 10,
+    marginHorizontal: 3.5,
+    borderRadius: 8,
     backgroundColor: "#334155",
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ffffff1a"
   },
 
   keyUsed: {
