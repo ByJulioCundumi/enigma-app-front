@@ -55,9 +55,6 @@ export default function InterstitialManager() {
   useEffect(() => {
     if (isVip) return;
 
-    // Mostrar al iniciar la app
-    showInterstitialSafe();
-
     // Mostrar cada 2 minutos
     const interval = setInterval(() => {
       showInterstitialSafe();
