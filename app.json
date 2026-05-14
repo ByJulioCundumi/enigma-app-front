@@ -14,7 +14,7 @@
         "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ],
       "package": "com.enigma.guesstheword",
-      "versionCode": 11,
+      "versionCode": 12,
       "adaptiveIcon": {},
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
