@@ -7,7 +7,7 @@ import {
 // 🎯 ID del anuncio intersticial
 // ✅ Test en desarrollo
 // 🔴 Reemplaza en producción
-const adUnitId = TestIds.REWARDED;
+const adUnitId = "ca-app-pub-4432010611800941/8763755918";
 
 // 🧠 Crear anuncio
 export const createInterstitialAd = () => {
