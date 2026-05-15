@@ -284,7 +284,7 @@ congratsTitle: {
 
 congratsSubtitle: {
   fontSize: 14,
-  color: "#ffffffcc",
+  color: "#ffffff",
   textAlign: "center",
 },
 
