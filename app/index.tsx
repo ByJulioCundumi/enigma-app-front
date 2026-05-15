@@ -38,7 +38,7 @@ export default function Index() {
   const logoMarginTop = isSmall ? -20 : 0;
 
   // 🔥 tamaños del logo según dispositivo
-  let logoWidth = 320;
+  let logoWidth = 350;
   let logoHeight = 220;
 
   if (isSmall) {
@@ -91,12 +91,7 @@ export default function Index() {
 
   return (
     <LinearGradient
-      colors={[
-        "#0077ff",
-        "#0071f3",
-        "#0077ff",
-        "#0077ff",
-      ]}
+      colors={["#0084ff7c", "#008cff9d", "#008cffc9", "#0084ffa6"]} 
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
@@ -111,7 +106,6 @@ export default function Index() {
             width: logoWidth,
             height: logoHeight,
             marginTop: logoMarginTop, // 👈 aquí
-            marginLeft: -15
           },
           logoStyle,
         ]}
@@ -133,12 +127,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 135,
+    paddingTop: 120,
   },
 
   gameSection: {
     gap: 15,
-    marginTop: -35,
+    marginTop: -15,
   },
   textCta:{
     color: "white",
