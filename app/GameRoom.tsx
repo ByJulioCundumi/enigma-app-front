@@ -147,8 +147,8 @@ export default function GameRoom() {
     (l, i) => word[i] !== " " && l === ""
   ).length;
 
-  const hintDisabled = remainingLetters <= 1 || energy <= 0;
-  const timeDisabled = extraTimeUsed >= MAX_TIME_USES || energy <= 0;
+  const hintDisabled = remainingLetters <= 1 || energy <= 1;
+  const timeDisabled = extraTimeUsed >= MAX_TIME_USES || energy <= 1;
 
   const windSound = useSoundEffect(require("@/assets/sounds/soundWind.mp3"));
   const actionSound = useSoundEffect(require("@/assets/sounds/soundDistorted.mp3"));
