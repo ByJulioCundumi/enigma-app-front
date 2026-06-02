@@ -41,7 +41,7 @@ export default function GameActions({
             size={10}
             color="#fff"
           />
-          <Text style={styles.badgeText}>1</Text>
+          <Text style={styles.badgeText}>2</Text>
         </View>
       </View>
 
@@ -61,7 +61,7 @@ export default function GameActions({
             size={10}
             color="#fff"
           />
-          <Text style={styles.badgeText}>1</Text>
+          <Text style={styles.badgeText}>2</Text>
         </View>
       </View>
     </View>

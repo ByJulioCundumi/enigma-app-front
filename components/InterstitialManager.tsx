@@ -58,7 +58,7 @@ export default function InterstitialManager() {
     // Mostrar cada 2 minutos
     const interval = setInterval(() => {
       showInterstitialSafe();
-    }, 120_000);
+    }, 100_000);
 
     return () => clearInterval(interval);
   }, [isVip]);

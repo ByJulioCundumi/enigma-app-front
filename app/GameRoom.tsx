@@ -287,10 +287,6 @@ useEffect(() => {
       setTimerActive(false);
       setLevelSuccess(true);
       
-      isVip
-      ? dispatch(addEnergy(2))
-      : dispatch(addEnergy(1));
-      
       levelUpSound.play();
       timeSound.pause();
       setTimeout(() => {
@@ -375,7 +371,7 @@ useEffect(() => {
   };
 
   const useHint = () => {
-    if (energy <= 0 || remainingLetters <= 1) return;
+    if (energy <= 1 || remainingLetters <= 1) return;
     if (!gameEnabled) return;
 
     const availableIndexes = letters
@@ -406,7 +402,7 @@ useEffect(() => {
 
     setKeyboardLetters(newKeyboard);
 
-    dispatch(consumeEnergy(1));
+    dispatch(consumeEnergy(2));
 
     moveCursorNext(randomIndex);
     checkWordCompletion(newLetters);
@@ -415,11 +411,11 @@ useEffect(() => {
   };
 
   const addExtraTime = () => {
-    if (energy <= 0 || extraTimeUsed >= MAX_TIME_USES) return;
+    if (energy <= 1 || extraTimeUsed >= MAX_TIME_USES) return;
     if (!gameEnabled) return;
 
     dispatch(addExtraTimeToTimer(EXTRA_TIME));
-    dispatch(consumeEnergy(1));
+    dispatch(consumeEnergy(2));
 
     actionSound.play();
   };
