@@ -16,7 +16,7 @@ import { isConnectedToInternet } from "@/utils/isConnectedToInternet";
 import { useSoundEffect } from "@/hooks/useSoundEffect";
 import { showRewardedAd } from "@/ads/rewardedAd";
 
-const ENERGY_REWARD = 4;
+const ENERGY_REWARD = 6;
 const VIP_REWARD = 100;
 
 const formatNumber = (num: number) => {
